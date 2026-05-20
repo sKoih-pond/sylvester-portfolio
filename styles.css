@@ -56,7 +56,7 @@ html[data-theme="day"] {
 }
 
 html[data-theme="sunset"] {
-  color-scheme: light;
+  color-scheme: dark;
   --page-bg: #2a211f;
   --surface: rgba(156, 90, 43, 0.28);
   --surface-strong: rgba(255, 184, 96, 0.28);
@@ -135,14 +135,32 @@ img { display: block; max-width: 100%; }
   margin: 28px auto;
 }
 
+/* Structural surfaces: full glass treatment with compositor blur.
+   Restrict backdrop-filter to these four surfaces only — each extra
+   blurred layer costs a compositor pass. */
 .glass-panel,
-.glass-card,
+.glass-card {
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.26), rgba(255,255,255,.04)),
+    var(--surface);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.42),
+    inset 0 -1px 0 rgba(255,255,255,.06),
+    var(--shadow-soft);
+  backdrop-filter: blur(var(--blur)) saturate(145%);
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(145%);
+}
+
+/* Leaf elements: same visual system, no backdrop-filter overhead.
+   These sit inside or adjacent to structural glass surfaces — the
+   perceived depth comes from the panels behind them, not their own blur. */
 .project-item,
 .experience-item,
 .glass-button,
 .theme-pill,
 .brand-mark,
-.skills-grid span,
+.skills-grid li,
 .tag-row span,
 .icon-box,
 .project-icon {
@@ -154,8 +172,6 @@ img { display: block; max-width: 100%; }
     inset 0 1px 0 rgba(255,255,255,.42),
     inset 0 -1px 0 rgba(255,255,255,.06),
     var(--shadow-soft);
-  backdrop-filter: blur(var(--blur)) saturate(145%);
-  -webkit-backdrop-filter: blur(var(--blur)) saturate(145%);
 }
 
 .site-header {
@@ -221,7 +237,7 @@ img { display: block; max-width: 100%; }
 .eyebrow span, .role-line span { opacity: .58; padding: 0 7px; }
 h1 { font-family: var(--font-serif); font-size: clamp(4rem, 8vw, 7.4rem); line-height: .9; letter-spacing: -.045em; margin: 0 0 18px; color: var(--text); }
 .role-line { font-size: clamp(1.08rem, 2vw, 1.38rem); color: var(--accent); margin: 0 0 24px; }
-.hero-summary { max-width: 540px; color: var(--text); line-height: 1.75; margin: 0; }
+.hero-summary { max-width: 540px; color: var(--muted); line-height: 1.75; margin: 0; }
 .cta-row { display: flex; flex-wrap: wrap; gap: 16px; margin: 32px 0 24px; }
 .glass-button {
   display: inline-flex;
@@ -252,10 +268,13 @@ h1 { font-family: var(--font-serif); font-size: clamp(4rem, 8vw, 7.4rem); line-h
   filter: blur(10px);
 }
 .portrait-wrap img { position: relative; height: min(96%, 550px); width: auto; object-fit: cover; object-position: center top; border-radius: 0 0 28px 28px; filter: drop-shadow(0 30px 42px rgba(43, 31, 25, .14)); mix-blend-mode: normal; }
+/* On dark themes the light shadow disappears — use a deeper drop shadow */
+html[data-theme="sunset"] .portrait-wrap img,
+html[data-theme="night"]  .portrait-wrap img { filter: drop-shadow(0 30px 52px rgba(0, 0, 0, .38)); }
 
 .content-grid {
   display: grid;
-  grid-template-columns: .7fr 1.3fr;
+  grid-template-columns: .8fr 1.2fr;
   grid-template-areas:
     "about projects"
     "experience skills";
@@ -268,12 +287,12 @@ h1 { font-family: var(--font-serif); font-size: clamp(4rem, 8vw, 7.4rem); line-h
 .experience-card { grid-area: experience; }
 .skills-card { grid-area: skills; }
 .section-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
-.section-heading h2 { margin: 0; text-transform: uppercase; letter-spacing: .08em; font-size: .88rem; }
+.section-heading h2 { margin: 0; text-transform: uppercase; letter-spacing: .08em; font-size: .88rem; font-weight: 700; }
 .icon-box { width: 34px; height: 34px; display: grid; place-items: center; color: var(--accent); border-radius: 12px; font-size: .9rem; }
 .glass-card p { color: var(--text); line-height: 1.65; margin: 0 0 14px; }
 .glass-card p:last-child { margin-bottom: 0; }
 .project-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-.project-item { display: grid; grid-template-columns: auto 1fr; gap: 14px; border-radius: 20px; padding: 16px; background: linear-gradient(145deg, rgba(255,255,255,.22), rgba(255,255,255,.03)), var(--surface-soft); }
+.project-item { display: grid; grid-template-columns: auto 1fr; gap: 14px; border-radius: 20px; padding: 16px; background: linear-gradient(145deg, rgba(255,255,255,.22), rgba(255,255,255,.03)), var(--surface-soft); cursor: default; }
 .project-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 16px; color: var(--accent); font-size: 1.25rem; }
 h3 { margin: 0 0 8px; font-size: 1rem; line-height: 1.35; }
 .project-item p, .experience-item p { font-size: .9rem; color: var(--muted); }
@@ -281,8 +300,8 @@ h3 { margin: 0 0 8px; font-size: 1rem; line-height: 1.35; }
 .tag-row span { padding: 6px 9px; border-radius: 999px; color: var(--muted); font-size: .75rem; }
 .experience-item { display: grid; grid-template-columns: auto 1fr; gap: 16px; border-radius: 20px; padding: 18px; background: linear-gradient(145deg, rgba(255,255,255,.20), rgba(255,255,255,.02)), var(--surface-soft); }
 .subtle { color: var(--muted) !important; font-weight: 600; }
-.skills-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-.skills-grid span { display: grid; place-items: center; min-height: 46px; border-radius: 15px; color: var(--text); font-weight: 600; font-size: .9rem; }
+.skills-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.skills-grid li { display: grid; place-items: center; min-height: 46px; border-radius: 15px; color: var(--text); font-weight: 600; font-size: .9rem; }
 .footer { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; padding: 18px 22px; border-radius: 24px; }
 .footer a { display: flex; align-items: center; justify-content: center; gap: 9px; color: var(--muted); font-size: .92rem; }
 .footer a:hover { color: var(--text); }
@@ -333,7 +352,20 @@ h3 { margin: 0 0 8px; font-size: 1rem; line-height: 1.35; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
+  /* Kill all keyframe animations (overlay entrance, nav open, etc.) */
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  /* Kill decorative transitions: theme colour shifts, weather fades,
+     ambient orbs, button hover lifts — none require motion to function */
+  body, body::after, .ambient,
+  .glass-button, .overlay-close, .site-nav a {
+    transition: none !important;
+  }
+  /* Preserve the skip-link slide — it is functional keyboard orientation,
+     not decoration. Left un-suppressed intentionally. */
+  html { scroll-behavior: auto !important; }
 }
 
 /* ---------- Overlay primitive ---------- */
@@ -440,7 +472,7 @@ body.overlay-open { overflow: hidden; }
   background: var(--surface-soft);
 }
 .role-card--current {
-  border-left: 3px solid var(--accent);
+  border: 1.5px solid var(--accent);
   background: var(--surface-strong);
 }
 .role-card h4 { margin: 0 0 3px; font-size: 1rem; line-height: 1.3; }
@@ -533,6 +565,8 @@ body.overlay-open { overflow: hidden; }
   font-size: .88rem;
   width: 100%;
 }
+/* Depth preview above the overlay trigger */
+.overlay-hint { margin: 10px 0 0; color: var(--muted); font-size: .82rem; }
 
 /* Open animation, honours reduced motion */
 .overlay-dialog[open] { animation: overlay-in 220ms ease-out; }
@@ -547,10 +581,7 @@ body.overlay-open { overflow: hidden; }
   to { opacity: 1; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .overlay-dialog[open],
-  .overlay-dialog[open]::backdrop { animation: none; }
-}
+/* Overlay reduced-motion handled by the consolidated block above. */
 
 /* Scoped focus styles for overlay (full pass in Task #5) */
 .overlay-panel a:focus-visible,

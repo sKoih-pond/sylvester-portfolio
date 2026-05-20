@@ -12,6 +12,22 @@ function getThemeForLocalHour(hour = new Date().getHours()) {
   }) || THEME_SCHEDULE[1];
 }
 
+// If the OS is set to dark mode and the time-based theme would be a light
+// one (morning or day), defer to night rather than forcing a bright palette
+// on a user who explicitly prefers dark. Sunset and night already read dark,
+// so they are left untouched.
+function getEffectiveTheme(hour = new Date().getHours()) {
+  const timeTheme = getThemeForLocalHour(hour);
+  if (
+    (timeTheme.name === "morning" || timeTheme.name === "day") &&
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  ) {
+    return THEME_SCHEDULE.find(t => t.name === "night") || timeTheme;
+  }
+  return timeTheme;
+}
+
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme.name;
   const label = document.getElementById("theme-label");
@@ -26,13 +42,20 @@ function scheduleNextThemeCheck() {
   next.setMinutes(0, 0, 0);
   next.setHours(now.getHours() + 1);
   window.setTimeout(() => {
-    applyTheme(getThemeForLocalHour());
+    applyTheme(getEffectiveTheme());
     scheduleNextThemeCheck();
   }, next.getTime() - now.getTime());
 }
 
-applyTheme(getThemeForLocalHour());
+applyTheme(getEffectiveTheme());
 scheduleNextThemeCheck();
+
+// Re-evaluate if the user toggles OS dark mode while the page is open
+if (window.matchMedia) {
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+    applyTheme(getEffectiveTheme());
+  });
+}
 
 const menuButton = document.querySelector(".menu-toggle");
 const nav = document.querySelector(".site-nav");
