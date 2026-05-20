@@ -38,15 +38,30 @@ const menuButton = document.querySelector(".menu-toggle");
 const nav = document.querySelector(".site-nav");
 
 if (menuButton && nav) {
-  menuButton.addEventListener("click", () => {
+  const closeNav = () => {
+    if (nav.classList.contains("is-open")) {
+      nav.classList.remove("is-open");
+      menuButton.setAttribute("aria-expanded", "false");
+    }
+  };
+
+  menuButton.addEventListener("click", event => {
+    event.stopPropagation();
     const isOpen = nav.classList.toggle("is-open");
     menuButton.setAttribute("aria-expanded", String(isOpen));
   });
 
   nav.addEventListener("click", event => {
-    if (event.target.matches("a")) {
-      nav.classList.remove("is-open");
-      menuButton.setAttribute("aria-expanded", "false");
+    if (event.target.matches("a")) closeNav();
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") closeNav();
+  });
+
+  document.addEventListener("click", event => {
+    if (!nav.contains(event.target) && !menuButton.contains(event.target)) {
+      closeNav();
     }
   });
 }

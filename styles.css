@@ -20,6 +20,7 @@
   --shadow-soft: 0 12px 40px rgba(86, 62, 44, 0.10);
   --hero-gradient: radial-gradient(circle at 76% 42%, rgba(255,255,255,.55), transparent 34%), linear-gradient(135deg, rgba(255,244,238,.95), rgba(247,239,232,.72) 46%, rgba(238,224,210,.58));
   --background: radial-gradient(circle at 18% 8%, rgba(255, 207, 183, 0.34), transparent 26%), radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.84), transparent 30%), var(--page-bg);
+  --chart-projects: #3f6f6c;
 }
 
 html[data-theme="morning"] {
@@ -35,6 +36,7 @@ html[data-theme="morning"] {
   --accent-soft: rgba(232, 154, 128, 0.20);
   --hero-gradient: radial-gradient(circle at 78% 40%, rgba(255,255,255,.72), transparent 33%), linear-gradient(135deg, rgba(255,239,232,.92), rgba(251,231,224,.72), rgba(255,247,244,.58));
   --background: radial-gradient(circle at 12% 18%, rgba(255, 195, 177, .34), transparent 30%), radial-gradient(circle at 82% 4%, rgba(255,255,255,.86), transparent 28%), #fbefe9;
+  --chart-projects: #466a78;
 }
 
 html[data-theme="day"] {
@@ -50,6 +52,7 @@ html[data-theme="day"] {
   --accent-soft: rgba(201, 160, 111, 0.18);
   --hero-gradient: radial-gradient(circle at 76% 42%, rgba(255,255,255,.65), transparent 34%), linear-gradient(135deg, rgba(255,250,244,.94), rgba(248,241,232,.76) 46%, rgba(237,227,216,.58));
   --background: radial-gradient(circle at 12% 12%, rgba(237, 215, 190, .34), transparent 24%), radial-gradient(circle at 88% 8%, rgba(255,255,255,.86), transparent 28%), #f8f2ea;
+  --chart-projects: #3f6f6c;
 }
 
 html[data-theme="sunset"] {
@@ -68,6 +71,8 @@ html[data-theme="sunset"] {
   --shadow-soft: 0 12px 40px rgba(47, 26, 17, 0.22);
   --hero-gradient: radial-gradient(circle at 72% 40%, rgba(255, 215, 156, .36), transparent 30%), linear-gradient(160deg, rgba(72,45,42,.80), rgba(222,124,66,.56) 48%, rgba(255,181,91,.42));
   --background: radial-gradient(circle at 50% 18%, rgba(255, 177, 91, .40), transparent 34%), radial-gradient(circle at 84% 0%, rgba(255, 218, 169, .18), transparent 28%), #2a211f;
+  --chart-projects: #f3d6a8;
+  --muted: #f0d7bb;
 }
 
 html[data-theme="night"] {
@@ -86,6 +91,8 @@ html[data-theme="night"] {
   --shadow-soft: 0 12px 40px rgba(0, 0, 0, 0.32);
   --hero-gradient: radial-gradient(circle at 74% 36%, rgba(231, 178, 125, .24), transparent 30%), linear-gradient(145deg, rgba(8,18,32,.92), rgba(13,32,52,.78) 48%, rgba(7,17,29,.72));
   --background: radial-gradient(circle at 52% 10%, rgba(64, 111, 160, .28), transparent 30%), radial-gradient(circle at 84% 0%, rgba(236, 176, 115, .16), transparent 26%), #07111d;
+  --chart-projects: #9fc5d2;
+  --muted: #d8c8b1;
 }
 
 * { box-sizing: border-box; }
@@ -327,4 +334,345 @@ h3 { margin: 0 0 8px; font-size: 1rem; line-height: 1.35; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
+}
+
+/* ---------- Overlay primitive ---------- */
+
+body.overlay-open { overflow: hidden; }
+
+.overlay-dialog {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--text);
+  width: min(960px, calc(100vw - 32px));
+  max-width: 100%;
+  max-height: calc(100vh - 32px);
+  overflow: visible;
+}
+
+.overlay-dialog::backdrop {
+  background: rgba(20, 16, 12, 0.42);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+.overlay-panel {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 32px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 26px 30px;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.28), rgba(255,255,255,.04)),
+    var(--surface-strong);
+  backdrop-filter: blur(var(--blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(150%);
+  box-shadow: var(--shadow);
+}
+
+.overlay-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 18px;
+}
+.overlay-header h2 {
+  margin: 0 0 4px;
+  font-family: var(--font-serif);
+  font-size: 1.45rem;
+  letter-spacing: 0;
+  text-transform: none;
+  line-height: 1.2;
+}
+.overlay-subtitle { margin: 0; color: var(--muted); font-size: .9rem; }
+
+.overlay-close {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 180ms ease, transform 180ms ease;
+}
+.overlay-close:hover { background: var(--surface-strong); transform: scale(1.04); }
+
+.overlay-body { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
+
+.overlay-section-title {
+  margin: 0 0 12px;
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+/* Experience overlay grid */
+.experience-overlay-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  grid-template-areas:
+    "timeline chart"
+    "projects projects";
+  gap: 22px;
+}
+.experience-timeline { grid-area: timeline; }
+.experience-chart { grid-area: chart; }
+.experience-projects { grid-area: projects; }
+
+.role-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.role-card {
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: var(--surface-soft);
+}
+.role-card--current {
+  border-left: 3px solid var(--accent);
+  background: var(--surface-strong);
+}
+.role-card h4 { margin: 0 0 3px; font-size: 1rem; line-height: 1.3; }
+.role-meta { margin: 0 0 4px; color: var(--muted); font-size: .86rem; }
+.role-tags { margin: 0; color: var(--muted); font-size: .8rem; font-style: italic; }
+
+.skill-chart-wrap {
+  display: grid;
+  place-items: center;
+  padding: 4px 0;
+}
+.skill-chart {
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+}
+.chart-rings polygon,
+.chart-axes line {
+  fill: none;
+  stroke: var(--border-soft);
+  stroke-width: 1;
+}
+.chart-labels text {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  fill: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.chart-polygon--work {
+  fill: var(--accent);
+  fill-opacity: 0.20;
+  stroke: var(--accent);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+.chart-polygon--projects {
+  fill: var(--chart-projects);
+  fill-opacity: 0.12;
+  stroke: var(--chart-projects);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  stroke-dasharray: 4 2;
+}
+
+.chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 12px 0 0;
+  font-size: .82rem;
+  color: var(--muted);
+}
+.legend-swatch {
+  display: inline-block;
+  width: 18px;
+  height: 4px;
+  border-radius: 2px;
+  vertical-align: middle;
+}
+.legend-swatch--work { background: var(--accent); }
+.legend-swatch--projects {
+  background: repeating-linear-gradient(to right, var(--chart-projects) 0 3px, transparent 3px 5px);
+}
+
+.project-list-overlay {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.project-card-overlay {
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: var(--surface-soft);
+}
+.project-card-overlay h4 { margin: 0 0 4px; font-size: .94rem; }
+.project-card-overlay p { margin: 0; color: var(--muted); font-size: .82rem; }
+
+/* Trigger button inside Experience card */
+.overlay-trigger {
+  margin-top: 16px;
+  min-width: 0;
+  min-height: 46px;
+  padding: 0 18px;
+  font-size: .88rem;
+  width: 100%;
+}
+
+/* Open animation, honours reduced motion */
+.overlay-dialog[open] { animation: overlay-in 220ms ease-out; }
+.overlay-dialog[open]::backdrop { animation: overlay-fade 220ms ease-out; }
+
+@keyframes overlay-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes overlay-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay-dialog[open],
+  .overlay-dialog[open]::backdrop { animation: none; }
+}
+
+/* Scoped focus styles for overlay (full pass in Task #5) */
+.overlay-panel a:focus-visible,
+.overlay-panel button:focus-visible,
+.overlay-trigger:focus-visible,
+.overlay-close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 12px;
+}
+
+/* Stack on narrow viewports */
+@media (max-width: 720px) {
+  .overlay-panel { padding: 22px 20px; }
+  .experience-overlay-body {
+    grid-template-columns: 1fr;
+    grid-template-areas: "timeline" "chart" "projects";
+    gap: 18px;
+  }
+  .project-list-overlay { grid-template-columns: 1fr; }
+  .overlay-header h2 { font-size: 1.2rem; }
+}
+
+/* ---------- Accessibility ---------- */
+
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 12px 18px;
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-weight: 600;
+  z-index: 1000;
+  transform: translateY(-200%);
+  transition: transform 180ms ease;
+}
+.skip-link:focus {
+  transform: translateY(0);
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+a:focus-visible,
+button:focus-visible,
+.glass-button:focus-visible,
+.menu-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 14px;
+}
+
+.site-nav a:focus-visible {
+  outline-offset: 2px;
+  background: var(--surface-strong);
+  color: var(--text);
+}
+
+.brand:focus-visible {
+  border-radius: 16px;
+}
+
+/* Sub-pixel detail: when the close button gets focus, ensure the ring sits outside its circular border */
+.overlay-close:focus-visible {
+  outline-offset: 4px;
+  border-radius: 50%;
+}
+
+/* ---------- Weather scene modifier ---------- */
+/* Layered on top of the time-of-day theme via [data-weather] on <html>.
+   Uses mix-blend-mode so the overlay tints atmospherically rather than
+   masking content. Cached and applied by scene.js. */
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: transparent;
+  transition: background 800ms ease, opacity 800ms ease;
+  mix-blend-mode: multiply;
+}
+
+html[data-weather="clear"] body::after { opacity: 0; }
+
+html[data-weather="cloudy"] body::after {
+  opacity: 0.45;
+  background: linear-gradient(to bottom, #b8c0c8 0%, #d4d8db 60%, #e8eaec 100%);
+}
+
+html[data-weather="fog"] body::after {
+  opacity: 0.38;
+  background: #d4d0c8;
+  mix-blend-mode: soft-light;
+}
+
+html[data-weather="rain"] body::after {
+  opacity: 0.50;
+  background:
+    linear-gradient(to bottom, #8a9eb4 0%, #b0bcc8 60%, #cbd2d8 100%),
+    repeating-linear-gradient(80deg, rgba(120, 150, 190, 0.06) 0 1px, transparent 1px 4px);
+}
+
+html[data-weather="snow"] body::after {
+  opacity: 0.40;
+  background: #d8e2ec;
+  mix-blend-mode: lighten;
+}
+
+/* Dark themes: weather overlays need softer treatment so they don't muddy the panels */
+html[data-theme="sunset"] body::after,
+html[data-theme="night"] body::after {
+  mix-blend-mode: overlay;
+}
+html[data-theme="sunset"][data-weather="cloudy"] body::after,
+html[data-theme="night"][data-weather="cloudy"] body::after {
+  opacity: 0.30;
+}
+html[data-theme="sunset"][data-weather="rain"] body::after,
+html[data-theme="night"][data-weather="rain"] body::after {
+  opacity: 0.35;
 }

@@ -11,17 +11,18 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="ambient ambient-one"></div>
-  <div class="ambient ambient-two"></div>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
   <div class="page-shell">
     <header class="site-header glass-panel">
-      <a class="brand" href="#top" aria-label="Sylvester Koh home">
-        <span class="brand-mark">SK</span>
-        <span>Sylvester Koh</span>
+      <a class="brand" href="#main" aria-label="Sylvester Koh, home">
+        <span class="brand-mark" aria-hidden="true">SK</span>
+        <span aria-hidden="true">Sylvester Koh</span>
       </a>
 
-      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">
-        <span></span><span></span><span></span>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+        <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
       </button>
 
       <nav class="site-nav" id="site-nav" aria-label="Primary navigation">
@@ -38,12 +39,12 @@
       </div>
     </header>
 
-    <main id="top">
-      <section class="hero glass-panel">
+    <main id="main">
+      <section class="hero glass-panel" aria-labelledby="hero-heading">
         <div class="hero-copy">
-          <p class="eyebrow">IT Professional <span>|</span> Data & Cloud Enthusiast</p>
-          <h1>Sylvester Koh</h1>
-          <p class="role-line">Data Analytics <span>|</span> Cloud Automation <span>|</span> IT Service Operations</p>
+          <p class="eyebrow">IT Professional <span aria-hidden="true">|</span> Data &amp; Cloud Enthusiast</p>
+          <h1 id="hero-heading">Sylvester Koh</h1>
+          <p class="role-line">Data Analytics <span aria-hidden="true">|</span> Cloud Automation <span aria-hidden="true">|</span> IT Service Operations</p>
           <p class="hero-summary">I build practical analytics and automation solutions that turn operational data into clearer decisions.</p>
 
           <div class="cta-row">
@@ -57,42 +58,46 @@
             </a>
           </div>
 
-          <p class="meta-line"><span aria-hidden="true">⌖</span> Sydney, Australia <span>·</span> Open to analytics and cloud roles</p>
+          <p class="meta-line"><span aria-hidden="true">⌖</span> Sydney, Australia <span aria-hidden="true">·</span> Open to analytics and cloud roles</p>
         </div>
 
-        <div class="portrait-wrap" aria-hidden="true">
-          <img src="assets/profile.jpeg" alt="Portrait of Sylvester Koh" />
+        <div class="portrait-wrap">
+          <picture>
+            <source type="image/webp" srcset="assets/profile-1x.webp 1x, assets/profile-2x.webp 2x">
+            <source type="image/png" srcset="assets/profile-1x.png 1x, assets/profile-2x.png 2x">
+            <img src="assets/profile-1x.png" alt="Portrait of Sylvester Koh" width="426" height="600" decoding="async" fetchpriority="high" />
+          </picture>
         </div>
       </section>
 
-      <section class="content-grid" aria-label="Portfolio overview">
-        <article class="glass-card about-card" id="about">
+      <div class="content-grid">
+        <article class="glass-card about-card" id="about" aria-labelledby="about-heading">
           <div class="section-heading">
-            <span class="icon-box">♙</span>
-            <h2>About Me</h2>
+            <span class="icon-box" aria-hidden="true">♙</span>
+            <h2 id="about-heading">About Me</h2>
           </div>
           <p>IT professional with enterprise service experience in global support environments. I enjoy turning complex operational data into insights and automating workflows that improve efficiency and service quality.</p>
-          <p>Building capability in SQL, Python, Azure Functions, Azure SQL, and Power BI to deliver data-driven solutions in the cloud.</p>
+          <p>Building capability in SQL, Python, Azure Functions, Azure SQL, Tableau, and Grafana to deliver data-driven solutions in the cloud.</p>
         </article>
 
-        <section class="glass-card projects-card" id="projects">
+        <section class="glass-card projects-card" id="projects" aria-labelledby="projects-heading">
           <div class="section-heading">
-            <span class="icon-box">☆</span>
-            <h2>Featured Projects</h2>
+            <span class="icon-box" aria-hidden="true">☆</span>
+            <h2 id="projects-heading">Featured Projects</h2>
           </div>
 
           <div class="project-list">
             <article class="project-item">
-              <span class="project-icon">✈</span>
+              <span class="project-icon" aria-hidden="true">✈</span>
               <div>
                 <h3>Tan Son Nhat Airport Arrivals Analytics Platform</h3>
-                <p>End-to-end analytics pipeline with Azure SQL and Power BI to monitor arrival performance and KPIs.</p>
-                <div class="tag-row"><span>SQL</span><span>Azure SQL</span><span>Power BI</span><span>DAX</span></div>
+                <p>End-to-end analytics pipeline with Azure SQL and Tableau to monitor arrival performance and KPIs.</p>
+                <div class="tag-row"><span>SQL</span><span>Azure SQL</span><span>Tableau</span><span>Python</span></div>
               </div>
             </article>
 
             <article class="project-item">
-              <span class="project-icon">⌁</span>
+              <span class="project-icon" aria-hidden="true">⌁</span>
               <div>
                 <h3>Arrival Delay Prediction Model</h3>
                 <p>Machine learning model in Python to predict arrival delays and identify key operational drivers.</p>
@@ -101,57 +106,169 @@
             </article>
 
             <article class="project-item">
-              <span class="project-icon">▥</span>
+              <span class="project-icon" aria-hidden="true">▥</span>
               <div>
-                <h3>Power BI Passenger Insights Dashboard</h3>
+                <h3>Tableau Passenger Insights Dashboard</h3>
                 <p>Interactive dashboard providing passenger trends, route performance and delay analytics.</p>
-                <div class="tag-row"><span>Power BI</span><span>DAX</span><span>Data Modelling</span><span>SQL</span></div>
+                <div class="tag-row"><span>Tableau</span><span>Python</span><span>Data Modelling</span><span>SQL</span></div>
               </div>
             </article>
           </div>
         </section>
 
-        <article class="glass-card experience-card" id="experience">
+        <article class="glass-card experience-card" id="experience" aria-labelledby="experience-heading">
           <div class="section-heading">
-            <span class="icon-box">▤</span>
-            <h2>Experience</h2>
+            <span class="icon-box" aria-hidden="true">▤</span>
+            <h2 id="experience-heading">Experience</h2>
           </div>
           <div class="experience-item">
-            <span class="project-icon">▦</span>
+            <span class="project-icon" aria-hidden="true">▦</span>
             <div>
-              <h3>Senior Service Centre Client Specialist</h3>
-              <p class="subtle">Enterprise IT Support</p>
-              <p>Provide high-quality, customer-facing IT support for enterprise clients, managing incidents, requests and escalations with a focus on service excellence and problem resolution.</p>
+              <h3>Sr. Service Centre Client Specialist</h3>
+              <p class="subtle">Optus · Sep 2025 — present</p>
+              <p>Senior escalation lead for enterprise incidents, coordinating internal, vendor and Client Delivery teams to drive customer-focused resolutions and RCA learnings.</p>
             </div>
           </div>
+          <button type="button" class="glass-button overlay-trigger" data-overlay-open="experience-overlay">
+            <span aria-hidden="true">↗</span>
+            View full history &amp; skills chart
+          </button>
         </article>
 
-        <section class="glass-card skills-card" id="skills">
+        <section class="glass-card skills-card" id="skills" aria-labelledby="skills-heading">
           <div class="section-heading">
-            <span class="icon-box">&lt;/&gt;</span>
-            <h2>Skills</h2>
+            <span class="icon-box" aria-hidden="true">&lt;/&gt;</span>
+            <h2 id="skills-heading">Skills</h2>
           </div>
-          <div class="skills-grid" aria-label="Skills list">
+          <div class="skills-grid">
             <span>SQL</span>
             <span>Python</span>
-            <span>Power BI</span>
+            <span>Tableau</span>
             <span>Azure SQL</span>
             <span>Azure Functions</span>
-            <span>DAX</span>
+            <span>Grafana</span>
             <span>Data Modelling</span>
             <span>Incident Support</span>
           </div>
         </section>
-      </section>
+      </div>
     </main>
 
-    <footer class="footer glass-panel" id="contact">
-      <a href="mailto:hello@sylvesterkoh.dev">✉ hello@sylvesterkoh.dev</a>
-      <a href="https://www.linkedin.com/in/sylvesterkoh" target="_blank" rel="noopener">in linkedin.com/in/sylvesterkoh</a>
-      <a href="https://github.com/sylvesterkoh" target="_blank" rel="noopener">◈ github.com/sylvesterkoh</a>
+    <footer class="footer glass-panel" id="contact" aria-label="Contact">
+      <a href="mailto:hello@sylvesterkoh.dev"><span aria-hidden="true">✉</span> hello@sylvesterkoh.dev</a>
+      <a href="https://www.linkedin.com/in/sylvesterkoh" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">in</span> linkedin.com/in/sylvesterkoh</a>
+      <a href="https://github.com/sylvesterkoh" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">◈</span> github.com/sylvesterkoh</a>
     </footer>
   </div>
 
+  <dialog id="experience-overlay" class="overlay-dialog" aria-labelledby="experience-overlay-title">
+    <article class="overlay-panel">
+      <header class="overlay-header">
+        <div>
+          <h2 id="experience-overlay-title">Experience &amp; projects</h2>
+          <p class="overlay-subtitle">Work and projects share six static skill axes. Cloud axis covers networking and architecture.</p>
+        </div>
+        <button type="button" class="overlay-close" aria-label="Close" data-overlay-close>
+          <span aria-hidden="true">×</span>
+        </button>
+      </header>
+
+      <div class="overlay-body experience-overlay-body">
+        <section class="experience-timeline" aria-labelledby="overlay-timeline-title">
+          <h3 id="overlay-timeline-title" class="overlay-section-title">Career timeline</h3>
+          <ol class="role-list">
+            <li class="role-card role-card--current">
+              <h4>Sr. Service Centre Client Specialist</h4>
+              <p class="role-meta">Optus · Sep 2025 — present</p>
+              <p class="role-tags">Incident · Stakeholder · SQL</p>
+            </li>
+            <li class="role-card">
+              <h4>Senior Traffic Support</h4>
+              <p class="role-meta">RCS Australia · Jun 2024 — Aug 2025</p>
+              <p class="role-tags">Incident · API · Cloud</p>
+            </li>
+            <li class="role-card">
+              <h4>Traffic Software Support</h4>
+              <p class="role-meta">RCS Australia · Oct 2023 — Jun 2024</p>
+              <p class="role-tags">SQL Server · Logs · L1/L2</p>
+            </li>
+            <li class="role-card">
+              <h4>Product Coding &amp; Attribution Specialist</h4>
+              <p class="role-meta">Circana · Feb 2023 — Aug 2023</p>
+              <p class="role-tags">Data quality · Rulebook</p>
+            </li>
+            <li class="role-card">
+              <h4>Enterprise Research Analyst</h4>
+              <p class="role-meta">IBISWorld · Jun 2021 — Mar 2022</p>
+              <p class="role-tags">Verification · Analysis</p>
+            </li>
+          </ol>
+        </section>
+
+        <section class="experience-chart" aria-labelledby="overlay-chart-title">
+          <h3 id="overlay-chart-title" class="overlay-section-title">Skill coverage</h3>
+          <div class="skill-chart-wrap">
+            <svg class="skill-chart" viewBox="0 0 360 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="skill-chart-title skill-chart-desc">
+              <title id="skill-chart-title">Skill coverage spider chart</title>
+              <desc id="skill-chart-desc">Six static skill axes: Incident, Cloud, Tableau, Python, SQL, Stakeholder. Cloud axis covers networking and architecture. Work-experience polygon dominates the Incident and Stakeholder axes. Project polygon covers SQL, Python, Tableau, and Cloud. The two polygons meet on the Cloud axis.</desc>
+
+              <g class="chart-rings">
+                <polygon points="180,50 266.6,100 266.6,200 180,250 93.4,200 93.4,100" />
+                <polygon points="180,83.33 237.74,116.67 237.74,183.33 180,216.67 122.26,183.33 122.26,116.67" />
+                <polygon points="180,116.67 208.87,133.33 208.87,166.67 180,183.33 151.13,166.67 151.13,133.33" />
+              </g>
+
+              <g class="chart-axes">
+                <line x1="180" y1="150" x2="180" y2="50" />
+                <line x1="180" y1="150" x2="266.6" y2="100" />
+                <line x1="180" y1="150" x2="266.6" y2="200" />
+                <line x1="180" y1="150" x2="180" y2="250" />
+                <line x1="180" y1="150" x2="93.4" y2="200" />
+                <line x1="180" y1="150" x2="93.4" y2="100" />
+              </g>
+
+              <g class="chart-labels">
+                <text x="180" y="38" text-anchor="middle">Incident</text>
+                <text x="276" y="104" text-anchor="start">Cloud</text>
+                <text x="276" y="204" text-anchor="start">Tableau</text>
+                <text x="180" y="272" text-anchor="middle">Python</text>
+                <text x="84" y="204" text-anchor="end">SQL</text>
+                <text x="84" y="104" text-anchor="end">Stakeholder</text>
+              </g>
+
+              <polygon class="chart-polygon chart-polygon--work" points="180,50 237.74,116.67 191.55,156.67 180,176.67 136.7,175 93.4,100" />
+              <polygon class="chart-polygon chart-polygon--projects" points="180,136.67 237.74,116.67 252.17,191.67 180,233.33 99.17,196.67 168.45,143.33" />
+            </svg>
+          </div>
+          <p class="chart-legend">
+            <span class="legend-swatch legend-swatch--work" aria-hidden="true"></span> Work experience
+            <span class="legend-swatch legend-swatch--projects" aria-hidden="true"></span> Portfolio projects
+          </p>
+        </section>
+
+        <section class="experience-projects" aria-labelledby="overlay-projects-title">
+          <h3 id="overlay-projects-title" class="overlay-section-title">Featured projects · feed the project polygon</h3>
+          <ul class="project-list-overlay">
+            <li class="project-card-overlay">
+              <h4>Tan Son Nhat arrivals</h4>
+              <p>Azure SQL · Python · Tableau</p>
+            </li>
+            <li class="project-card-overlay">
+              <h4>Delay prediction model</h4>
+              <p>Python · Pandas · Scikit-learn</p>
+            </li>
+            <li class="project-card-overlay">
+              <h4>Passenger insights</h4>
+              <p>Tableau · Data modelling · SQL</p>
+            </li>
+          </ul>
+        </section>
+      </div>
+    </article>
+  </dialog>
+
   <script src="theme.js"></script>
+  <script src="overlay.js" defer></script>
+  <script src="scene.js" defer></script>
 </body>
 </html>
