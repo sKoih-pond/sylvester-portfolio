@@ -103,7 +103,7 @@ body {
   font-family: var(--font-sans);
   color: var(--text);
   background: var(--background);
-  transition: background 700ms ease, color 700ms ease;
+  transition: background 700ms cubic-bezier(0.16, 1, 0.3, 1), color 700ms cubic-bezier(0.16, 1, 0.3, 1);
   overflow-x: hidden;
 }
 body::before {
@@ -125,7 +125,7 @@ img { display: block; max-width: 100%; }
   filter: blur(52px);
   opacity: .22;
   pointer-events: none;
-  transition: background 700ms ease, opacity 700ms ease;
+  transition: background 700ms cubic-bezier(0.22, 1, 0.36, 1), opacity 700ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .ambient-one { left: -14rem; top: 2rem; background: var(--accent); }
 .ambient-two { right: -16rem; bottom: -4rem; background: var(--accent); opacity: .16; }
@@ -192,7 +192,16 @@ img { display: block; max-width: 100%; }
 .theme-pill { justify-self: end; display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 10px 13px; color: var(--muted); font-size: .84rem; }
 .theme-icon { color: var(--accent); }
 .menu-toggle { display: none; background: transparent; border: 0; padding: 8px; cursor: pointer; }
-.menu-toggle span { display: block; width: 22px; height: 2px; margin: 5px 0; background: var(--text); border-radius: 999px; }
+.menu-toggle span {
+  display: block; width: 22px; height: 2px; margin: 5px 0;
+  background: var(--text); border-radius: 999px;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+              opacity   160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* Hamburger → ✕ when nav is open */
+.menu-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.menu-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.menu-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
 .hero {
   position: relative;
@@ -307,7 +316,7 @@ h3 { margin: 0 0 8px; font-size: 1rem; line-height: 1.35; }
     backdrop-filter: blur(28px) saturate(150%);
     -webkit-backdrop-filter: blur(28px) saturate(150%);
   }
-  .site-nav.is-open { display: flex; }
+  .site-nav.is-open { display: flex; animation: nav-open 220ms cubic-bezier(0.22, 1, 0.36, 1) both; }
   .site-nav a { text-align: center; }
   .hero { grid-template-columns: 1fr; min-height: auto; }
   .hero-copy { padding: 36px 22px 0; }
@@ -535,21 +544,29 @@ body.overlay-open { overflow: hidden; }
 }
 
 /* Open animation, honours reduced motion */
-.overlay-dialog[open] { animation: overlay-in 220ms ease-out; }
-.overlay-dialog[open]::backdrop { animation: overlay-fade 220ms ease-out; }
+/* overlay-in: ease-out-quart (0.22, 1, 0.36, 1) — decisive, no overshoot */
+/* overlay-fade: ease-out-expo (0.16, 1, 0.3, 1) — backdrop lingers 40ms longer */
+.overlay-dialog[open] { animation: overlay-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.overlay-dialog[open]::backdrop { animation: overlay-fade 300ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 
 @keyframes overlay-in {
-  from { opacity: 0; transform: translateY(8px) scale(0.985); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translateY(10px) scale(0.982); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
 }
 @keyframes overlay-fade {
   from { opacity: 0; }
-  to { opacity: 1; }
+  to   { opacity: 1; }
+}
+@keyframes nav-open {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .overlay-dialog[open],
   .overlay-dialog[open]::backdrop { animation: none; }
+  .site-nav.is-open { animation: none; }
+  .menu-toggle span { transition: none; }
 }
 
 /* Scoped focus styles for overlay (full pass in Task #5) */
@@ -633,7 +650,7 @@ body::after {
   pointer-events: none;
   opacity: 0;
   background: transparent;
-  transition: background 800ms ease, opacity 800ms ease;
+  transition: background 800ms cubic-bezier(0.22, 1, 0.36, 1), opacity 800ms cubic-bezier(0.22, 1, 0.36, 1);
   mix-blend-mode: multiply;
 }
 
