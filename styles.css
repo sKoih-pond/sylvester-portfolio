@@ -217,12 +217,21 @@ img { display: block; max-width: 100%; }
   z-index: -1;
 }
 .hero-copy { padding: clamp(40px, 7vw, 86px); align-self: center; }
-.eyebrow { text-transform: uppercase; letter-spacing: .14em; color: var(--accent); font-size: .78rem; font-weight: 700; margin: 0 0 20px; }
-.eyebrow span, .role-line span { opacity: .58; padding: 0 7px; }
-h1 { font-family: var(--font-serif); font-size: clamp(4rem, 8vw, 7.4rem); line-height: .9; letter-spacing: -.045em; margin: 0 0 18px; color: var(--text); }
-.role-line { font-size: clamp(1.08rem, 2vw, 1.38rem); color: var(--accent); margin: 0 0 24px; }
-.hero-summary { max-width: 540px; color: var(--text); line-height: 1.75; margin: 0; }
-.cta-row { display: flex; flex-wrap: wrap; gap: 16px; margin: 32px 0 24px; }
+/* Eyebrow: uppercase label. 600 reads more refined at small uppercase than 700.
+   16px tighter gap groups the label visually with the name below it. */
+.eyebrow { text-transform: uppercase; letter-spacing: .14em; color: var(--accent); font-size: .8rem; font-weight: 600; margin: 0 0 16px; }
+/* Separator spans: faint, receding — character matters more than the mark */
+.eyebrow span, .role-line span { opacity: .5; padding: 0 6px; }
+/* h1: fractionally more open line-height (aids wrapping on narrow viewports);
+   tracking pulled back from -.045 to -.04 to avoid inter-glyph crowding. */
+h1 { font-family: var(--font-serif); font-size: clamp(4rem, 8vw, 7.4rem); line-height: .92; letter-spacing: -.04em; margin: 0 0 16px; color: var(--text); }
+/* role-line: weight 500 adds substance; .01em tracking separates from h1 below */
+.role-line { font-size: clamp(1.08rem, 2vw, 1.38rem); font-weight: 500; letter-spacing: .01em; color: var(--accent); margin: 0 0 20px; }
+/* hero-summary: ch-based max-width adapts to font-size; tighter leading for
+   better optical rhythm against the large h1 above */
+.hero-summary { max-width: 60ch; color: var(--text); line-height: 1.68; margin: 0; }
+/* meta-line: smaller than body text signals hierarchy distance from summary */
+.cta-row { display: flex; flex-wrap: wrap; gap: 16px; margin: 28px 0 20px; }
 .glass-button {
   display: inline-flex;
   align-items: center;
@@ -237,7 +246,7 @@ h1 { font-family: var(--font-serif); font-size: clamp(4rem, 8vw, 7.4rem); line-h
 }
 .glass-button:hover { transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255,255,255,.54), 0 18px 42px rgba(0,0,0,.16); }
 .glass-button.primary { background: linear-gradient(145deg, rgba(255,255,255,.34), rgba(255,255,255,.07)), var(--surface-strong); }
-.meta-line { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; color: var(--muted); font-size: .92rem; margin: 0; }
+.meta-line { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; color: var(--muted); font-size: .84rem; letter-spacing: .01em; margin: 0; }
 .meta-line > span:first-child { color: var(--accent); }
 .portrait-wrap { position: relative; display: flex; align-items: flex-end; justify-content: center; padding: 36px 48px 0 0; }
 .portrait-wrap::before {
@@ -311,7 +320,7 @@ h3 { margin: 0 0 8px; font-size: 1rem; line-height: 1.35; }
   .site-nav a { text-align: center; }
   .hero { grid-template-columns: 1fr; min-height: auto; }
   .hero-copy { padding: 36px 22px 0; }
-  h1 { font-size: clamp(3.6rem, 16vw, 5.6rem); }
+  h1 { font-size: clamp(3.6rem, 16vw, 5.6rem); line-height: .94; }
   .role-line { font-size: 1.08rem; max-width: 360px; }
   .cta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .glass-button { min-width: 0; min-height: 52px; font-size: .88rem; }
