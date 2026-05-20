@@ -42,10 +42,10 @@
     <main id="main">
       <section class="hero glass-panel" aria-labelledby="hero-heading">
         <div class="hero-copy">
-          <p class="eyebrow">IT Professional <span aria-hidden="true">|</span> Data &amp; Cloud Enthusiast</p>
+          <p class="eyebrow">IT Professional <span aria-hidden="true">|</span> Data &amp; Cloud Practitioner</p>
           <h1 id="hero-heading">Sylvester Koh</h1>
           <p class="role-line">Data Analytics <span aria-hidden="true">|</span> Cloud Automation <span aria-hidden="true">|</span> IT Service Operations</p>
-          <p class="hero-summary">I build practical analytics and automation solutions that turn operational data into clearer decisions.</p>
+          <p class="hero-summary">I build analytics and automation pipelines that turn operational data into clearer decisions.</p>
 
           <div class="cta-row">
             <a class="glass-button primary" href="#projects">
@@ -62,11 +62,13 @@
         </div>
 
         <div class="portrait-wrap">
-          <picture>
-            <source type="image/webp" srcset="assets/profile-1x.webp 1x, assets/profile-2x.webp 2x">
-            <source type="image/png" srcset="assets/profile-1x.png 1x, assets/profile-2x.png 2x">
-            <img src="assets/profile-1x.png" alt="Portrait of Sylvester Koh" width="426" height="600" decoding="async" fetchpriority="high" />
-          </picture>
+          <div class="portrait-bg">
+            <picture>
+              <source type="image/webp" srcset="assets/profile-1x.webp 1x, assets/profile-2x.webp 2x">
+              <source type="image/png" srcset="assets/profile-1x.png 1x, assets/profile-2x.png 2x">
+              <img src="assets/profile-1x.png" alt="Portrait of Sylvester Koh" width="426" height="600" decoding="async" fetchpriority="high" />
+            </picture>
+          </div>
         </div>
       </section>
 
@@ -74,7 +76,7 @@
         <article class="glass-card about-card" id="about" aria-labelledby="about-heading">
           <div class="section-heading">
             <span class="icon-box" aria-hidden="true">♙</span>
-            <h2 id="about-heading">About Me</h2>
+            <h2 id="about-heading">About</h2>
           </div>
           <p>IT professional with enterprise service experience in global support environments. I enjoy turning complex operational data into insights and automating workflows that improve efficiency and service quality.</p>
           <p>Building capability in SQL, Python, Azure Functions, Azure SQL, Tableau, and Grafana to deliver data-driven solutions in the cloud.</p>
@@ -129,6 +131,7 @@
               <p>Senior escalation lead for enterprise incidents, coordinating internal, vendor and Client Delivery teams to drive customer-focused resolutions and RCA learnings.</p>
             </div>
           </div>
+          <p class="overlay-hint">5 roles · 2021 – present</p>
           <button type="button" class="glass-button overlay-trigger" data-overlay-open="experience-overlay">
             <span aria-hidden="true">↗</span>
             View full history &amp; skills chart
@@ -140,16 +143,16 @@
             <span class="icon-box" aria-hidden="true">&lt;/&gt;</span>
             <h2 id="skills-heading">Skills</h2>
           </div>
-          <div class="skills-grid">
-            <span>SQL</span>
-            <span>Python</span>
-            <span>Tableau</span>
-            <span>Azure SQL</span>
-            <span>Azure Functions</span>
-            <span>Grafana</span>
-            <span>Data Modelling</span>
-            <span>Incident Support</span>
-          </div>
+          <ul class="skills-grid" aria-label="Skills list">
+            <li>SQL</li>
+            <li>Python</li>
+            <li>Tableau</li>
+            <li>Azure SQL</li>
+            <li>Azure Functions</li>
+            <li>Grafana</li>
+            <li>Data Modelling</li>
+            <li>Incident Support</li>
+          </ul>
         </section>
       </div>
     </main>
