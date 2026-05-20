@@ -14,8 +14,8 @@
   --border-soft: rgba(116, 87, 62, 0.18);
   --text: #302722;
   --muted: #77685d;
-  --accent: #9c6b3d;
-  --accent-soft: rgba(174, 117, 62, 0.18);
+  --accent: #8c6034;
+  --accent-soft: rgba(158, 108, 56, 0.18);
   --shadow: 0 24px 70px rgba(86, 62, 44, 0.16);
   --shadow-soft: 0 12px 40px rgba(86, 62, 44, 0.10);
   --hero-gradient: radial-gradient(circle at 76% 42%, rgba(255,255,255,.55), transparent 34%), linear-gradient(135deg, rgba(255,244,238,.95), rgba(247,239,232,.72) 46%, rgba(238,224,210,.58));
@@ -32,8 +32,8 @@ html[data-theme="morning"] {
   --border: rgba(255, 255, 255, 0.78);
   --text: #31231f;
   --muted: #826a62;
-  --accent: #b07155;
-  --accent-soft: rgba(232, 154, 128, 0.20);
+  --accent: #9c6044;
+  --accent-soft: rgba(200, 128, 96, 0.20);
   --hero-gradient: radial-gradient(circle at 78% 40%, rgba(255,255,255,.72), transparent 33%), linear-gradient(135deg, rgba(255,239,232,.92), rgba(251,231,224,.72), rgba(255,247,244,.58));
   --background: radial-gradient(circle at 12% 18%, rgba(255, 195, 177, .34), transparent 30%), radial-gradient(circle at 82% 4%, rgba(255,255,255,.86), transparent 28%), #fbefe9;
   --chart-projects: #466a78;
@@ -64,7 +64,7 @@ html[data-theme="sunset"] {
   --border: rgba(255, 218, 169, 0.35);
   --border-soft: rgba(255, 218, 169, 0.20);
   --text: #fff1dc;
-  --muted: #e9caaa;
+  --muted: #f0d7bb;
   --accent: #ffc078;
   --accent-soft: rgba(255, 177, 90, 0.20);
   --shadow: 0 24px 70px rgba(47, 26, 17, 0.32);
@@ -72,7 +72,6 @@ html[data-theme="sunset"] {
   --hero-gradient: radial-gradient(circle at 72% 40%, rgba(255, 215, 156, .36), transparent 30%), linear-gradient(160deg, rgba(72,45,42,.80), rgba(222,124,66,.56) 48%, rgba(255,181,91,.42));
   --background: radial-gradient(circle at 50% 18%, rgba(255, 177, 91, .40), transparent 34%), radial-gradient(circle at 84% 0%, rgba(255, 218, 169, .18), transparent 28%), #2a211f;
   --chart-projects: #f3d6a8;
-  --muted: #f0d7bb;
 }
 
 html[data-theme="night"] {
@@ -84,7 +83,7 @@ html[data-theme="night"] {
   --border: rgba(177, 205, 236, 0.24);
   --border-soft: rgba(177, 205, 236, 0.16);
   --text: #f5eadc;
-  --muted: #c7b9a8;
+  --muted: #d8c8b1;
   --accent: #f2bd7a;
   --accent-soft: rgba(98, 155, 207, 0.18);
   --shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
@@ -92,7 +91,6 @@ html[data-theme="night"] {
   --hero-gradient: radial-gradient(circle at 74% 36%, rgba(231, 178, 125, .24), transparent 30%), linear-gradient(145deg, rgba(8,18,32,.92), rgba(13,32,52,.78) 48%, rgba(7,17,29,.72));
   --background: radial-gradient(circle at 52% 10%, rgba(64, 111, 160, .28), transparent 30%), radial-gradient(circle at 84% 0%, rgba(236, 176, 115, .16), transparent 26%), #07111d;
   --chart-projects: #9fc5d2;
-  --muted: #d8c8b1;
 }
 
 * { box-sizing: border-box; }
