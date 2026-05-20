@@ -97,6 +97,13 @@ html[data-theme="night"] {
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
+
+/* Touch: suppress native tap flash; prevent double-tap zoom delay */
+a, button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+
+/* Typography: prevent widow lines on headings */
+h1, h2, h3, h4 { text-wrap: balance; }
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -170,6 +177,7 @@ img { display: block; max-width: 100%; }
   border-radius: 24px;
 }
 .brand { display: inline-flex; align-items: center; gap: 12px; font-family: var(--font-serif); font-weight: 700; }
+.brand:hover { opacity: .82; }
 .brand-mark {
   display: grid;
   place-items: center;
@@ -252,6 +260,9 @@ h1 { font-family: var(--font-serif); font-size: clamp(4rem, 8vw, 7.4rem); line-h
   filter: blur(10px);
 }
 .portrait-wrap img { position: relative; height: min(96%, 550px); width: auto; object-fit: cover; object-position: center top; border-radius: 0 0 28px 28px; filter: drop-shadow(0 30px 42px rgba(43, 31, 25, .14)); mix-blend-mode: normal; }
+
+/* Anchor targets: offset for sticky header (≈66px panel + 18px gap = 84px) */
+#about, #projects, #experience, #skills, #contact { scroll-margin-top: 110px; }
 
 .content-grid {
   display: grid;
@@ -408,7 +419,7 @@ body.overlay-open { overflow: hidden; }
 }
 .overlay-close:hover { background: var(--surface-strong); transform: scale(1.04); }
 
-.overlay-body { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
+.overlay-body { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; overscroll-behavior: contain; }
 
 .overlay-section-title {
   margin: 0 0 12px;
@@ -444,7 +455,7 @@ body.overlay-open { overflow: hidden; }
   background: var(--surface-strong);
 }
 .role-card h4 { margin: 0 0 3px; font-size: 1rem; line-height: 1.3; }
-.role-meta { margin: 0 0 4px; color: var(--muted); font-size: .86rem; }
+.role-meta { margin: 0 0 4px; color: var(--muted); font-size: .86rem; font-variant-numeric: tabular-nums; }
 .role-tags { margin: 0; color: var(--muted); font-size: .8rem; font-style: italic; }
 
 .skill-chart-wrap {

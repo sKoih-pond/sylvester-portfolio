@@ -1,3 +1,11 @@
+// Maps each theme to its page-bg for the browser chrome meta tag.
+const THEME_COLORS = {
+  morning: "#fbefe9",
+  day: "#f8f2ea",
+  sunset: "#2a211f",
+  night: "#07111d"
+};
+
 const THEME_SCHEDULE = [
   { name: "morning", label: "Morning mode", icon: "☼", start: 6, end: 10 },
   { name: "day", label: "Day mode", icon: "☀︎", start: 10, end: 17 },
@@ -18,6 +26,9 @@ function applyTheme(theme) {
   const icon = document.querySelector(".theme-icon");
   if (label) label.textContent = `${theme.label} · local time`;
   if (icon) icon.textContent = theme.icon;
+  // Keep browser chrome colour in sync with active theme (PWA + Safari tab bar)
+  const metaThemeColor = document.querySelector("meta[name='theme-color']");
+  if (metaThemeColor) metaThemeColor.content = THEME_COLORS[theme.name] || THEME_COLORS.day;
 }
 
 function scheduleNextThemeCheck() {
