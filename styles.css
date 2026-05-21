@@ -147,8 +147,8 @@ img { display: block; max-width: 100%; }
 .ambient-two { right: -16rem; bottom: -4rem; background: var(--accent); opacity: .16; }
 
 .page-shell {
-  width: min(1180px, calc(100% - 32px));
-  margin: 0 auto 28px;
+  width: min(1180px, calc(100% - 11px));
+  margin: 0 auto 9px;
   padding-top: 60px;
 }
 
@@ -222,7 +222,7 @@ img { display: block; max-width: 100%; }
   gap: 16px;
   height: 52px;
   /* Align inner content with page-shell max-width */
-  padding: 0 max(16px, calc((100vw - 1180px) / 2 + 16px));
+  padding: 0 max(5px, calc((100vw - 1180px) / 2 + 5px));
   /* Override glass-panel: flush bar needs no corner radius or multi-edge border */
   border-radius: 0;
   border: none;
@@ -262,7 +262,7 @@ img { display: block; max-width: 100%; }
   grid-template-columns: minmax(0, 1.04fr) minmax(360px, .86fr);
   align-items: stretch;
   min-height: 570px;
-  margin-top: 16px;
+  margin-top: 5px;
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--hero-gradient);
@@ -471,15 +471,15 @@ h1 { font-family: var(--font-sans); font-weight: 400; font-size: clamp(4rem, 8vw
 .footer a:hover { color: var(--text); }
 
 @media (max-width: 940px) {
-  .page-shell { width: min(100% - 20px, 680px); margin: 0 auto 18px; padding-top: 60px; }
-  .site-header { grid-template-columns: 1fr auto auto; padding: 0 16px; }
+  .page-shell { width: min(100% - 7px, 680px); margin: 0 auto 6px; padding-top: 60px; }
+  .site-header { grid-template-columns: 1fr auto auto; padding: 0 5px; }
   .theme-pill { display: none; }
   .menu-toggle { display: block; }
   .site-nav {
     position: absolute;
     top: calc(100% + 8px);
-    left: 16px;
-    right: 16px;
+    left: 5px;
+    right: 5px;
     display: none;
     flex-direction: column;
     align-items: stretch;
