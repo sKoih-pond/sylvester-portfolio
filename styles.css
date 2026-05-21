@@ -395,13 +395,7 @@ h1 { font-family: var(--font-sans); font-weight: 400; font-size: clamp(4rem, 8vw
   margin: 2px 0 6px;
 }
 
-/* Chart caption below legend */
-.chart-caption {
-  margin: 5px 0 0;
-  font-size: .78rem;
-  color: var(--muted);
-  font-style: italic;
-}
+
 .section-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
 .section-heading h2 { margin: 0; text-transform: uppercase; letter-spacing: .08em; font-size: .88rem; font-weight: 700; }
 .icon-box { width: 34px; height: 34px; display: grid; place-items: center; color: var(--accent); border-radius: 12px; font-size: .9rem; }
