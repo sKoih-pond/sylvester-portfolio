@@ -192,7 +192,6 @@ img { display: block; max-width: 100%; }
 .glass-button,
 .theme-pill,
 .brand-mark,
-.skills-grid li,
 .tag-row span,
 .icon-box,
 .project-icon {
@@ -337,18 +336,72 @@ h1 { font-family: var(--font-sans); font-weight: 400; font-size: clamp(4rem, 8vw
 
 .content-grid {
   display: grid;
-  grid-template-columns: .8fr 1.2fr;
-  grid-template-areas:
-    "about projects"
-    "experience skills";
+  grid-template-columns: 1fr;
   gap: 18px;
   margin-top: 18px;
 }
 .glass-card { border-radius: 28px; padding: 22px; }
-.about-card { grid-area: about; }
-.projects-card { grid-area: projects; }
-.experience-card { grid-area: experience; }
-.skills-card { grid-area: skills; }
+
+/* ---- Unified experience & projects card --------------------------------- */
+.unified-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.5fr);
+  gap: 24px;
+  align-items: start;
+}
+.unified-col { min-width: 0; }
+.col-label {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 14px;
+}
+
+/* Current-role accent border */
+.experience-item.role-item--current {
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.20) 0%, rgba(255,255,255,.03) 55%, transparent 100%) padding-box,
+    var(--accent-soft) padding-box,
+    var(--surface-soft) padding-box,
+    linear-gradient(145deg, var(--accent) 0%, rgba(255,255,255,.20) 55%, rgba(255,255,255,.05) 100%) border-box;
+}
+
+/* Vertical connector between role cards */
+.role-rail {
+  display: flex;
+  align-items: center;
+  padding: 5px 0 5px 18px;
+  margin: 2px 0;
+}
+.promoted-badge {
+  display: inline-block;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+
+/* Promotion sub-note inside RCS card */
+.role-sub {
+  font-size: .78rem;
+  color: var(--muted);
+  font-style: italic;
+  margin: 2px 0 6px;
+}
+
+/* Chart caption below legend */
+.chart-caption {
+  margin: 5px 0 0;
+  font-size: .78rem;
+  color: var(--muted);
+  font-style: italic;
+}
 .section-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
 .section-heading h2 { margin: 0; text-transform: uppercase; letter-spacing: .08em; font-size: .88rem; font-weight: 700; }
 .icon-box { width: 34px; height: 34px; display: grid; place-items: center; color: var(--accent); border-radius: 12px; font-size: .9rem; }
@@ -361,12 +414,19 @@ h1 { font-family: var(--font-sans); font-weight: 400; font-size: clamp(4rem, 8vw
   text-transform: uppercase; color: var(--accent);
   margin: 0 0 10px;
 }
-.project-flagship h3 {
+.project-flagship h4 {
   margin: 0 0 10px;
   font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(1.15rem, 3vw, 1.35rem);
   font-weight: 700;
   line-height: 1.25;
+  color: var(--text);
+}
+.experience-item h4 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
   color: var(--text);
 }
 .project-summary { font-size: .92rem; color: var(--muted); margin: 0 0 14px; line-height: 1.6; }
@@ -399,14 +459,13 @@ h1 { font-family: var(--font-sans); font-weight: 400; font-size: clamp(4rem, 8vw
   display: block; color: var(--accent);
   font-size: 1.1rem; margin-bottom: 10px;
 }
-.project-component h4 {
+.project-component h5 {
   margin: 0 0 7px;
   font-size: .95rem; font-weight: 700; line-height: 1.3;
   color: var(--text);
 }
 .project-component p { font-size: .85rem; color: var(--muted); margin: 0; line-height: 1.55; }
 .project-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 16px; color: var(--accent); font-size: 1.25rem; }
-h3 { margin: 0 0 8px; font-size: 1rem; line-height: 1.35; }
 .experience-item p { font-size: .9rem; color: var(--muted); }
 .tag-row { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
 .tag-row span { padding: 6px 9px; border-radius: 999px; color: var(--muted); font-size: .75rem; }
@@ -423,8 +482,6 @@ h3 { margin: 0 0 8px; font-size: 1rem; line-height: 1.35; }
     linear-gradient(145deg, var(--glass-edge) 0%, rgba(255,255,255,.20) 55%, rgba(255,255,255,.05) 100%) border-box;
 }
 .subtle { color: var(--muted) !important; font-weight: 600; }
-.skills-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-.skills-grid li { display: grid; place-items: center; min-height: 46px; border-radius: 15px; color: var(--text); font-weight: 600; font-size: .9rem; }
 .footer { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; padding: 18px 22px; border-radius: 28px; }
 .footer a { display: flex; align-items: center; justify-content: center; gap: 9px; color: var(--muted); font-size: .92rem; }
 .footer a:hover { color: var(--text); }
@@ -468,9 +525,9 @@ h3 { margin: 0 0 8px; font-size: 1rem; line-height: 1.35; }
   .portrait-wrap { min-height: 0; align-items: center; justify-content: center; padding: 4px 16px 20px; margin-top: 4px; }
   .portrait-bg { padding: 12px; }
   .portrait-wrap img { height: 320px; max-width: none; }
-  .content-grid { grid-template-columns: 1fr; grid-template-areas: "about" "projects" "experience" "skills"; }
+  .content-grid { grid-template-columns: 1fr; }
+  .unified-grid { grid-template-columns: 1fr; }
   .component-list { grid-template-columns: 1fr; }
-  .skills-grid { grid-template-columns: repeat(2, 1fr); }
   .footer { grid-template-columns: 1fr; }
 }
 
@@ -532,7 +589,6 @@ h3 { margin: 0 0 8px; font-size: 1rem; line-height: 1.35; }
   .glass-button,
   .theme-pill,
   .brand-mark,
-  .skills-grid li,
   .tag-row span,
   .icon-box,
   .project-icon {
@@ -659,34 +715,6 @@ body.overlay-open { overflow: hidden; }
   font-weight: 700;
 }
 
-/* Experience overlay grid */
-.experience-overlay-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-  grid-template-areas:
-    "timeline chart"
-    "projects projects";
-  gap: 22px;
-}
-.experience-timeline { grid-area: timeline; }
-.experience-chart { grid-area: chart; }
-.experience-projects { grid-area: projects; }
-
-.role-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-.role-card {
-  border: 1px solid var(--border-soft);
-  border-radius: 14px;
-  padding: 12px 14px;
-  background: var(--surface-soft);
-}
-.role-card--current {
-  border: 1.5px solid var(--accent);
-  background: var(--surface-strong);
-}
-.role-card h4 { margin: 0 0 3px; font-size: 1rem; line-height: 1.3; }
-.role-meta { margin: 0 0 4px; color: var(--muted); font-size: .86rem; }
-.role-tags { margin: 0; color: var(--muted); font-size: .8rem; font-style: italic; }
-
 .skill-chart-wrap {
   display: grid;
   place-items: center;
@@ -747,35 +775,6 @@ body.overlay-open { overflow: hidden; }
   background: repeating-linear-gradient(to right, var(--chart-projects) 0 3px, transparent 3px 5px);
 }
 
-.project-list-overlay {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-}
-.project-card-overlay {
-  border: 1px solid var(--border-soft);
-  border-radius: 14px;
-  padding: 12px 14px;
-  background: var(--surface-soft);
-}
-.project-card-overlay h4 { margin: 0 0 4px; font-size: .94rem; }
-.project-card-overlay p { margin: 0; color: var(--muted); font-size: .82rem; }
-
-/* Trigger button inside Experience card */
-.overlay-trigger {
-  margin-top: 16px;
-  min-width: 0;
-  min-height: 46px;
-  padding: 0 18px;
-  font-size: .88rem;
-  width: 100%;
-}
-/* Depth preview above the overlay trigger */
-.overlay-hint { margin: 10px 0 0; color: var(--muted); font-size: .82rem; }
-
 /* Open animation, honours reduced motion */
 .overlay-dialog[open] { animation: overlay-in 220ms ease-out; }
 .overlay-dialog[open]::backdrop { animation: overlay-fade 220ms ease-out; }
@@ -791,10 +790,9 @@ body.overlay-open { overflow: hidden; }
 
 /* Overlay reduced-motion handled by the consolidated block above. */
 
-/* Scoped focus styles for overlay (full pass in Task #5) */
+/* Scoped focus styles for overlay */
 .overlay-panel a:focus-visible,
 .overlay-panel button:focus-visible,
-.overlay-trigger:focus-visible,
 .overlay-close:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
@@ -804,12 +802,6 @@ body.overlay-open { overflow: hidden; }
 /* Stack on narrow viewports */
 @media (max-width: 720px) {
   .overlay-panel { padding: 22px 20px; }
-  .experience-overlay-body {
-    grid-template-columns: 1fr;
-    grid-template-areas: "timeline" "chart" "projects";
-    gap: 18px;
-  }
-  .project-list-overlay { grid-template-columns: 1fr; }
   .overlay-header h2 { font-size: 1.2rem; }
 }
 
