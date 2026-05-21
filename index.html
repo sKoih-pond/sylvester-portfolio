@@ -27,9 +27,8 @@
 
       <nav class="site-nav" id="site-nav" aria-label="Primary navigation">
         <a href="#about">About</a>
-        <a href="#projects">Projects</a>
         <a href="#experience">Experience</a>
-        <a href="#skills">Skills</a>
+        <a href="#projects">Projects</a>
         <a href="#contact">Contact</a>
       </nav>
 
@@ -81,73 +80,116 @@
           <p>Building capability in SQL, Python, Azure Functions, Azure SQL, Tableau, and Grafana to deliver data-driven solutions in the cloud.</p>
         </article>
 
-        <section class="glass-card projects-card" id="projects" aria-labelledby="projects-heading">
-          <div class="section-heading">
-            <span class="icon-box" aria-hidden="true">☆</span>
-            <h2 id="projects-heading">Featured Projects</h2>
-          </div>
-
-          <article class="project-flagship" aria-labelledby="flagship-title">
-            <p class="project-eyebrow"><span aria-hidden="true">✈</span> Flagship platform</p>
-            <h3 id="flagship-title">Tan Son Nhat Airport Arrivals Analytics Platform</h3>
-            <p class="project-summary">End-to-end analytics pipeline with Azure SQL and Tableau to monitor arrival performance and KPIs.</p>
-            <div class="tag-row"><span>SQL</span><span>Azure SQL</span><span>Tableau</span><span>Python</span></div>
-
-            <div class="project-components">
-              <p class="components-label">Platform components</p>
-              <ul class="component-list">
-                <li class="project-component">
-                  <span class="component-icon" aria-hidden="true">⌁</span>
-                  <h4>Arrival Delay Prediction Model</h4>
-                  <p>Machine learning model in Python to predict arrival delays and identify key operational drivers.</p>
-                  <div class="tag-row"><span>Python</span><span>Pandas</span><span>Scikit-learn</span><span>Azure</span></div>
-                </li>
-                <li class="project-component">
-                  <span class="component-icon" aria-hidden="true">▥</span>
-                  <h4>Tableau Passenger Insights Dashboard</h4>
-                  <p>Interactive dashboard providing passenger trends, route performance and delay analytics.</p>
-                  <div class="tag-row"><span>Tableau</span><span>Python</span><span>Data Modelling</span><span>SQL</span></div>
-                </li>
-              </ul>
-            </div>
-          </article>
-        </section>
-
-        <article class="glass-card experience-card" id="experience" aria-labelledby="experience-heading">
+        <section class="glass-card unified-card" id="experience" aria-labelledby="unified-heading">
           <div class="section-heading">
             <span class="icon-box" aria-hidden="true">▤</span>
-            <h2 id="experience-heading">Experience</h2>
+            <h2 id="unified-heading">Experience &amp; projects</h2>
           </div>
-          <div class="experience-item">
-            <span class="project-icon" aria-hidden="true">▦</span>
-            <div>
-              <h3>Sr. Service Centre Client Specialist</h3>
-              <p class="subtle">Optus · Sep 2025 — present</p>
-              <p>Senior escalation lead for enterprise incidents, coordinating internal, vendor and Client Delivery teams to drive customer-focused resolutions and RCA learnings.</p>
-            </div>
-          </div>
-          <p class="overlay-hint">5 roles · 2021 – present</p>
-          <button type="button" class="glass-button overlay-trigger" data-overlay-open="experience-overlay">
-            <span aria-hidden="true">↗</span>
-            View full history &amp; skills chart
-          </button>
-        </article>
 
-        <section class="glass-card skills-card" id="skills" aria-labelledby="skills-heading">
-          <div class="section-heading">
-            <span class="icon-box" aria-hidden="true">&lt;/&gt;</span>
-            <h2 id="skills-heading">Skills</h2>
+          <div class="unified-grid">
+
+            <!-- Left: Career timeline -->
+            <div class="unified-col unified-col--experience">
+              <h3 class="col-label">Career</h3>
+
+              <div class="experience-item role-item--current">
+                <span class="project-icon" aria-hidden="true">▦</span>
+                <div>
+                  <h4>Sr. Service Centre Client Specialist</h4>
+                  <p class="subtle">Optus · Sep 2025 — present</p>
+                  <p>Senior escalation lead for enterprise incidents, coordinating internal, vendor and Client Delivery teams to drive customer-focused resolutions and RCA learnings.</p>
+                </div>
+              </div>
+
+              <div class="role-rail" aria-hidden="true">
+                <span class="promoted-badge">↑ Promoted</span>
+              </div>
+
+              <div class="experience-item">
+                <span class="project-icon" aria-hidden="true">▦</span>
+                <div>
+                  <h4>Senior Traffic Support</h4>
+                  <p class="subtle">RCS Australia · Jun 2024 — Aug 2025</p>
+                  <p class="role-sub">Promoted within RCS from Traffic Software Support · Oct 2023</p>
+                  <p>Incident management, API monitoring and cloud infrastructure support for traffic broadcast software in enterprise environments.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Centre: Spider chart -->
+            <div class="unified-col unified-col--chart">
+              <h3 class="col-label">Skill coverage</h3>
+              <div class="skill-chart-wrap">
+                <svg class="skill-chart" viewBox="0 0 360 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="skill-chart-title skill-chart-desc">
+                  <title id="skill-chart-title">Skill coverage spider chart</title>
+                  <desc id="skill-chart-desc">Six static skill axes: Incident, Cloud, Tableau, Python, SQL, Stakeholder. Cloud axis covers networking and architecture. Work-experience polygon dominates the Incident and Stakeholder axes. Project polygon covers SQL, Python, Tableau, and Cloud. The two polygons meet on the Cloud axis.</desc>
+
+                  <g class="chart-rings">
+                    <polygon points="180,50 266.6,100 266.6,200 180,250 93.4,200 93.4,100" />
+                    <polygon points="180,83.33 237.74,116.67 237.74,183.33 180,216.67 122.26,183.33 122.26,116.67" />
+                    <polygon points="180,116.67 208.87,133.33 208.87,166.67 180,183.33 151.13,166.67 151.13,133.33" />
+                  </g>
+
+                  <g class="chart-axes">
+                    <line x1="180" y1="150" x2="180" y2="50" />
+                    <line x1="180" y1="150" x2="266.6" y2="100" />
+                    <line x1="180" y1="150" x2="266.6" y2="200" />
+                    <line x1="180" y1="150" x2="180" y2="250" />
+                    <line x1="180" y1="150" x2="93.4" y2="200" />
+                    <line x1="180" y1="150" x2="93.4" y2="100" />
+                  </g>
+
+                  <g class="chart-labels">
+                    <text x="180" y="38" text-anchor="middle">Incident</text>
+                    <text x="276" y="104" text-anchor="start">Cloud</text>
+                    <text x="276" y="204" text-anchor="start">Tableau</text>
+                    <text x="180" y="272" text-anchor="middle">Python</text>
+                    <text x="84" y="204" text-anchor="end">SQL</text>
+                    <text x="84" y="104" text-anchor="end">Stakeholder</text>
+                  </g>
+
+                  <polygon class="chart-polygon chart-polygon--work" points="180,50 237.74,116.67 191.55,156.67 180,176.67 136.7,175 93.4,100" />
+                  <polygon class="chart-polygon chart-polygon--projects" points="180,136.67 237.74,116.67 252.17,191.67 180,233.33 99.17,196.67 168.45,143.33" />
+                </svg>
+              </div>
+              <p class="chart-legend">
+                <span class="legend-swatch legend-swatch--work" aria-hidden="true"></span> Work experience
+                <span class="legend-swatch legend-swatch--projects" aria-hidden="true"></span> Portfolio projects
+              </p>
+              <p class="chart-caption">Cloud axis covers networking and architecture.</p>
+            </div>
+
+            <!-- Right: Featured projects -->
+            <div class="unified-col unified-col--projects" id="projects">
+              <h3 class="col-label">Featured projects</h3>
+
+              <article class="project-flagship" aria-labelledby="flagship-title">
+                <p class="project-eyebrow"><span aria-hidden="true">✈</span> Flagship platform</p>
+                <h4 id="flagship-title">Tan Son Nhat Airport Arrivals Analytics Platform</h4>
+                <p class="project-summary">End-to-end analytics pipeline with Azure SQL and Tableau to monitor arrival performance and KPIs.</p>
+                <div class="tag-row"><span>SQL</span><span>Azure SQL</span><span>Tableau</span><span>Python</span></div>
+
+                <div class="project-components">
+                  <p class="components-label">Platform components</p>
+                  <ul class="component-list">
+                    <li class="project-component">
+                      <span class="component-icon" aria-hidden="true">⌁</span>
+                      <h5>Arrival Delay Prediction Model</h5>
+                      <p>Machine learning model in Python to predict arrival delays and identify key operational drivers.</p>
+                      <div class="tag-row"><span>Python</span><span>Pandas</span><span>Scikit-learn</span><span>Azure</span></div>
+                    </li>
+                    <li class="project-component">
+                      <span class="component-icon" aria-hidden="true">▥</span>
+                      <h5>Tableau Passenger Insights Dashboard</h5>
+                      <p>Interactive dashboard providing passenger trends, route performance and delay analytics.</p>
+                      <div class="tag-row"><span>Tableau</span><span>Python</span><span>Data Modelling</span><span>SQL</span></div>
+                    </li>
+                  </ul>
+                </div>
+              </article>
+            </div>
+
           </div>
-          <ul class="skills-grid" aria-label="Skills list">
-            <li>SQL</li>
-            <li>Python</li>
-            <li>Tableau</li>
-            <li>Azure SQL</li>
-            <li>Azure Functions</li>
-            <li>Grafana</li>
-            <li>Data Modelling</li>
-            <li>Incident Support</li>
-          </ul>
         </section>
       </div>
     </main>
@@ -158,112 +200,6 @@
       <a href="https://github.com/sKoih-pond" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">◈</span> github.com/sKoih-pond</a>
     </footer>
   </div>
-
-  <dialog id="experience-overlay" class="overlay-dialog" aria-labelledby="experience-overlay-title">
-    <article class="overlay-panel">
-      <header class="overlay-header">
-        <div>
-          <h2 id="experience-overlay-title">Experience &amp; projects</h2>
-          <p class="overlay-subtitle">Work and projects share six static skill axes. Cloud axis covers networking and architecture.</p>
-        </div>
-        <button type="button" class="overlay-close" aria-label="Close" data-overlay-close>
-          <span aria-hidden="true">×</span>
-        </button>
-      </header>
-
-      <div class="overlay-body experience-overlay-body">
-        <section class="experience-timeline" aria-labelledby="overlay-timeline-title">
-          <h3 id="overlay-timeline-title" class="overlay-section-title">Career timeline</h3>
-          <ol class="role-list">
-            <li class="role-card role-card--current">
-              <h4>Sr. Service Centre Client Specialist</h4>
-              <p class="role-meta">Optus · Sep 2025 — present</p>
-              <p class="role-tags">Incident · Stakeholder · SQL</p>
-            </li>
-            <li class="role-card">
-              <h4>Senior Traffic Support</h4>
-              <p class="role-meta">RCS Australia · Jun 2024 — Aug 2025</p>
-              <p class="role-tags">Incident · API · Cloud</p>
-            </li>
-            <li class="role-card">
-              <h4>Traffic Software Support</h4>
-              <p class="role-meta">RCS Australia · Oct 2023 — Jun 2024</p>
-              <p class="role-tags">SQL Server · Logs · L1/L2</p>
-            </li>
-            <li class="role-card">
-              <h4>Product Coding &amp; Attribution Specialist</h4>
-              <p class="role-meta">Circana · Feb 2023 — Aug 2023</p>
-              <p class="role-tags">Data quality · Rulebook</p>
-            </li>
-            <li class="role-card">
-              <h4>Enterprise Research Analyst</h4>
-              <p class="role-meta">IBISWorld · Jun 2021 — Mar 2022</p>
-              <p class="role-tags">Verification · Analysis</p>
-            </li>
-          </ol>
-        </section>
-
-        <section class="experience-chart" aria-labelledby="overlay-chart-title">
-          <h3 id="overlay-chart-title" class="overlay-section-title">Skill coverage</h3>
-          <div class="skill-chart-wrap">
-            <svg class="skill-chart" viewBox="0 0 360 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="skill-chart-title skill-chart-desc">
-              <title id="skill-chart-title">Skill coverage spider chart</title>
-              <desc id="skill-chart-desc">Six static skill axes: Incident, Cloud, Tableau, Python, SQL, Stakeholder. Cloud axis covers networking and architecture. Work-experience polygon dominates the Incident and Stakeholder axes. Project polygon covers SQL, Python, Tableau, and Cloud. The two polygons meet on the Cloud axis.</desc>
-
-              <g class="chart-rings">
-                <polygon points="180,50 266.6,100 266.6,200 180,250 93.4,200 93.4,100" />
-                <polygon points="180,83.33 237.74,116.67 237.74,183.33 180,216.67 122.26,183.33 122.26,116.67" />
-                <polygon points="180,116.67 208.87,133.33 208.87,166.67 180,183.33 151.13,166.67 151.13,133.33" />
-              </g>
-
-              <g class="chart-axes">
-                <line x1="180" y1="150" x2="180" y2="50" />
-                <line x1="180" y1="150" x2="266.6" y2="100" />
-                <line x1="180" y1="150" x2="266.6" y2="200" />
-                <line x1="180" y1="150" x2="180" y2="250" />
-                <line x1="180" y1="150" x2="93.4" y2="200" />
-                <line x1="180" y1="150" x2="93.4" y2="100" />
-              </g>
-
-              <g class="chart-labels">
-                <text x="180" y="38" text-anchor="middle">Incident</text>
-                <text x="276" y="104" text-anchor="start">Cloud</text>
-                <text x="276" y="204" text-anchor="start">Tableau</text>
-                <text x="180" y="272" text-anchor="middle">Python</text>
-                <text x="84" y="204" text-anchor="end">SQL</text>
-                <text x="84" y="104" text-anchor="end">Stakeholder</text>
-              </g>
-
-              <polygon class="chart-polygon chart-polygon--work" points="180,50 237.74,116.67 191.55,156.67 180,176.67 136.7,175 93.4,100" />
-              <polygon class="chart-polygon chart-polygon--projects" points="180,136.67 237.74,116.67 252.17,191.67 180,233.33 99.17,196.67 168.45,143.33" />
-            </svg>
-          </div>
-          <p class="chart-legend">
-            <span class="legend-swatch legend-swatch--work" aria-hidden="true"></span> Work experience
-            <span class="legend-swatch legend-swatch--projects" aria-hidden="true"></span> Portfolio projects
-          </p>
-        </section>
-
-        <section class="experience-projects" aria-labelledby="overlay-projects-title">
-          <h3 id="overlay-projects-title" class="overlay-section-title">Featured projects · feed the project polygon</h3>
-          <ul class="project-list-overlay">
-            <li class="project-card-overlay">
-              <h4>Tan Son Nhat arrivals</h4>
-              <p>Azure SQL · Python · Tableau</p>
-            </li>
-            <li class="project-card-overlay">
-              <h4>Delay prediction model</h4>
-              <p>Python · Pandas · Scikit-learn</p>
-            </li>
-            <li class="project-card-overlay">
-              <h4>Passenger insights</h4>
-              <p>Tableau · Data modelling · SQL</p>
-            </li>
-          </ul>
-        </section>
-      </div>
-    </article>
-  </dialog>
 
   <script src="theme.js"></script>
   <script src="overlay.js" defer></script>
