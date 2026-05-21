@@ -281,7 +281,7 @@ img { display: block; max-width: 100%; }
 .hero-copy { padding: clamp(40px, 7vw, 86px); align-self: center; }
 .eyebrow { text-transform: uppercase; letter-spacing: .14em; color: var(--accent); font-size: .78rem; font-weight: 700; margin: 0 0 20px; }
 .eyebrow span, .role-line span { opacity: .58; padding: 0 7px; }
-h1 { font-family: var(--font-sans); font-size: clamp(4rem, 8vw, 7.4rem); line-height: .92; letter-spacing: -.03em; margin: 0 0 18px; color: var(--text); }
+h1 { font-family: var(--font-sans); font-weight: 400; font-size: clamp(4rem, 8vw, 7.4rem); line-height: .92; letter-spacing: -.03em; margin: 0 0 18px; color: var(--text); }
 .role-line { font-size: clamp(1.08rem, 2vw, 1.38rem); color: var(--accent); margin: 0 0 24px; }
 .hero-summary { max-width: 540px; color: var(--muted); line-height: 1.75; margin: 0; }
 .cta-row { display: flex; flex-wrap: wrap; gap: 16px; margin: 32px 0 24px; }
