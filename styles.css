@@ -451,6 +451,7 @@ h1 { font-family: var(--font-sans); font-weight: 400; font-size: clamp(4rem, 8vw
 .project-component p { font-size: .85rem; color: var(--muted); margin: 0; line-height: 1.55; }
 .project-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 16px; color: var(--accent); font-size: 1.25rem; }
 .experience-item p { font-size: .9rem; color: var(--muted); }
+.unified-col--experience .experience-item + .experience-item { margin-top: 10px; }
 .tag-row { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
 .tag-row span { padding: 6px 9px; border-radius: 999px; color: var(--muted); font-size: .75rem; }
 .experience-item {
