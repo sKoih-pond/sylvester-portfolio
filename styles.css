@@ -391,7 +391,7 @@ h1 { font-family: var(--font-sans); font-weight: 400; font-size: clamp(4rem, 8vw
 }
 .project-flagship h4 {
   margin: 0 0 10px;
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: var(--font-sans);
   font-size: clamp(1.15rem, 3vw, 1.35rem);
   font-weight: 700;
   line-height: 1.25;
