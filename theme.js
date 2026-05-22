@@ -12,44 +12,53 @@ const PHASES = {
 // ---------------------------------------------------------------------------
 // Shared label composer — defined as a global so deferred scene.js can call it
 // after updating data-weather without clobbering the phase text.
+// Reads data-theme and data-weather from <html>; city from _resolvedCity.
 // ---------------------------------------------------------------------------
+
+let _resolvedCity = null;  // set when Solar.resolveLocation() resolves with an IP city
 
 window.composeThemeLabel = function () {
   const theme   = document.documentElement.dataset.theme   || "";
   const weather = document.documentElement.dataset.weather || "";
   const phase   = PHASES[theme];
-  const themeText   = phase ? phase.label : "Adaptive theme";
-  // Bucket names (clear/cloudy/fog/rain/snow) capitalise cleanly as-is.
-  const weatherText = weather ? weather.charAt(0).toUpperCase() + weather.slice(1) : "";
-  return weatherText ? `${themeText} · ${weatherText}` : themeText;
+  const themeText = phase ? phase.label : "Adaptive theme";
+  // Split on hyphens so "partly-cloudy" → "Partly Cloudy"
+  const weatherText = weather
+    ? weather.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
+    : "";
+  const cityText = _resolvedCity || "";
+  let label = themeText;
+  if (weatherText) label += " · " + weatherText;
+  if (cityText)    label += " · " + cityText;
+  return label;
 };
 
 // ---------------------------------------------------------------------------
 // Phase selection
 // ---------------------------------------------------------------------------
 
-// Wraps solar phase with the OS dark-mode override:
-// if the sun says morning/day but the user prefers dark → render night.
+// Returns both the effective phase name and the raw solar elevation so
+// _applyNow can set --sun-elevation in a single Solar.sunPhase() call.
 function getEffectivePhase(date, lat, lon) {
-  const { phase } = Solar.sunPhase(date, lat, lon);
-  if (
+  const { phase, elevation } = Solar.sunPhase(date, lat, lon);
+  // OS dark-mode override: morning/day → render as night for users who prefer dark.
+  const phaseName =
     (phase === "morning" || phase === "day") &&
     window.matchMedia &&
     window.matchMedia("(prefers-color-scheme: dark)").matches
-  ) {
-    return "night";
-  }
-  return phase;
+      ? "night"
+      : phase;
+  return { phaseName, elevation };
 }
 
 function applyTheme(phaseName) {
   const phase = PHASES[phaseName];
   if (!phase) return;
   document.documentElement.dataset.theme = phaseName;
-  const label = document.querySelector(".theme-icon");
-  const text  = document.getElementById("theme-label");
-  if (label) label.textContent = phase.icon;
-  if (text)  text.textContent  = window.composeThemeLabel();
+  const icon = document.querySelector(".theme-icon");
+  const text = document.getElementById("theme-label");
+  if (icon) icon.textContent = phase.icon;
+  if (text) text.textContent = window.composeThemeLabel();
 }
 
 // ---------------------------------------------------------------------------
@@ -62,7 +71,12 @@ let   _refinedLoc = null;
 function _resolvedLoc() { return _refinedLoc || _defaultLoc; }
 
 function _applyNow() {
-  applyTheme(getEffectivePhase(new Date(), _resolvedLoc().lat, _resolvedLoc().lon));
+  const loc = _resolvedLoc();
+  const { phaseName, elevation } = getEffectivePhase(new Date(), loc.lat, loc.lon);
+  // Expose raw elevation as a CSS custom property for optional future use.
+  // Does not modify the four daylight palettes.
+  document.documentElement.style.setProperty("--sun-elevation", elevation.toFixed(2));
+  applyTheme(phaseName);
 }
 
 // ---------------------------------------------------------------------------
@@ -73,12 +87,16 @@ function _applyNow() {
 _applyNow();
 
 // ---------------------------------------------------------------------------
-// Async refinement — re-apply once GPS coordinates are available (if granted).
+// Async refinement — cascade: GPS (if granted) → IP → timezone default.
+// Re-applies the phase once we have a more accurate location; also picks up
+// city name from IP for the theme pill.
 // ---------------------------------------------------------------------------
 
-Solar.preciseLocation().then(function (coords) {
-  if (!coords) return;
-  _refinedLoc = coords;
+Solar.resolveLocation().then(function (loc) {
+  _refinedLoc = loc;
+  // Show city name in pill only when IP geolocation found one; GPS gives
+  // coordinates but no city, default gives nothing useful to display.
+  _resolvedCity = (loc.source === "ip" && loc.city) ? loc.city : null;
   _applyNow();
 });
 
