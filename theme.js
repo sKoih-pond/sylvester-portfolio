@@ -1,64 +1,117 @@
-const THEME_SCHEDULE = [
-  { name: "morning", label: "Morning mode", icon: "☼", start: 6, end: 10 },
-  { name: "day", label: "Day mode", icon: "☀︎", start: 10, end: 17 },
-  { name: "sunset", label: "Sunset mode", icon: "◒", start: 17, end: 21 },
-  { name: "night", label: "Night mode", icon: "☾", start: 21, end: 6 }
-];
+// Theme engine — drives data-theme on <html> from real sun position via solar.js.
+// Runs synchronously (not deferred) so first paint is flash-free.
+// solar.js must be loaded before this script.
 
-function getThemeForLocalHour(hour = new Date().getHours()) {
-  return THEME_SCHEDULE.find(theme => {
-    if (theme.start < theme.end) return hour >= theme.start && hour < theme.end;
-    return hour >= theme.start || hour < theme.end;
-  }) || THEME_SCHEDULE[1];
-}
+const PHASES = {
+  morning: { label: "Morning mode", icon: "☼" },
+  day:     { label: "Day mode",     icon: "☀︎" },
+  sunset:  { label: "Sunset mode",  icon: "◒" },
+  night:   { label: "Night mode",   icon: "☾" }
+};
 
-// If the OS is set to dark mode and the time-based theme would be a light
-// one (morning or day), defer to night rather than forcing a bright palette
-// on a user who explicitly prefers dark. Sunset and night already read dark,
-// so they are left untouched.
-function getEffectiveTheme(hour = new Date().getHours()) {
-  const timeTheme = getThemeForLocalHour(hour);
+// ---------------------------------------------------------------------------
+// Shared label composer — defined as a global so deferred scene.js can call it
+// after updating data-weather without clobbering the phase text.
+// ---------------------------------------------------------------------------
+
+window.composeThemeLabel = function () {
+  const theme   = document.documentElement.dataset.theme   || "";
+  const weather = document.documentElement.dataset.weather || "";
+  const phase   = PHASES[theme];
+  const themeText   = phase ? phase.label : "Adaptive theme";
+  // Bucket names (clear/cloudy/fog/rain/snow) capitalise cleanly as-is.
+  const weatherText = weather ? weather.charAt(0).toUpperCase() + weather.slice(1) : "";
+  return weatherText ? `${themeText} · ${weatherText}` : themeText;
+};
+
+// ---------------------------------------------------------------------------
+// Phase selection
+// ---------------------------------------------------------------------------
+
+// Wraps solar phase with the OS dark-mode override:
+// if the sun says morning/day but the user prefers dark → render night.
+function getEffectivePhase(date, lat, lon) {
+  const { phase } = Solar.sunPhase(date, lat, lon);
   if (
-    (timeTheme.name === "morning" || timeTheme.name === "day") &&
+    (phase === "morning" || phase === "day") &&
     window.matchMedia &&
     window.matchMedia("(prefers-color-scheme: dark)").matches
   ) {
-    return THEME_SCHEDULE.find(t => t.name === "night") || timeTheme;
+    return "night";
   }
-  return timeTheme;
+  return phase;
 }
 
-function applyTheme(theme) {
-  document.documentElement.dataset.theme = theme.name;
-  const label = document.getElementById("theme-label");
-  const icon = document.querySelector(".theme-icon");
-  if (label) label.textContent = `${theme.label} · local time`;
-  if (icon) icon.textContent = theme.icon;
+function applyTheme(phaseName) {
+  const phase = PHASES[phaseName];
+  if (!phase) return;
+  document.documentElement.dataset.theme = phaseName;
+  const label = document.querySelector(".theme-icon");
+  const text  = document.getElementById("theme-label");
+  if (label) label.textContent = phase.icon;
+  if (text)  text.textContent  = window.composeThemeLabel();
 }
 
-function scheduleNextThemeCheck() {
-  const now = new Date();
-  const next = new Date(now);
-  next.setMinutes(0, 0, 0);
-  next.setHours(now.getHours() + 1);
-  window.setTimeout(() => {
-    applyTheme(getEffectiveTheme());
-    scheduleNextThemeCheck();
-  }, next.getTime() - now.getTime());
+// ---------------------------------------------------------------------------
+// Location state — starts with the DST-free default, refined asynchronously.
+// ---------------------------------------------------------------------------
+
+const _defaultLoc = Solar.defaultLocation();
+let   _refinedLoc = null;
+
+function _resolvedLoc() { return _refinedLoc || _defaultLoc; }
+
+function _applyNow() {
+  applyTheme(getEffectivePhase(new Date(), _resolvedLoc().lat, _resolvedLoc().lon));
 }
 
-applyTheme(getEffectiveTheme());
-scheduleNextThemeCheck();
+// ---------------------------------------------------------------------------
+// First paint — synchronous, flash-free.
+// Uses defaultLocation() (timezone-derived longitude, Sydney latitude).
+// ---------------------------------------------------------------------------
 
-// Re-evaluate if the user toggles OS dark mode while the page is open
+_applyNow();
+
+// ---------------------------------------------------------------------------
+// Async refinement — re-apply once GPS coordinates are available (if granted).
+// ---------------------------------------------------------------------------
+
+Solar.preciseLocation().then(function (coords) {
+  if (!coords) return;
+  _refinedLoc = coords;
+  _applyNow();
+});
+
+// ---------------------------------------------------------------------------
+// Re-evaluation triggers
+// ---------------------------------------------------------------------------
+
+// Every 5 minutes so the phase tracks the moving sun.
+(function scheduleReevaluation() {
+  setTimeout(function () {
+    _applyNow();
+    scheduleReevaluation();
+  }, 5 * 60 * 1000);
+})();
+
+// On tab refocus (handles long device sleep — sun may have moved significantly).
+document.addEventListener("visibilitychange", function () {
+  if (!document.hidden) _applyNow();
+});
+
+// On OS dark-mode toggle while the page is open.
 if (window.matchMedia) {
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
-    applyTheme(getEffectiveTheme());
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
+    _applyNow();
   });
 }
 
+// ---------------------------------------------------------------------------
+// Mobile menu — untouched from original
+// ---------------------------------------------------------------------------
+
 const menuButton = document.querySelector(".menu-toggle");
-const nav = document.querySelector(".site-nav");
+const nav        = document.querySelector(".site-nav");
 
 if (menuButton && nav) {
   const closeNav = () => {
