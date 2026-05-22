@@ -201,9 +201,12 @@ window.Solar = (function () {
    * @returns {Promise<{lat: number, lon: number, source: "gps"|"ip"|"default"}>}
    */
   async function resolveLocation() {
-    const gps = await preciseLocation();
-    if (gps) return gps;
-    const ip = await ipLocation();
+    // Run GPS and IP lookups in parallel — GPS gives accurate coords, IP gives city name.
+    const [gps, ip] = await Promise.all([preciseLocation(), ipLocation()]);
+    if (gps) {
+      const city = (ip && ip.city) ? ip.city : null;
+      return { lat: gps.lat, lon: gps.lon, source: "gps", city };
+    }
     if (ip) return ip;
     return defaultLocation();
   }

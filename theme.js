@@ -37,20 +37,6 @@ window.composeThemeLabel = function () {
 // Phase selection
 // ---------------------------------------------------------------------------
 
-// Returns both the effective phase name and the raw solar elevation so
-// _applyNow can set --sun-elevation in a single Solar.sunPhase() call.
-function getEffectivePhase(date, lat, lon) {
-  const { phase, elevation } = Solar.sunPhase(date, lat, lon);
-  // OS dark-mode override: morning/day → render as night for users who prefer dark.
-  const phaseName =
-    (phase === "morning" || phase === "day") &&
-    window.matchMedia &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "night"
-      : phase;
-  return { phaseName, elevation };
-}
-
 function applyTheme(phaseName) {
   const phase = PHASES[phaseName];
   if (!phase) return;
@@ -72,10 +58,23 @@ function _resolvedLoc() { return _refinedLoc || _defaultLoc; }
 
 function _applyNow() {
   const loc = _resolvedLoc();
-  const { phaseName, elevation } = getEffectivePhase(new Date(), loc.lat, loc.lon);
-  // Expose raw elevation as a CSS custom property for optional future use.
-  // Does not modify the four daylight palettes.
+  const { phase, elevation, rising } = Solar.sunPhase(new Date(), loc.lat, loc.lon);
+  const osDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  // OS dark-mode override: morning/day → render as night for users who prefer dark.
+  const phaseName = (phase === "morning" || phase === "day") && osDark ? "night" : phase;
+
   document.documentElement.style.setProperty("--sun-elevation", elevation.toFixed(2));
+
+  // Apply continuous OKLab-interpolated palette tokens from Palette.resolve().
+  // These inline styles override the four [data-theme] CSS blocks, which remain
+  // unchanged and serve only as the interpolation anchors.
+  if (window.Palette) {
+    const tokens = window.Palette.resolve(elevation, rising, osDark);
+    for (const name in tokens) {
+      document.documentElement.style.setProperty(name, tokens[name]);
+    }
+  }
+
   applyTheme(phaseName);
 }
 
@@ -104,12 +103,12 @@ Solar.resolveLocation().then(function (loc) {
 // Re-evaluation triggers
 // ---------------------------------------------------------------------------
 
-// Every 5 minutes so the phase tracks the moving sun.
+// Every 2 minutes — tighter interval lets the breathing palette track the sun smoothly.
 (function scheduleReevaluation() {
   setTimeout(function () {
     _applyNow();
     scheduleReevaluation();
-  }, 5 * 60 * 1000);
+  }, 2 * 60 * 1000);
 })();
 
 // On tab refocus (handles long device sleep — sun may have moved significantly).

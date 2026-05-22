@@ -119,7 +119,7 @@ body {
   font-family: var(--font-sans);
   color: var(--text);
   background: var(--background);
-  transition: background 700ms ease, color 700ms ease;
+  transition: background 2s ease, color 2s ease;
   overflow-x: hidden;
 }
 body::before {
@@ -141,7 +141,7 @@ img { display: block; max-width: 100%; }
   filter: blur(52px);
   opacity: .22;
   pointer-events: none;
-  transition: background 700ms ease, opacity 700ms ease;
+  transition: background 2s ease, opacity 2s ease;
 }
 .ambient-one { left: -14rem; top: 2rem; background: var(--accent); }
 .ambient-two { right: -16rem; bottom: -4rem; background: var(--accent); opacity: .16; }
@@ -157,6 +157,7 @@ img { display: block; max-width: 100%; }
    Gradient border technique: padding-box layers = fill, border-box layer = rim. */
 .glass-panel,
 .glass-card {
+  transition: background 2s ease, box-shadow 2s ease;
   border: 1.5px solid transparent;
   background:
     /* Directional specular sheen — bright top-left, fades to nothing */
@@ -195,6 +196,7 @@ img { display: block; max-width: 100%; }
 .tag-row span,
 .icon-box,
 .project-icon {
+  transition: background 2s ease, box-shadow 2s ease;
   border: 1px solid transparent;
   background:
     linear-gradient(145deg, rgba(255,255,255,.24) 0%, rgba(255,255,255,.04) 52%, transparent 100%) padding-box,
@@ -256,6 +258,7 @@ img { display: block; max-width: 100%; }
 .menu-toggle span { display: block; width: 22px; height: 2px; margin: 5px 0; background: var(--text); border-radius: 999px; }
 
 .hero {
+  transition: background 2s ease, box-shadow 2s ease;
   position: relative;
   isolation: isolate;
   display: grid;
@@ -537,10 +540,13 @@ h1 { font-family: var(--font-sans); font-weight: 400; font-size: clamp(4rem, 8vw
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
-  /* Kill decorative transitions: theme colour shifts, weather fades,
+  /* Kill decorative transitions: palette breathing, weather fades,
      ambient orbs, button hover lifts — none require motion to function */
   body, body::after, .ambient,
-  .glass-button, .overlay-close, .site-nav a {
+  .glass-panel, .glass-card, .hero,
+  .project-component, .experience-item, .portrait-bg,
+  .glass-button, .theme-pill, .brand-mark, .tag-row span, .icon-box, .project-icon,
+  .overlay-close, .site-nav a {
     transition: none !important;
   }
   /* Preserve the skip-link slide — it is functional keyboard orientation,
