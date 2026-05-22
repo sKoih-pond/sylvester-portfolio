@@ -9,9 +9,12 @@ window.Solar = (function () {
   const DEG = Math.PI / 180;
 
   // Phase elevation thresholds (degrees). Named constants so they're easy to tune.
-  const DAY_ELEV   =  10;   // above this → day
-  const CIVIL_ELEV =  -6;   // below this → night (civil twilight boundary)
+  const DAY_ELEV    =  10;   // above this → day
+  const CIVIL_ELEV  =  -6;   // below this → night (civil twilight boundary)
   const LOOKAHEAD_MS = 10 * 60 * 1000;  // look 10 min ahead to detect rising/falling
+
+  // IP-geo session cache key (stable for the whole browsing session)
+  const IP_CACHE_KEY = "solar_ipgeo_v1";
 
   // ---------------------------------------------------------------------------
   // Core NOAA algorithm
@@ -59,9 +62,9 @@ window.Solar = (function () {
 
     // Equation of time (minutes)
     // Factor (4/DEG) converts the dimensionless trig sum to minutes.
-    const y    = Math.pow(Math.tan((eps / 2) * DEG), 2);
-    const L0r  = L0 * DEG;
-    const EoT  = (4 / DEG) * (
+    const y   = Math.pow(Math.tan((eps / 2) * DEG), 2);
+    const L0r = L0 * DEG;
+    const EoT = (4 / DEG) * (
       y * Math.sin(2 * L0r)
       - 2 * e * Math.sin(Mrad)
       + 4 * e * y * Math.sin(Mrad) * Math.cos(2 * L0r)
@@ -103,7 +106,6 @@ window.Solar = (function () {
     if (elev >= DAY_ELEV) {
       phase = "day";
     } else if (elev >= CIVIL_ELEV) {
-      // Civil twilight band: split by direction of sun travel
       phase = rising ? "morning" : "sunset";
     } else {
       phase = "night";
@@ -113,30 +115,28 @@ window.Solar = (function () {
   }
 
   // ---------------------------------------------------------------------------
-  // Location helpers
+  // Location helpers — cascade: GPS → IP → timezone default
   // ---------------------------------------------------------------------------
 
   /**
-   * Derive a reasonable location synchronously — no network, no permissions.
-   * Longitude from the device's standard-time UTC offset (DST-free).
-   * Latitude defaults to Sydney (-33.87°) — right for all AU users out of the box.
-   * @returns {{ lat: number, lon: number }}
+   * Synchronous, no-network default. Longitude from DST-free UTC offset.
+   * Latitude defaults to Sydney (-33.87°) — right for all AU users.
+   * @returns {{ lat: number, lon: number, source: "default" }}
    */
   function defaultLocation() {
     const year = new Date().getFullYear();
-    // getTimezoneOffset: positive west of UTC (e.g. NY=+300), negative east (SYD=-600).
-    // DST-free standard offset = the more-positive of Jan and Jul values.
+    // getTimezoneOffset: positive = west of UTC (NY=+300), negative = east (SYD=-600).
+    // Standard offset = the more-positive of Jan and Jul (DST is the smaller one).
     const jan = new Date(Date.UTC(year, 0, 1)).getTimezoneOffset();
     const jul = new Date(Date.UTC(year, 6, 1)).getTimezoneOffset();
-    const stdOffset = Math.max(jan, jul);          // standard (non-DST) offset in minutes
-    const lon = -(stdOffset / 4);                  // 4 min per degree longitude
-    return { lat: -33.87, lon };
+    const stdOffset = Math.max(jan, jul);    // standard (non-DST) offset in minutes
+    const lon = -(stdOffset / 4);            // 4 min per degree longitude
+    return { lat: -33.87, lon, source: "default" };
   }
 
   /**
-   * Precise location via the Geolocation API — only if permission is already granted.
-   * Never triggers a permission prompt.
-   * @returns {Promise<{lat: number, lon: number}|null>}
+   * GPS geolocation — only if permission is already granted. Never prompts.
+   * @returns {Promise<{lat: number, lon: number, source: "gps"}|null>}
    */
   async function preciseLocation() {
     if (!("geolocation" in navigator) || !("permissions" in navigator)) return null;
@@ -148,11 +148,64 @@ window.Solar = (function () {
     }
     return new Promise(resolve => {
       navigator.geolocation.getCurrentPosition(
-        pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+        pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude, source: "gps" }),
         ()  => resolve(null),
         { timeout: 3000, maximumAge: 30 * 60 * 1000, enableHighAccuracy: false }
       );
     });
+  }
+
+  /**
+   * City-level IP geolocation via geojs.io (keyless, CORS, HTTPS).
+   * Cached for the whole session — IP location is stable within a session.
+   * 4 s timeout; silent fail to null on any error.
+   * @returns {Promise<{lat: number, lon: number, city: string|null, source: "ip"}|null>}
+   */
+  async function ipLocation() {
+    // Serve from session cache on repeated calls
+    try {
+      const raw = sessionStorage.getItem(IP_CACHE_KEY);
+      if (raw) {
+        const cached = JSON.parse(raw);
+        if (cached && typeof cached.lat === "number" && typeof cached.lon === "number") {
+          return cached;
+        }
+      }
+    } catch (_) {}
+
+    const ctrl  = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 4000);
+    try {
+      const r = await fetch("https://get.geojs.io/v1/ip/geo.json", { signal: ctrl.signal });
+      if (!r.ok) throw new Error("IP geo HTTP " + r.status);
+      const data = await r.json();
+      if (!data) return null;
+      const lat = parseFloat(data.latitude);
+      const lon = parseFloat(data.longitude);
+      if (!isFinite(lat) || !isFinite(lon)) return null;
+      const result = { lat, lon, city: data.city || null, source: "ip" };
+      try { sessionStorage.setItem(IP_CACHE_KEY, JSON.stringify(result)); } catch (_) {}
+      return result;
+    } catch (_) {
+      // Timeout, network error, parse error — all silently fall through to default
+      return null;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  /**
+   * Single entry point for async location resolution.
+   * Cascade: GPS (if already granted) → IP geolocation → timezone default.
+   * Always resolves; never rejects; never prompts.
+   * @returns {Promise<{lat: number, lon: number, source: "gps"|"ip"|"default"}>}
+   */
+  async function resolveLocation() {
+    const gps = await preciseLocation();
+    if (gps) return gps;
+    const ip = await ipLocation();
+    if (ip) return ip;
+    return defaultLocation();
   }
 
   // ---------------------------------------------------------------------------
@@ -163,13 +216,13 @@ window.Solar = (function () {
     (function debugSolar() {
       const loc = defaultLocation();
       console.group(
-        "Solar.js debug — defaultLocation: lat=%.2f° lon=%.2f°",
-        loc.lat, loc.lon
+        "Solar.js debug — defaultLocation: lat=%.2f° lon=%.2f° (source=%s)",
+        loc.lat, loc.lon, loc.source
       );
 
       // 24-hour phase walk at hourly resolution
       const base = new Date();
-      base.setHours(0, 0, 0, 0); // local midnight
+      base.setHours(0, 0, 0, 0);
       console.group("24-hour phase walk (today, local time)");
       for (let h = 0; h < 24; h++) {
         const t = new Date(base.getTime() + h * 3600000);
@@ -184,34 +237,41 @@ window.Solar = (function () {
       }
       console.groupEnd();
 
-      // Binary-search sunrise and sunset (elev = 0 crossing)
+      // Binary-search sunrise and sunset (elevation = 0 crossing)
       function findCrossing(date, lat, lon, startH, endH) {
         let lo = new Date(date); lo.setHours(startH, 0, 0, 0);
         let hi = new Date(date); hi.setHours(endH,   0, 0, 0);
         const loSign = Math.sign(sunElevation(lo, lat, lon));
         const hiSign = Math.sign(sunElevation(hi, lat, lon));
-        if (loSign === hiSign) return null; // no zero crossing in window
+        if (loSign === hiSign) return null;
         for (let i = 0; i < 52; i++) {
-          const mid    = new Date((lo.getTime() + hi.getTime()) / 2);
+          const mid     = new Date((lo.getTime() + hi.getTime()) / 2);
           const midSign = Math.sign(sunElevation(mid, lat, lon));
           if (midSign === loSign) lo = mid; else hi = mid;
         }
         return new Date((lo.getTime() + hi.getTime()) / 2);
       }
 
-      const today = new Date(); today.setHours(12, 0, 0, 0);
+      const today   = new Date(); today.setHours(12, 0, 0, 0);
       const sunrise = findCrossing(today, loc.lat, loc.lon,  0, 12);
       const sunset  = findCrossing(today, loc.lat, loc.lon, 12, 24);
       const fmt = d => d ? d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "not found";
       console.log("Computed sunrise:", fmt(sunrise));
       console.log("Computed sunset: ", fmt(sunset));
-      // Sydney 2026-05-22 reference: sunrise ≈ 06:53 AEST, sunset ≈ 17:11 AEST
-      console.log("(Cross-check against a published value for your location and date)");
+      console.log("(Sydney 2026-05-22 reference: sunrise ≈ 06:53, sunset ≈ 17:11 AEST)");
+
+      // Test the location cascade asynchronously and log results
+      console.group("Location cascade (async)");
+      preciseLocation().then(r => console.log("preciseLocation:", r || "null (GPS not granted — expected)"));
+      ipLocation().then(r   => console.log("ipLocation:", r || "null (network unavailable)"));
+      resolveLocation().then(r => console.log("resolveLocation:", r));
+      console.groupEnd();
+
       console.groupEnd();
     })();
   }
 
   // ---------------------------------------------------------------------------
 
-  return { sunElevation, sunPhase, defaultLocation, preciseLocation };
+  return { sunElevation, sunPhase, defaultLocation, preciseLocation, ipLocation, resolveLocation };
 })();
