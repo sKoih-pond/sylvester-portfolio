@@ -601,6 +601,8 @@ h1 { font-family: var(--font-sans); font-weight: 400; font-size: clamp(4rem, 8vw
     -webkit-backdrop-filter: none !important;
     box-shadow: var(--shadow-soft) !important;
   }
+  /* Suppress the weather atmosphere overlay entirely */
+  body::after { opacity: 0 !important; }
 }
 
 /* ---------- Overlay primitive ---------- */
@@ -839,8 +841,9 @@ button:focus-visible,
 
 /* ---------- Weather scene modifier ---------- */
 /* Layered on top of the time-of-day theme via [data-weather] on <html>.
-   Uses mix-blend-mode so the overlay tints atmospherically rather than
-   masking content. Cached and applied by scene.js. */
+   --weather-intensity (0-1, set by scene.js) scales every overlay's strength
+   via calc() so light vs heavy conditions render differently. Defaults to 1
+   when unset (full strength before JS runs). */
 
 body::after {
   content: "";
@@ -855,40 +858,50 @@ body::after {
 
 html[data-weather="clear"] body::after { opacity: 0; }
 
+/* Partly cloudy: visually between clear and cloudy — lighter colour, lower base opacity */
+html[data-weather="partly-cloudy"] body::after {
+  opacity: calc(0.22 * var(--weather-intensity, 1));
+  background: linear-gradient(to bottom, #c8d0d8 0%, #dce0e4 60%, #e8eaec 100%);
+}
+
 html[data-weather="cloudy"] body::after {
-  opacity: 0.45;
+  opacity: calc(0.45 * var(--weather-intensity, 1));
   background: linear-gradient(to bottom, #b8c0c8 0%, #d4d8db 60%, #e8eaec 100%);
 }
 
 html[data-weather="fog"] body::after {
-  opacity: 0.38;
+  opacity: calc(0.38 * var(--weather-intensity, 1));
   background: #d4d0c8;
   mix-blend-mode: soft-light;
 }
 
 html[data-weather="rain"] body::after {
-  opacity: 0.50;
+  opacity: calc(0.50 * var(--weather-intensity, 1));
   background:
     linear-gradient(to bottom, #8a9eb4 0%, #b0bcc8 60%, #cbd2d8 100%),
     repeating-linear-gradient(80deg, rgba(120, 150, 190, 0.06) 0 1px, transparent 1px 4px);
 }
 
 html[data-weather="snow"] body::after {
-  opacity: 0.40;
+  opacity: calc(0.40 * var(--weather-intensity, 1));
   background: #d8e2ec;
   mix-blend-mode: lighten;
 }
 
-/* Dark themes: weather overlays need softer treatment so they don't muddy the panels */
+/* Dark themes: softer treatment so overlays don't muddy the glass panels */
 html[data-theme="sunset"] body::after,
 html[data-theme="night"] body::after {
   mix-blend-mode: overlay;
 }
+html[data-theme="sunset"][data-weather="partly-cloudy"] body::after,
+html[data-theme="night"][data-weather="partly-cloudy"] body::after {
+  opacity: calc(0.15 * var(--weather-intensity, 1));
+}
 html[data-theme="sunset"][data-weather="cloudy"] body::after,
 html[data-theme="night"][data-weather="cloudy"] body::after {
-  opacity: 0.30;
+  opacity: calc(0.30 * var(--weather-intensity, 1));
 }
 html[data-theme="sunset"][data-weather="rain"] body::after,
 html[data-theme="night"][data-weather="rain"] body::after {
-  opacity: 0.35;
+  opacity: calc(0.35 * var(--weather-intensity, 1));
 }
