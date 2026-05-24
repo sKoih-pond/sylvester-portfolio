@@ -60,8 +60,7 @@ function _applyNow() {
   const loc = _resolvedLoc();
   const { phase, elevation, rising } = Solar.sunPhase(new Date(), loc.lat, loc.lon);
   const osDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
-  // OS dark-mode override: morning/day → render as night for users who prefer dark.
-  const phaseName = (phase === "morning" || phase === "day") && osDark ? "night" : phase;
+  const phaseName = phase;
 
   document.documentElement.style.setProperty("--sun-elevation", elevation.toFixed(2));
 

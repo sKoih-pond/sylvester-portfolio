@@ -189,11 +189,6 @@
     if (!_anchors) _anchors = probeAnchors();
     const A = _anchors;
 
-    // OS dark mode: treat morning/day range as night (mirrors theme.js behaviour)
-    if (osDark && (rising ? elevation > NIGHT_ELEV : elevation >= TWILIGHT_PEAK)) {
-      return Object.assign({}, A.night);
-    }
-
     if (elevation <= NIGHT_ELEV) return Object.assign({}, A.night);
     if (elevation >= DAY_ELEV)   return Object.assign({}, A.day);
 
