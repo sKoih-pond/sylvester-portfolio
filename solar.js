@@ -16,6 +16,10 @@ window.Solar = (function () {
   // IP-geo session cache key (stable for the whole browsing session)
   const IP_CACHE_KEY = "solar_ipgeo_v1";
 
+  // Cross-session location cache — persists the last resolved lat/lon so the
+  // very first synchronous paint on a return visit uses the real location.
+  const LOC_PERSIST_KEY = "solar_loc_v1";
+
   // IANA timezone city aliases — maps legacy/anglicised names to modern display names
   const TZ_CITY_ALIASES = {
     "Saigon":    "Ho Chi Minh City",
@@ -150,11 +154,25 @@ window.Solar = (function () {
   // ---------------------------------------------------------------------------
 
   /**
-   * Synchronous, no-network default. Longitude from DST-free UTC offset.
-   * Latitude defaults to Sydney (-33.87°) — right for all AU users.
+   * Synchronous, no-network default.
+   * On return visits, uses the last resolved lat/lon from localStorage so the
+   * very first paint is correct for the user's real location.
+   * First-ever visit falls back to timezone-derived longitude, lat 0 (equator).
    * @returns {{ lat: number, lon: number, source: "default" }}
    */
   function defaultLocation() {
+    // Return visit: use the persisted resolved location
+    try {
+      const raw = localStorage.getItem(LOC_PERSIST_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        if (saved && typeof saved.lat === "number" && typeof saved.lon === "number") {
+          return { lat: saved.lat, lon: saved.lon, source: "default" };
+        }
+      }
+    } catch (_) {}
+
+    // First visit: derive longitude from DST-free UTC offset, latitude = equator
     const year = new Date().getFullYear();
     // getTimezoneOffset: positive = west of UTC (NY=+300), negative = east (SYD=-600).
     // Standard offset = the more-positive of Jan and Jul (DST is the smaller one).
@@ -162,7 +180,7 @@ window.Solar = (function () {
     const jul = new Date(Date.UTC(year, 6, 1)).getTimezoneOffset();
     const stdOffset = Math.max(jan, jul);    // standard (non-DST) offset in minutes
     const lon = -(stdOffset / 4);            // 4 min per degree longitude
-    return { lat: -33.87, lon, source: "default" };
+    return { lat: 0, lon, source: "default" };
   }
 
   /**
@@ -305,6 +323,18 @@ window.Solar = (function () {
   }
 
   // ---------------------------------------------------------------------------
+  // Persist resolved location across sessions for flash-free first paint
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Save lat/lon to localStorage so the next session's defaultLocation() uses
+   * the real coordinates immediately on first synchronous paint.
+   */
+  function persistLocation(lat, lon) {
+    try { localStorage.setItem(LOC_PERSIST_KEY, JSON.stringify({ lat, lon })); } catch (_) {}
+  }
+
+  // ---------------------------------------------------------------------------
   // Dev diagnostics — active only when ?debug is in the URL
   // ---------------------------------------------------------------------------
 
@@ -369,5 +399,5 @@ window.Solar = (function () {
 
   // ---------------------------------------------------------------------------
 
-  return { sunElevation, sunPhase, defaultLocation, preciseLocation, ipLocation, resolveLocation, timezoneCity };
+  return { sunElevation, sunPhase, defaultLocation, preciseLocation, ipLocation, resolveLocation, timezoneCity, persistLocation };
 })();

@@ -20,19 +20,14 @@ const PHASES = {
 let _resolvedCity = Solar.timezoneCity();
 
 window.composeThemeLabel = function () {
-  const theme   = document.documentElement.dataset.theme   || "";
   const weather = document.documentElement.dataset.weather || "";
-  const phase   = PHASES[theme];
-  const themeText = phase ? phase.label : "Adaptive theme";
   // Split on hyphens so "partly-cloudy" → "Partly Cloudy"
   const weatherText = weather
     ? weather.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
     : "";
   const cityText = _resolvedCity || "";
-  let label = themeText;
-  if (weatherText) label += " · " + weatherText;
-  if (cityText)    label += " · " + cityText;
-  return label;
+  const parts = [weatherText, cityText].filter(Boolean);
+  return parts.join(" · ");
 };
 
 // ---------------------------------------------------------------------------
@@ -97,6 +92,8 @@ Solar.resolveLocation().then(function (loc) {
   // Update with the cross-validated city (timezone + IP + Nominatim).
   // Falls back to the synchronous timezone city already shown on first paint.
   _resolvedCity = loc.city || Solar.timezoneCity() || null;
+  // Persist coords so the next session's first paint uses the real location.
+  Solar.persistLocation(loc.lat, loc.lon);
   _applyNow();
 });
 
