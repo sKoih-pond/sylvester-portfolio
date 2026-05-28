@@ -186,13 +186,34 @@
   }
 
   // ---------------------------------------------------------------------------
+  // Location drift detection
+  // Returns true when two lat/lon pairs are more than ~100 km apart — enough
+  // to warrant a fresh weather fetch (city-level accuracy is ~50 km).
+  // Uses the flat-earth approximation: fast and accurate enough at this scale.
+  // ---------------------------------------------------------------------------
+
+  function locationDrifted(lat1, lon1, lat2, lon2) {
+    const R   = 6371;                          // Earth radius, km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a   = Math.sin(dLat / 2) ** 2
+              + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180)
+              * Math.sin(dLon / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(a)) > 100;
+  }
+
+  // ---------------------------------------------------------------------------
   // Main entry point
   // ---------------------------------------------------------------------------
 
   async function loadScene() {
-    // --- Cache hit: repick from the stored hourly array ---
+    // Resolve location first — subsequent calls are instant (sessionStorage cache).
+    // Solar.resolveLocation() cascades GPS → IP geolocation → timezone default.
+    const loc = await Solar.resolveLocation();
+
+    // --- Cache hit: valid only when location hasn't drifted > 100 km ---
     const cached = readCache();
-    if (cached && cached.hourly) {
+    if (cached && cached.hourly && !locationDrifted(cached.lat, cached.lon, loc.lat, loc.lon)) {
       const hour = pickHourData(cached.hourly);
       const { bucket, intensity } = hour
         ? bucketAndIntensity(hour.code, hour.cloudCover, hour.precip)
@@ -202,11 +223,7 @@
       return;
     }
 
-    // --- Cache miss / expired: resolve best location, then fetch ---
-    // Solar.resolveLocation() cascades GPS → IP → timezone default, caching IP
-    // result in sessionStorage so subsequent calls are instant.
-    const loc = await Solar.resolveLocation();
-
+    // --- Cache miss, expired, or location changed: fetch for current coords ---
     try {
       const { hourly, fallback } = await fetchWeatherHourly(loc.lat, loc.lon);
       const hour = pickHourData(hourly);
