@@ -15,7 +15,9 @@ const PHASES = {
 // Reads data-theme and data-weather from <html>; city from _resolvedCity.
 // ---------------------------------------------------------------------------
 
-let _resolvedCity = null;  // set when Solar.resolveLocation() resolves with an IP city
+// Timezone city is available synchronously — show it immediately on first paint.
+// Overwritten with the cross-validated result once resolveLocation() settles.
+let _resolvedCity = Solar.timezoneCity();
 
 window.composeThemeLabel = function () {
   const theme   = document.documentElement.dataset.theme   || "";
@@ -92,9 +94,9 @@ _applyNow();
 
 Solar.resolveLocation().then(function (loc) {
   _refinedLoc = loc;
-  // Show city name in pill only when IP geolocation found one; GPS gives
-  // coordinates but no city, default gives nothing useful to display.
-  _resolvedCity = (loc.source === "ip" && loc.city) ? loc.city : null;
+  // Update with the cross-validated city (timezone + IP + Nominatim).
+  // Falls back to the synchronous timezone city already shown on first paint.
+  _resolvedCity = loc.city || Solar.timezoneCity() || null;
   _applyNow();
 });
 

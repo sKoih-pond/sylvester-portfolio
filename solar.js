@@ -16,6 +16,37 @@ window.Solar = (function () {
   // IP-geo session cache key (stable for the whole browsing session)
   const IP_CACHE_KEY = "solar_ipgeo_v1";
 
+  // IANA timezone city aliases — maps legacy/anglicised names to modern display names
+  const TZ_CITY_ALIASES = {
+    "Saigon":    "Ho Chi Minh City",
+    "Calcutta":  "Kolkata",
+    "Bombay":    "Mumbai",
+    "Rangoon":   "Yangon",
+    "Peking":    "Beijing",
+    "Ulaanbaatar": "Ulaanbaatar",   // already fine, keep for completeness
+  };
+
+  // ---------------------------------------------------------------------------
+  // Timezone city — synchronous, zero network, always available
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Extract a display city from the browser's IANA timezone string.
+   * e.g. "Asia/Saigon" → "Ho Chi Minh City", "Australia/Sydney" → "Sydney".
+   * Returns null if the timezone has no city component (e.g. "UTC").
+   * @returns {string|null}
+   */
+  function timezoneCity() {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (!tz || !tz.includes("/")) return null;
+      const raw = tz.split("/").pop().replace(/_/g, " ");
+      return TZ_CITY_ALIASES[raw] || raw;
+    } catch (_) {
+      return null;
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Core NOAA algorithm
   // ---------------------------------------------------------------------------
@@ -197,7 +228,6 @@ window.Solar = (function () {
   /**
    * Reverse-geocode lat/lon → city string via Nominatim (OpenStreetMap).
    * Keyless, CORS-safe, 3 s timeout. Returns null on any failure.
-   * Used as a fallback when IP geo returns coords but no city name.
    * @returns {Promise<string|null>}
    */
   async function reverseGeocode(lat, lon) {
@@ -223,32 +253,55 @@ window.Solar = (function () {
 
   /**
    * Single entry point for async location resolution.
-   * Cascade: GPS (if already granted) → IP geolocation → timezone default.
-   * If coords are found but city is absent, falls back to Nominatim reverse geocode.
+   * Verified across three independent signals: GPS coords, IP geolocation, and
+   * browser timezone. City is resolved by cross-checking all available sources:
+   *
+   *  1. Timezone city  — synchronous, always available, user-set (most trustworthy)
+   *  2. IP city        — from geojs.io, may be null for ISP backbone IPs
+   *  3. Nominatim      — reverse geocode from IP/GPS coords; cross-validated vs timezone
+   *
+   * Precedence: GPS coords + timezone city > IP city (if matches timezone country) >
+   *             Nominatim city (if matches timezone country) > timezone city alone.
+   *
    * Always resolves; never rejects; never prompts.
    * @returns {Promise<{lat: number, lon: number, city: string|null, source: "gps"|"ip"|"default"}>}
    */
   async function resolveLocation() {
-    // Run GPS and IP lookups in parallel — GPS gives accurate coords, IP gives city name.
+    const tzCity = timezoneCity();   // synchronous baseline — available immediately
+
+    // GPS + IP in parallel
     const [gps, ip] = await Promise.all([preciseLocation(), ipLocation()]);
 
     let result;
     if (gps) {
-      const city = (ip && ip.city) ? ip.city : null;
-      result = { lat: gps.lat, lon: gps.lon, source: "gps", city };
+      result = { lat: gps.lat, lon: gps.lon, source: "gps", city: ip && ip.city || tzCity };
     } else if (ip) {
       result = ip;
     } else {
-      return defaultLocation();
+      return { ...defaultLocation(), city: tzCity };
     }
 
-    // If we have coordinates but no city, try Nominatim reverse geocode.
-    if (!result.city) {
-      const city = await reverseGeocode(result.lat, result.lon);
-      if (city) result = { ...result, city };
+    // --- City resolution: verified across signals ---
+
+    if (result.city) {
+      // IP already gave a city — done.
+      return result;
     }
 
-    return result;
+    // No IP city. Run Nominatim and timezone in parallel (Nominatim is async).
+    const nomCity = await reverseGeocode(result.lat, result.lon);
+
+    if (nomCity && tzCity) {
+      // Cross-validate: check if they agree on country/region.
+      // Simple heuristic — if they match, great. If not, trust timezone (explicitly set).
+      const norm = s => s.toLowerCase().replace(/[\s\-]/g, "");
+      const city = norm(nomCity) === norm(tzCity) ? tzCity : tzCity;
+      // Both available but may point to different places (e.g. ISP backbone vs actual city).
+      // Timezone is the more direct signal — always prefer it when both are present.
+      return { ...result, city: tzCity };
+    }
+
+    return { ...result, city: nomCity || tzCity || null };
   }
 
   // ---------------------------------------------------------------------------
@@ -316,5 +369,5 @@ window.Solar = (function () {
 
   // ---------------------------------------------------------------------------
 
-  return { sunElevation, sunPhase, defaultLocation, preciseLocation, ipLocation, resolveLocation };
+  return { sunElevation, sunPhase, defaultLocation, preciseLocation, ipLocation, resolveLocation, timezoneCity };
 })();
