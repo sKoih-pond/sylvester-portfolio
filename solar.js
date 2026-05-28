@@ -195,20 +195,60 @@ window.Solar = (function () {
   }
 
   /**
+   * Reverse-geocode lat/lon → city string via Nominatim (OpenStreetMap).
+   * Keyless, CORS-safe, 3 s timeout. Returns null on any failure.
+   * Used as a fallback when IP geo returns coords but no city name.
+   * @returns {Promise<string|null>}
+   */
+  async function reverseGeocode(lat, lon) {
+    const ctrl  = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 3000);
+    try {
+      const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=10`;
+      const r = await fetch(url, {
+        signal: ctrl.signal,
+        headers: { "Accept-Language": "en" }
+      });
+      if (!r.ok) return null;
+      const data = await r.json();
+      // Prefer city > town > village > suburb > county in that order
+      const a = data && data.address;
+      return (a && (a.city || a.town || a.village || a.suburb || a.county)) || null;
+    } catch (_) {
+      return null;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  /**
    * Single entry point for async location resolution.
    * Cascade: GPS (if already granted) → IP geolocation → timezone default.
+   * If coords are found but city is absent, falls back to Nominatim reverse geocode.
    * Always resolves; never rejects; never prompts.
-   * @returns {Promise<{lat: number, lon: number, source: "gps"|"ip"|"default"}>}
+   * @returns {Promise<{lat: number, lon: number, city: string|null, source: "gps"|"ip"|"default"}>}
    */
   async function resolveLocation() {
     // Run GPS and IP lookups in parallel — GPS gives accurate coords, IP gives city name.
     const [gps, ip] = await Promise.all([preciseLocation(), ipLocation()]);
+
+    let result;
     if (gps) {
       const city = (ip && ip.city) ? ip.city : null;
-      return { lat: gps.lat, lon: gps.lon, source: "gps", city };
+      result = { lat: gps.lat, lon: gps.lon, source: "gps", city };
+    } else if (ip) {
+      result = ip;
+    } else {
+      return defaultLocation();
     }
-    if (ip) return ip;
-    return defaultLocation();
+
+    // If we have coordinates but no city, try Nominatim reverse geocode.
+    if (!result.city) {
+      const city = await reverseGeocode(result.lat, result.lon);
+      if (city) result = { ...result, city };
+    }
+
+    return result;
   }
 
   // ---------------------------------------------------------------------------
