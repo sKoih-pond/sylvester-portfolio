@@ -486,31 +486,8 @@ h1 { font-family: var(--font-sans); font-weight: 400; font-size: clamp(4rem, 8vw
   .page-shell { width: min(100% - 7px, 680px); margin: 0 auto 6px; padding-top: 60px; }
   .site-header { grid-template-columns: 1fr auto auto; padding: 0 5px; }
   .theme-pill { display: none; }
-  .menu-toggle { display: block; }
-  .site-nav {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 5px;
-    right: 5px;
-    display: none;
-    flex-direction: column;
-    align-items: stretch;
-    padding: 12px;
-    border-radius: var(--radius-lg);
-    border: 1.5px solid transparent;
-    background:
-      linear-gradient(145deg, rgba(255,255,255,.22) 0%, rgba(255,255,255,.04) 55%, transparent 100%) padding-box,
-      var(--glass-tint) padding-box,
-      var(--surface-strong) padding-box,
-      linear-gradient(145deg, var(--glass-edge) 0%, rgba(255,255,255,.26) 50%, rgba(255,255,255,.07) 100%) border-box;
-    box-shadow:
-      inset 0 1.5px 0 var(--glass-specular),
-      inset 0 -1px 0 rgba(255,255,255,.06),
-      var(--shadow-soft);
-    backdrop-filter: blur(var(--blur)) saturate(150%) brightness(1.04);
-    -webkit-backdrop-filter: blur(var(--blur)) saturate(150%) brightness(1.04);
-  }
-  .site-nav.is-open { display: flex; }
+  .menu-toggle { display: none; }
+  .site-nav { display: none !important; }
   .site-nav a { text-align: center; }
   .hero { grid-template-columns: 1fr; min-height: auto; }
   .hero-copy { padding: 36px 22px 28px; }
