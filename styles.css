@@ -13,7 +13,7 @@
   --radius-md: 23px;   /* r₁ — glass-button, leaf cards, portrait img      */
   --radius-lg: 37px;   /* r₂ — glass-card, portrait-bg, footer, overlay   */
   --radius-xl: 60px;   /* r₃ — hero panel                                  */
-  --blur: 28px;
+  --blur: 18px;
   --page-bg: #f7efe8;
   --surface: rgba(255, 255, 255, 0.42);
   --surface-strong: rgba(255, 255, 255, 0.62);
@@ -135,8 +135,11 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(120deg, rgba(255,255,255,.10), transparent 30%, rgba(255,255,255,.04));
-  mix-blend-mode: screen;
+  /* Normal blend (not screen) so this fixed full-viewport layer is cached as a
+     static compositor layer and does NOT re-blend the backdrop on every scroll
+     frame. Opacity nudged up to match the previous screen-blend luminosity. */
+  background: linear-gradient(120deg, rgba(255,255,255,.13), transparent 30%, rgba(255,255,255,.05));
+  transform: translateZ(0);
 }
 a { color: inherit; text-decoration: none; }
 img { display: block; max-width: 100%; }
@@ -146,10 +149,14 @@ img { display: block; max-width: 100%; }
   width: 38rem;
   height: 38rem;
   border-radius: 999px;
-  filter: blur(52px);
+  filter: blur(40px);
   opacity: .22;
   pointer-events: none;
   transition: background 2s ease, opacity 2s ease;
+  /* Isolate on the GPU: rasterised once, composited cheaply, and the slow
+     background/opacity transition no longer repaints the page behind it. */
+  transform: translateZ(0);
+  will-change: opacity;
 }
 .ambient-one { left: -14rem; top: 2rem; background: var(--accent); }
 .ambient-two { right: -16rem; bottom: -4rem; background: var(--accent); opacity: .16; }
@@ -912,6 +919,8 @@ body::after {
   background: transparent;
   transition: background 800ms ease, opacity 800ms ease;
   mix-blend-mode: multiply;
+  transform: translateZ(0);
+  will-change: opacity;
 }
 
 html[data-weather="clear"] body::after { opacity: 0; }
