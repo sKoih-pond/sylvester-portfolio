@@ -438,7 +438,7 @@ h1 { font-family: var(--font-sans); font-weight: 400; font-size: clamp(4rem, 8vw
 .component-list {
   list-style: none; margin: 0; padding: 0;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 14px;
 }
 .project-component {
@@ -465,6 +465,73 @@ h1 { font-family: var(--font-sans); font-weight: 400; font-size: clamp(4rem, 8vw
 .unified-col--experience .experience-item + .experience-item { margin-top: 10px; }
 .tag-row { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
 .tag-row span { padding: 6px 9px; border-radius: 999px; color: var(--muted); font-size: .75rem; }
+
+/* --- Dominant live-tool card (absorbs the old "View project" button) ----- */
+.project-component--feature {
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(150deg, rgba(255,255,255,.34) 0%, rgba(255,255,255,.07) 52%, transparent 100%) padding-box,
+    var(--glass-tint) padding-box,
+    var(--surface) padding-box,
+    linear-gradient(150deg, var(--accent) 0%, var(--glass-edge) 55%, rgba(255,255,255,.12) 100%) border-box;
+  box-shadow: var(--shadow-soft), 0 0 0 1px var(--accent-soft);
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+.project-component--feature:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 22px 48px rgba(0,0,0,.18), 0 0 0 1px var(--accent-soft);
+}
+.component-link {
+  display: block;
+  padding: 22px;
+  color: var(--text);
+}
+.component-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.project-component--feature .component-icon { margin: 0; font-size: 1.35rem; }
+.component-live {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: .66rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--accent);
+}
+.live-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--accent);
+  animation: live-pulse 2.4s ease-out infinite;
+}
+@keyframes live-pulse {
+  0%   { box-shadow: 0 0 0 0 var(--accent-soft); }
+  70%  { box-shadow: 0 0 0 9px rgba(156,107,61,0); }
+  100% { box-shadow: 0 0 0 0 rgba(156,107,61,0); }
+}
+.project-component--feature h5 {
+  font-size: clamp(1.05rem, 2.4vw, 1.22rem);
+  margin-bottom: 9px;
+}
+.project-component--feature p { font-size: .9rem; line-height: 1.6; }
+.component-cta {
+  display: inline-flex; align-items: center; gap: 7px;
+  margin-top: 18px;
+  font-size: .9rem; font-weight: 700;
+  color: var(--accent);
+  transition: gap .25s ease;
+}
+.component-link:hover .component-cta { gap: 12px; }
+.component-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+@media (prefers-reduced-transparency: reduce) {
+  .project-component--feature {
+    background: var(--surface-strong);
+    box-shadow: var(--shadow-soft), 0 0 0 1px var(--accent-soft);
+  }
+}
 .experience-item {
   display: grid;
   grid-template-columns: auto 1fr;
