@@ -194,9 +194,13 @@ img { display: block; max-width: 100%; }
     inset 0 -1px 0 rgba(255,255,255,.07),
     /* Outer depth shadow */
     var(--shadow-soft);
-  /* brightness(1.04): subtle lit-from-within lift that separates glass from matte */
-  backdrop-filter: blur(var(--blur)) saturate(150%) brightness(1.04);
-  -webkit-backdrop-filter: blur(var(--blur)) saturate(150%) brightness(1.04);
+  /* NOTE: no backdrop-filter here. The frosted blur is the single most
+     expensive thing during scroll — these large surfaces (hero, content
+     cards, footer) cover most of the desktop viewport, and the fixed
+     ambient orbs behind them force a full re-blur every scroll frame.
+     The glass look is carried by the layered gradients + specular rim +
+     shadows above; backdrop blur is kept only on the fixed header (.site-header),
+     where content visibly slides under the bar. */
 }
 
 /* Leaf elements: Liquid Glass visual language, no backdrop-filter overhead.
@@ -246,6 +250,10 @@ img { display: block; max-width: 100%; }
   border-bottom: 1px solid var(--border-soft);
   background: var(--surface);
   box-shadow: 0 1px 0 rgba(255,255,255,0.10), 0 4px 20px rgba(0,0,0,0.06);
+  /* The one surface that keeps the frosted blur: a fixed bar with content
+     scrolling beneath it. Small area, so the per-frame re-blur is cheap. */
+  backdrop-filter: blur(var(--blur)) saturate(150%) brightness(1.04);
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(150%) brightness(1.04);
 }
 .brand { display: inline-flex; align-items: center; gap: 12px; font-family: var(--font-sans); font-weight: 700; }
 .brand-mark {
