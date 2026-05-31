@@ -33,6 +33,12 @@
   --glass-tint:     rgba(174, 117, 62,  0.07); /* faint warm accent pickup      */
   --glass-edge:     rgba(255, 255, 255, 0.88); /* lensing rim — bright top-left  */
   --glass-specular: rgba(255, 255, 255, 0.76); /* top-edge specular highlight    */
+  /* Lifted-edge hairlines: a 10% white stroke just inside the rim reads as a
+     light catching the top of a raised surface; a warm near-black stroke just
+     outside separates the pane from the page. Black is warmed to rgb(86,62,44)
+     — the site's shadow hue — so the lift stays in the warm family. */
+  --lift-inner: inset 0 0 0 1px rgba(255, 255, 255, 0.10);
+  --lift-outer: 0 0 0 1px rgba(86, 62, 44, 0.12);
 }
 
 html[data-theme="morning"] {
@@ -184,6 +190,8 @@ img { display: block; max-width: 100%; }
     /* Lensed rim: concentrated light on top-left edge, recedes to bottom-right */
     linear-gradient(145deg, var(--glass-edge) 0%, rgba(255,255,255,.28) 48%, rgba(255,255,255,.08) 100%) border-box;
   box-shadow:
+    /* Inner lift: 10% white hairline just inside the rim */
+    var(--lift-inner),
     /* Top-edge: crisp specular line — the sharpest part of the glass rim */
     inset 0 1.5px 0 var(--glass-specular),
     /* Left-edge catch-light */
@@ -192,6 +200,8 @@ img { display: block; max-width: 100%; }
     inset 2px 4px 14px rgba(255,255,255,.13),
     /* Bottom counter-rim — faint reverse highlight */
     inset 0 -1px 0 rgba(255,255,255,.07),
+    /* Outer lift: warm near-black hairline separating the pane from the page */
+    var(--lift-outer),
     /* Outer depth shadow */
     var(--shadow-soft);
   /* NOTE: no backdrop-filter here. The frosted blur is the single most
@@ -226,6 +236,20 @@ img { display: block; max-width: 100%; }
     inset 0 1.5px 0 var(--glass-specular),
     inset 1px 0 0 rgba(255,255,255,.20),
     inset 0 -1px 0 rgba(255,255,255,.06),
+    var(--shadow-soft);
+}
+
+/* Lifted edge on the content sub-panes only — not on chips/pills/icons that
+   share the leaf rule above, which would look outlined at small sizes. */
+.project-component,
+.experience-item,
+.portrait-bg {
+  box-shadow:
+    var(--lift-inner),
+    inset 0 1.5px 0 var(--glass-specular),
+    inset 1px 0 0 rgba(255,255,255,.20),
+    inset 0 -1px 0 rgba(255,255,255,.06),
+    var(--lift-outer),
     var(--shadow-soft);
 }
 
@@ -491,12 +515,13 @@ h1 { font-family: var(--font-sans); font-weight: 400; font-size: clamp(4rem, 8vw
     var(--glass-tint) padding-box,
     var(--surface) padding-box,
     linear-gradient(150deg, var(--accent) 0%, var(--glass-edge) 55%, rgba(255,255,255,.12) 100%) border-box;
-  box-shadow: var(--shadow-soft), 0 0 0 1px var(--accent-soft);
+  /* Inner white lift + the accent ring as this card's (warm) outer stroke. */
+  box-shadow: var(--lift-inner), var(--shadow-soft), 0 0 0 1px var(--accent-soft);
   transition: transform .3s ease, box-shadow .3s ease;
 }
 .project-component--feature:hover {
   transform: translateY(-3px);
-  box-shadow: 0 22px 48px rgba(0,0,0,.18), 0 0 0 1px var(--accent-soft);
+  box-shadow: var(--lift-inner), 0 22px 48px rgba(86,62,44,.20), 0 0 0 1px var(--accent-soft);
 }
 .component-link {
   display: block;
