@@ -8,3 +8,6 @@ dist
 # Local-only assets not part of the build
 /ChatGPT Image*.png
 assets/profile-transparent*.png
+
+# Local Claude config (never deploy/track)
+.claude/
