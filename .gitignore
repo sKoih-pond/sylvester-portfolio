@@ -2,6 +2,8 @@ node_modules
 dist
 .DS_Store
 *.local
+.env
+.env.*
 
 # Local-only assets not part of the build
 /ChatGPT Image*.png
