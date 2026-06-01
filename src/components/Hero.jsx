@@ -148,7 +148,7 @@ function HeroCopy({ titleId }) {
       <p style={{ fontSize: ".72rem", letterSpacing: ".1em", textTransform: "uppercase", color: "var(--accent)", fontWeight: 700, margin: "0 0 12px" }}>
         {positioning}
       </p>
-      <h1 id={titleId} style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(2.6rem, 8vw, 4.2rem)", fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.05, margin: "0 0 18px" }}>
+      <h1 id={titleId} style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(2.6rem, 8vw, 4.2rem)", fontWeight: 350, letterSpacing: "-0.02em", lineHeight: 1.05, margin: "0 0 18px" }}>
         Hi, I'm Sylvester
       </h1>
       <p style={{ maxWidth: 520, color: "var(--muted)", lineHeight: 1.6, margin: "0 0 22px" }}>{bio.heroSummary}</p>

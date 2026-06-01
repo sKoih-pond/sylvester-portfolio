@@ -3,38 +3,26 @@ import Reveal from "./Reveal.jsx";
 import { experience, projects, AXES, MAX_AXIS } from "../data/profile.js";
 import { useActiveEntry } from "../hooks/useActiveEntry.js";
 
-// One shared radar serving BOTH work experience and projects. It is the hero
-// element of the section: at rest it shows the aggregate capability profile
-// (per-axis max across every entry); hovering/tapping any entry morphs it to
-// that entry's mapped axes and dims the others.
+// One shared radar serving BOTH work experience and projects, as the centre
+// hero element. Work flanks it on the left, Projects on the right, so the whole
+// section fits in one viewport without scrolling. At rest the radar shows the
+// aggregate capability profile (per-axis max); hover/tap any entry morphs it.
 
 const ALL = [
   ...experience.map((e) => ({ id: e.id, label: e.role, axes: e.axes })),
   ...projects.map((p) => ({ id: p.id, label: p.title, axes: p.axes })),
 ];
-
-// Aggregate resting shape = per-axis max over all entries.
 const RESTING = AXES.map((_, i) => Math.max(...ALL.map((e) => e.axes[i])));
 
-function EntryCard({ entry, axes, active, anyActive, getProps, children }) {
-  const isActive = active === entry;
-  return (
-    <li
-      {...getProps(entry)}
-      aria-pressed={isActive}
-      className="glass-card entry-card"
-      style={{
-        padding: 16,
-        cursor: "pointer",
-        outline: "none",
-        transition: "transform .25s ease, opacity .25s ease",
-        transform: isActive ? "translateY(-2px)" : "none",
-        opacity: anyActive && !isActive ? 0.55 : 1,
-      }}
-    >
-      {children}
-    </li>
-  );
+function cardStyle(isActive, anyActive) {
+  return {
+    padding: 13,
+    cursor: "pointer",
+    outline: "none",
+    transition: "transform .25s ease, opacity .25s ease",
+    transform: isActive ? "translateY(-2px)" : "none",
+    opacity: anyActive && !isActive ? 0.5 : 1,
+  };
 }
 
 export default function ExperienceProjects() {
@@ -43,87 +31,78 @@ export default function ExperienceProjects() {
   const anyActive = !!activeId;
 
   return (
-    <Reveal as="section" id="experience" className="glass-card section-block" style={{ padding: "clamp(1.25rem, 4vw, 2.25rem)" }}>
-      <h2 className="section-title">Work &amp; Project Experience</h2>
+    <Reveal as="section" id="experience" className="glass-card section-block" style={{ padding: "clamp(1rem, 3vw, 1.75rem)" }}>
+      <h2 className="section-title section-title--center">Work &amp; Project Experience</h2>
 
-      {/* Hero element: the single radar */}
-      <div className="merged-hero">
-        <Radar
-          axes={AXES}
-          max={MAX_AXIS}
-          active={active ? active.axes : null}
-          resting={RESTING}
-          maxWidth={460}
-          idPrefix="radar-main"
-        />
-        <p className="radar-caption">
-          {active ? active.label : "Overall capability — hover an entry to focus"}
-        </p>
-      </div>
-
-      <div className="merged-grid">
-        {/* Work */}
-        <div>
+      <div className="merged-3col">
+        {/* Work — left */}
+        <div className="merged-col">
           <h3 className="col-label">Work</h3>
           <ul className="entry-list">
-            {experience.map((e) => (
-              <EntryCard key={e.id} entry={e.id} active={activeId} anyActive={anyActive} getProps={getProps}>
-                <h4 style={{ margin: "0 0 2px", fontSize: "1rem", fontWeight: 700 }}>{e.role}</h4>
-                <p style={{ margin: "0 0 6px", color: "var(--accent)", fontWeight: 600, fontSize: ".85rem" }}>
-                  {e.org} · {e.period}
-                </p>
-                <p style={{ margin: 0, color: "var(--muted)", fontSize: ".88rem", lineHeight: 1.55 }}>{e.blurb}</p>
-              </EntryCard>
-            ))}
+            {experience.map((e) => {
+              const isActive = activeId === e.id;
+              return (
+                <li key={e.id} {...getProps(e.id)} aria-pressed={isActive} className="glass-card entry-card" style={cardStyle(isActive, anyActive)}>
+                  <h4 style={{ margin: "0 0 2px", fontSize: ".92rem", fontWeight: 700, lineHeight: 1.2 }}>{e.role}</h4>
+                  <p style={{ margin: "0 0 5px", color: "var(--accent)", fontWeight: 600, fontSize: ".78rem" }}>{e.org} · {e.period}</p>
+                  <p style={{ margin: 0, color: "var(--muted)", fontSize: ".82rem", lineHeight: 1.45 }}>{e.blurb}</p>
+                </li>
+              );
+            })}
           </ul>
         </div>
 
-        {/* Projects */}
-        <div id="projects">
+        {/* Radar — centre hero */}
+        <div className="radar-col">
+          <Radar axes={AXES} max={MAX_AXIS} active={active ? active.axes : null} resting={RESTING} maxWidth={400} idPrefix="radar-main" />
+          <p className="radar-caption">{active ? active.label : "Overall capability — hover an entry to focus"}</p>
+        </div>
+
+        {/* Projects — right */}
+        <div className="merged-col" id="projects">
           <h3 className="col-label">Projects</h3>
           <ul className="entry-list">
-            {projects.map((p) => (
-              <EntryCard key={p.id} entry={p.id} active={activeId} anyActive={anyActive} getProps={getProps}>
-                {p.eyebrow && (
-                  <p style={{ margin: "0 0 6px", fontSize: ".68rem", letterSpacing: ".1em", textTransform: "uppercase", color: "var(--accent)", fontWeight: 700 }}>
-                    <span aria-hidden="true">✈ </span>{p.eyebrow}
-                  </p>
-                )}
-                <h4 style={{ margin: "0 0 8px", fontSize: "1.08rem", fontWeight: 700, lineHeight: 1.25 }}>{p.title}</h4>
-                <p style={{ margin: "0 0 14px", color: "var(--muted)", fontSize: ".9rem", lineHeight: 1.55 }}>{p.summary}</p>
-                <a
-                  className="glass-button primary"
-                  href={p.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  style={{ fontSize: ".85rem", padding: "10px 16px" }}
-                >
-                  <span aria-hidden="true">↗</span> View project
-                </a>
-                {p.components?.length > 0 && (
-                  <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--border-soft)" }}>
-                    <p style={{ margin: "0 0 10px", fontSize: ".68rem", letterSpacing: ".1em", textTransform: "uppercase", color: "var(--muted)", fontWeight: 700 }}>
-                      Platform components
+            {projects.map((p) => {
+              const isActive = activeId === p.id;
+              return (
+                <li key={p.id} {...getProps(p.id)} aria-pressed={isActive} className="glass-card entry-card" style={cardStyle(isActive, anyActive)}>
+                  {p.eyebrow && (
+                    <p style={{ margin: "0 0 4px", fontSize: ".64rem", letterSpacing: ".1em", textTransform: "uppercase", color: "var(--accent)", fontWeight: 700 }}>
+                      <span aria-hidden="true">✈ </span>{p.eyebrow}
                     </p>
-                    <div style={{ display: "grid", gap: 10 }}>
+                  )}
+                  <h4 style={{ margin: "0 0 6px", fontSize: ".98rem", fontWeight: 700, lineHeight: 1.22 }}>{p.title}</h4>
+                  <p style={{ margin: "0 0 10px", color: "var(--muted)", fontSize: ".82rem", lineHeight: 1.45 }}>{p.summary}</p>
+                  <a
+                    className="glass-button primary"
+                    href={p.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ fontSize: ".8rem", padding: "8px 14px" }}
+                  >
+                    <span aria-hidden="true">↗</span> View project
+                  </a>
+                  {p.components?.length > 0 && (
+                    <ul style={{ listStyle: "none", margin: "12px 0 0", padding: "12px 0 0", borderTop: "1px solid var(--border-soft)", display: "grid", gap: 9 }}>
                       {p.components.map((c) => (
-                        <div key={c.title} className="glass-card" style={{ padding: 14 }}>
-                          <span aria-hidden="true" style={{ color: "var(--accent)", fontSize: "1.1rem" }}>{c.icon}</span>
-                          <h5 style={{ margin: "6px 0 6px", fontSize: ".95rem", fontWeight: 700 }}>{c.title}</h5>
-                          <p style={{ margin: 0, color: "var(--muted)", fontSize: ".84rem", lineHeight: 1.5 }}>{c.body}</p>
-                          <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 10 }}>
-                            {c.tags.map((t) => (
-                              <span key={t} style={{ padding: "5px 9px", borderRadius: 999, background: "var(--surface-soft)", color: "var(--muted)", fontSize: ".72rem" }}>{t}</span>
-                            ))}
+                        <li key={c.title} style={{ display: "flex", gap: 9, alignItems: "flex-start" }}>
+                          <span aria-hidden="true" style={{ color: "var(--accent)", fontSize: ".95rem", lineHeight: 1.3 }}>{c.icon}</span>
+                          <div>
+                            <div style={{ fontSize: ".82rem", fontWeight: 700, lineHeight: 1.25 }}>{c.title}</div>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 5 }}>
+                              {c.tags.map((t) => (
+                                <span key={t} style={{ padding: "3px 7px", borderRadius: 999, background: "var(--surface-soft)", color: "var(--muted)", fontSize: ".68rem" }}>{t}</span>
+                              ))}
+                            </div>
                           </div>
-                        </div>
+                        </li>
                       ))}
-                    </div>
-                  </div>
-                )}
-              </EntryCard>
-            ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>
