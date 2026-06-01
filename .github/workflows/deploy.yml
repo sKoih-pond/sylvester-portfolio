@@ -10,6 +10,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (Vite → dist/)
+        run: npm run build
+
+      # Publishes ONLY the built dist/ folder. Vite content-hashes filenames,
+      # so no manual ?v=N cache-busting is needed.
+      #
+      # /sgn/ PRESERVATION: this action deletes only files it has previously
+      # deployed (tracked in .ftp-deploy-sync-state.json on the server). The SGN
+      # tool at /sgn/ was published by a separate workflow and is NOT in this
+      # action's sync state, so it is left intact. dangerous-clean-slate is left
+      # at its default (false) — do NOT enable it, or /sgn/ would be wiped.
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -17,10 +37,8 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: ${{ secrets.FTP_REMOTE_DIR }}
+          local-dir: ./dist/
           protocol: ftps
           exclude: |
             **/.git*
             **/.git*/**
-            **/.claude/**
-            **/.github/**
-            **/node_modules/**
