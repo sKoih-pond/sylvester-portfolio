@@ -86,6 +86,7 @@ export const projects = [
 ];
 
 export const contact = {
+  cv: "/assets/Sylvester-Koh-CV.pdf",
   email: "hello@sylvesterkoh.dev",
   linkedin: "https://www.linkedin.com/in/sylvester-koh/",
   github: "https://github.com/sKoih-pond",

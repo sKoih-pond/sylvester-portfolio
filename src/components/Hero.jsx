@@ -154,6 +154,7 @@ function HeroCopy({ titleId }) {
       <p style={{ maxWidth: 520, color: "var(--muted)", lineHeight: 1.6, margin: "0 0 22px" }}>{bio.heroSummary}</p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
         <a className="glass-button primary" href="#projects"><span aria-hidden="true">↗</span> View projects</a>
+        <a className="glass-button" href={contact.cv} download><span aria-hidden="true">⇩</span> Download CV</a>
         <a className="glass-button" href={contact.calendar} target="_blank" rel="noopener noreferrer"><span aria-hidden="true">📅</span> Book a chat</a>
       </div>
       <p style={{ marginTop: 20, color: "var(--muted)", fontSize: ".85rem" }}>

@@ -1,0 +1,41 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Portfolio (main)",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "3000", "--directory", "/Users/sylvesterkoh/sylvester-portfolio"],
+      "port": 3000
+    },
+    {
+      "name": "Portfolio (worktree: admiring-kalam)",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "3001", "--directory", "/Users/sylvesterkoh/sylvester-portfolio/.claude/worktrees/admiring-kalam-ea7fca"],
+      "port": 3001
+    },
+    {
+      "name": "Portfolio (worktree: amazing-sammet)",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "3002", "--directory", "/Users/sylvesterkoh/sylvester-portfolio/.claude/worktrees/amazing-sammet-1ce5aa"],
+      "port": 3002
+    },
+    {
+      "name": "Portfolio (worktree: heuristic-tereshkova)",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "3003", "--directory", "/Users/sylvesterkoh/sylvester-portfolio/.claude/worktrees/heuristic-tereshkova-89144d"],
+      "port": 3003
+    },
+    {
+      "name": "SGN app",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "3010", "--directory", "/Users/sylvesterkoh/sgn-flight-warehouse/app"],
+      "port": 3010
+    },
+    {
+      "name": "Portfolio React",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "5181"],
+      "port": 5181
+    }
+  ]
+}
