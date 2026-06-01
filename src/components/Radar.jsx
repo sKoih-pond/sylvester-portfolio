@@ -26,10 +26,11 @@ function lerp(a, b, t) {
   return a + (b - a) * t;
 }
 
-export default function Radar({ axes, max, active, idPrefix = "radar" }) {
+export default function Radar({ axes, max, active, resting, idPrefix = "radar", maxWidth = SIZE }) {
   const reduce = useReducedMotion();
   const n = axes.length;
-  const rest = axes.map(() => REST_RATIO);
+  // Resting shape: an aggregate profile if provided, else a uniform heptagon.
+  const rest = resting ? resting.map((v) => v / max) : axes.map(() => REST_RATIO);
 
   const progress = useMotionValue(0); // 0 = from, 1 = to
   const lit = useMotionValue(0); // 0 = resting look, 1 = active look
@@ -69,7 +70,7 @@ export default function Radar({ axes, max, active, idPrefix = "radar" }) {
       viewBox={`0 0 ${SIZE} ${SIZE}`}
       role="img"
       aria-labelledby={`${idPrefix}-title`}
-      style={{ width: "100%", maxWidth: SIZE, height: "auto", overflow: "visible" }}
+      style={{ width: "100%", maxWidth, height: "auto", overflow: "visible" }}
     >
       <title id={`${idPrefix}-title`}>
         Skill radar across {axes.join(", ")}

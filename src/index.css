@@ -10,7 +10,6 @@
 :root {
   color-scheme: light;
   --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-serif: "Playfair Display", Georgia, serif;
 
   /* Golden-ratio radius scale (φ ≈ 1.618), r₀ = 14px */
   --radius-sm: 14px;
@@ -207,16 +206,37 @@ a { color: inherit; text-decoration: none; }
 }
 .section-block { margin-top: clamp(1.5rem, 5vw, 3rem); }
 
-.radar-layout {
+/* Merged section: single radar as the hero element, entries below in two cols */
+.merged-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
+  place-items: center;
+  gap: 10px;
+  margin: 4px auto clamp(1.75rem, 5vw, 3rem);
+}
+.radar-caption {
+  margin: 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: .8rem;
+  letter-spacing: .02em;
+  min-height: 1.2em;
+  transition: color .25s ease;
+}
+.merged-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: clamp(1.5rem, 4vw, 2.5rem);
   align-items: start;
 }
+.col-label {
+  margin: 0 0 12px;
+  font-size: .72rem; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted);
+}
+.entry-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 
 @media (max-width: 860px) {
   .hero-grid { grid-template-columns: 1fr !important; }
-  .radar-layout { grid-template-columns: 1fr; }
-  /* chart above the list on narrow screens for spatial clarity */
-  .radar-layout > :last-child { order: -1; }
+  .merged-grid { grid-template-columns: 1fr; }
 }

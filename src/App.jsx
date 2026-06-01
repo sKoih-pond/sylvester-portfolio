@@ -3,8 +3,7 @@ import { useSolarTheme } from "./theme/useSolarTheme.js";
 import { useLenis } from "./hooks/useLenis.js";
 import ThemePill from "./components/ThemePill.jsx";
 import Hero from "./components/Hero.jsx";
-import Experience from "./components/Experience.jsx";
-import Projects from "./components/Projects.jsx";
+import ExperienceProjects from "./components/ExperienceProjects.jsx";
 import Footer from "./components/Footer.jsx";
 
 export default function App() {
@@ -48,8 +47,7 @@ export default function App() {
 
       <main id="main" style={{ width: "min(1180px, calc(100% - 2rem))", margin: "0 auto", paddingBottom: "2rem" }}>
         <Hero />
-        <Experience />
-        <Projects />
+        <ExperienceProjects />
         <Footer />
       </main>
     </>
