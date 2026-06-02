@@ -29,7 +29,9 @@ export const AXES = [
   "Incident",
 ];
 
-export const MAX_AXIS = 3; // 0 none · 1 some · 2 strong · 3 dominant
+// Ceiling raised to 4 so even genuine strengths sit at ~75% (nothing maxes the
+// outer ring) — keeps the profile honest rather than overconfident.
+export const MAX_AXIS = 4; // 0 none · 1 basic · 2 working · 3 strong · 4 expert (reserved)
 
 // Chart A — Experience (axis values keyed to AXES order)
 export const experience = [
@@ -52,7 +54,29 @@ export const experience = [
     current: false,
     blurb:
       "Incident management, API monitoring and cloud infrastructure support for traffic broadcast software in enterprise environments.",
-    axes: [0, 0, 2, 1, 0, 2, 3],
+    axes: [2, 0, 2, 1, 1, 2, 2],
+  },
+  // Earlier roles — older, primarily data-entry / data-cleaning work. Kept
+  // secondary; they reinforce SQL / reporting / data-quality, not headline.
+  {
+    id: "circana",
+    role: "Product Coding & Attribution Specialist",
+    org: "Circana",
+    period: "Feb 2023 — Aug 2023",
+    tier: "earlier",
+    blurb: "Re-coded product records against multi-client rulebooks; refined rules to improve data quality.",
+    //     SQL Py Cloud Pipe Report Stake Incident
+    axes: [1, 0, 0, 0, 1, 0, 0],
+  },
+  {
+    id: "ibisworld",
+    role: "Enterprise Research Analyst",
+    org: "IBISWorld",
+    period: "Jun 2021 — Mar 2022",
+    tier: "earlier",
+    blurb: "Verified financial data across 7,000+ company profiles; co-led the Top 500 Private Companies project.",
+    //     SQL Py Cloud Pipe Report Stake Incident
+    axes: [1, 0, 0, 0, 2, 1, 0],
   },
 ];
 
@@ -67,7 +91,7 @@ export const projects = [
       "An Azure-backed data pipeline feeding a custom JavaScript reporting tool that uses ML delay prediction to surface arrival congestion and immigration queue pressure.",
     href: "https://kohstack.au/sgn/",
     //     SQL Py Cloud Pipe Report Stake Incident
-    axes: [2, 3, 3, 3, 3, 0, 0],
+    axes: [3, 3, 2, 3, 3, 0, 0],
     components: [
       {
         icon: "⌁",

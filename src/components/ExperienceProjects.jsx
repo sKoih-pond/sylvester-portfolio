@@ -29,6 +29,8 @@ export default function ExperienceProjects() {
   const { activeId, getProps } = useActiveEntry();
   const active = ALL.find((e) => e.id === activeId);
   const anyActive = !!activeId;
+  const primary = experience.filter((e) => e.tier !== "earlier");
+  const earlier = experience.filter((e) => e.tier === "earlier");
 
   return (
     <Reveal as="section" id="experience" className="glass-card section-block" style={{ padding: "clamp(1rem, 3vw, 1.75rem)" }}>
@@ -39,7 +41,7 @@ export default function ExperienceProjects() {
         <div className="merged-col">
           <h3 className="col-label">Work</h3>
           <ul className="entry-list">
-            {experience.map((e) => {
+            {primary.map((e) => {
               const isActive = activeId === e.id;
               return (
                 <li key={e.id} {...getProps(e.id)} aria-pressed={isActive} className="glass-card entry-card" style={cardStyle(isActive, anyActive)}>
@@ -50,6 +52,23 @@ export default function ExperienceProjects() {
               );
             })}
           </ul>
+
+          {earlier.length > 0 && (
+            <>
+              <h3 className="col-label" style={{ marginTop: 16 }}>Earlier</h3>
+              <ul className="entry-list">
+                {earlier.map((e) => {
+                  const isActive = activeId === e.id;
+                  return (
+                    <li key={e.id} {...getProps(e.id)} aria-pressed={isActive} className="glass-card entry-card" style={{ ...cardStyle(isActive, anyActive), padding: 11 }}>
+                      <h4 style={{ margin: "0 0 1px", fontSize: ".82rem", fontWeight: 700, lineHeight: 1.2 }}>{e.role}</h4>
+                      <p style={{ margin: 0, color: "var(--muted)", fontSize: ".72rem" }}>{e.org} · {e.period}</p>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
         </div>
 
         {/* Radar — centre hero */}
