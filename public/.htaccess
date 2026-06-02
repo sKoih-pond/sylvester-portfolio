@@ -1,0 +1,47 @@
+# ─────────────────────────────────────────────────────────────────────────
+# Security hardening for kohstack.au (static site on Apache/cPanel).
+# Applies to the portfolio and inherits into /sgn/. The CSP is crafted to also
+# satisfy the SGN tool (inline app script, Google Fonts) so it is not broken.
+# ─────────────────────────────────────────────────────────────────────────
+
+<IfModule mod_headers.c>
+  # Content-Security-Policy — the core anti-injection control.
+  #  - default 'self': only same-origin by default
+  #  - script-src 'self' 'unsafe-inline': bundled + small inline bootstrap /
+  #    the SGN inline app script. (No HTML sink reflects user input, audited.)
+  #  - style-src adds Google Fonts stylesheet (used by /sgn/); 'unsafe-inline'
+  #    covers React style attributes.
+  #  - connect-src allows only the two third-party endpoints the solar engine
+  #    calls (IP geo + reverse geocode); everything else is blocked.
+  #  - frame-ancestors 'none' + object-src 'none' + base-uri 'self': block
+  #    clickjacking, plugin/object injection, and <base> hijacking.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://get.geojs.io https://nominatim.openstreetmap.org; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
+
+  # Stop MIME-type sniffing (defends against content-type confusion attacks).
+  Header always set X-Content-Type-Options "nosniff"
+
+  # Clickjacking defence for legacy browsers (CSP frame-ancestors covers modern).
+  Header always set X-Frame-Options "DENY"
+
+  # Don't leak full URLs/referrers to third parties.
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # Lock down powerful browser features. Geolocation kept self (solar engine);
+  # everything else denied.
+  Header always set Permissions-Policy "geolocation=(self), camera=(), microphone=(), payment=(), usb=(), magnetometer=(), gyroscope=()"
+
+  # Force HTTPS for a year (site is already HTTPS via cPanel AutoSSL).
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+  # Cross-origin isolation hygiene.
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  Header always set X-Permitted-Cross-Domain-Policies "none"
+</IfModule>
+
+# No directory browsing (prevents listing/enumeration of files).
+Options -Indexes
+
+# Deny access to hidden/sensitive files if any ever land on the server.
+<FilesMatch "(^\.(?!well-known)|\.(env|ini|log|bak|sh|yml|yaml)$)">
+  Require all denied
+</FilesMatch>
