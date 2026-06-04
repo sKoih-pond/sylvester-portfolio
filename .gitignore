@@ -11,3 +11,7 @@ assets/profile-transparent*.png
 
 # Local Claude config (never deploy/track)
 .claude/
+
+# shadcn skill tooling
+.agents/
+skills-lock.json

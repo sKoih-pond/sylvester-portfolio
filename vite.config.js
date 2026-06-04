@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { copyFileSync, existsSync } from "node:fs";
+import path from "node:path";
 
 // Guarantee the Apache security config lands in the published output, even if
 // Vite's public-dir copy skips dotfiles.
@@ -18,6 +19,11 @@ function copyHtaccess() {
 // Content-hashed filenames remove the need for manual ?v=N cache-busting.
 export default defineConfig({
   plugins: [react(), tailwindcss(), copyHtaccess()],
+  resolve: {
+    alias: {
+      "@": path.resolve(import.meta.dirname, "./src"),
+    },
+  },
   build: {
     outDir: "dist",
     target: "es2020",

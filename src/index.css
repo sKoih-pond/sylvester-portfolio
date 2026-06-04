@@ -1,4 +1,9 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+/* (Geist font import removed — the site uses self-hosted Inter.) */
+
+@custom-variant dark (&:is(.dark *));
 
 /* ============================================================================
    Design system — PORTED VERBATIM from the legacy site (legacy/styles.css).
@@ -22,6 +27,38 @@
   /* Lifted-edge hairlines (warm, not cold black) */
   --lift-inner: inset 0 0 0 1px rgba(255, 255, 255, 0.10);
   --lift-outer: 0 0 0 1px rgba(86, 62, 44, 0.12);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
 }
 
 /* ── Morning ─────────────────────────────────────────────────────────────── */
@@ -115,7 +152,9 @@ body {
   min-height: 100vh;
   font-family: var(--font-sans);
   color: var(--text);
-  background: var(--background, var(--page-bg));
+  /* Solar page background. (shadcn init added a neutral --background to :root;
+     use --page-bg directly so the solar theme is not overridden.) */
+  background: var(--page-bg);
   transition: background 2s ease, color 2s ease;
   -webkit-font-smoothing: antialiased;
 }
@@ -179,7 +218,37 @@ a { color: inherit; text-decoration: none; }
 .glass-button:hover { transform: translateY(-2px); }
 .glass-button.primary { background: var(--surface-strong); }
 
+/* Accent-filled primary CTA — the dominant action in the visual hierarchy.
+   color = --page-bg gives strong contrast against --accent in every theme. */
+.btn-accent {
+  background: var(--accent);
+  color: var(--page-bg);
+  font-weight: 700;
+  border: 1px solid transparent;
+  box-shadow: var(--lift-inner), var(--shadow-soft);
+}
+.btn-accent:hover { transform: translateY(-2px); filter: brightness(1.05); }
+.btn-arrow { transition: transform .25s ease; }
+.btn-accent:hover .btn-arrow { transform: translateX(3px); }
+
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: var(--radius-sm); }
+
+/* Contact section (contact-2 style, warm-themed) */
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+  margin-top: clamp(1.25rem, 4vw, 2rem);
+}
+.contact-card {
+  display: block;
+  padding: 16px;
+  color: var(--text);
+  transition: transform .25s ease;
+}
+.contact-card:hover { transform: translateY(-3px); }
+.contact-card .c-icon { color: var(--accent); font-weight: 700; min-width: 1.2em; }
+.contact-card .c-link { color: var(--accent); font-weight: 600; font-size: .82rem; }
 
 /* Reduced transparency: solid surfaces, no blur. */
 @media (prefers-reduced-transparency: reduce) {
@@ -245,4 +314,93 @@ a { color: inherit; text-decoration: none; }
   /* Stack: radar (hero) on top, then Work, then Projects */
   .merged-3col { grid-template-columns: 1fr; gap: clamp(1.25rem, 4vw, 2rem); }
   .radar-col { order: -1; }
+}
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: 'Geist Variable', sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
 }
