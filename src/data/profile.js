@@ -111,7 +111,7 @@ export const projects = [
 
 export const contact = {
   cv: "/assets/Sylvester-Koh-CV.pdf",
-  email: "hello@sylvesterkoh.dev",
+  email: "sylvester@kohstack.au",
   linkedin: "https://www.linkedin.com/in/sylvester-koh/",
   github: "https://github.com/sKoih-pond",
   calendar: "https://calendar.app.google/gcrG9Y83c7zax4oM7",
