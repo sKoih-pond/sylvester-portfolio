@@ -1,6 +1,77 @@
-import { useState, useId } from "react";
+import { useState, useEffect, useId } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { bio, positioning, contact } from "../data/profile.js";
+
+const HEADLINE = "Hi, I'm Sylvester";
+
+// The hero headline doubles as the tagline surface: it shows the greeting by
+// default and type-animates the tagline on hover (desktop) / focus / tap (touch).
+// Reduced-motion swaps instantly. The tagline is always in the DOM for SEO and
+// exposed to screen readers via a visually-hidden paragraph in HeroCopy.
+function HeroHeadline({ titleId }) {
+  const reduce = useReducedMotion();
+  const tagline = bio.heroSummary;
+  const [revealed, setRevealed] = useState(false);
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (!revealed) {
+      setCount(0);
+      return;
+    }
+    if (reduce) {
+      setCount(tagline.length);
+      return;
+    }
+    let i = 0;
+    setCount(0);
+    const id = setInterval(() => {
+      i += 1;
+      setCount(i);
+      if (i >= tagline.length) clearInterval(id);
+    }, 26);
+    return () => clearInterval(id);
+  }, [revealed, reduce, tagline]);
+
+  const interaction = hasHover
+    ? {
+        onMouseEnter: () => setRevealed(true),
+        onMouseLeave: () => setRevealed(false),
+        onFocus: () => setRevealed(true),
+        onBlur: () => setRevealed(false),
+      }
+    : {
+        onClick: () => setRevealed((r) => !r),
+        onKeyDown: (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setRevealed((r) => !r);
+          }
+        },
+      };
+
+  return (
+    <h1
+      id={titleId}
+      className={`hero-headline${revealed ? " is-revealed" : ""}`}
+      tabIndex={0}
+      aria-label={HEADLINE}
+      title={hasHover ? "Hover to read more" : "Tap to read more"}
+      {...interaction}
+    >
+      <span aria-hidden="true">
+        {revealed ? (
+          <>
+            {tagline.slice(0, count)}
+            <span className="type-caret" />
+          </>
+        ) : (
+          HEADLINE
+        )}
+      </span>
+    </h1>
+  );
+}
 
 const hasHover =
   typeof window !== "undefined" && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
@@ -148,10 +219,8 @@ function HeroCopy({ titleId }) {
       <p style={{ fontSize: ".72rem", letterSpacing: ".1em", textTransform: "uppercase", color: "var(--accent)", fontWeight: 700, margin: "0 0 12px" }}>
         {positioning}
       </p>
-      <h1 id={titleId} style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(2.6rem, 8vw, 4.2rem)", fontWeight: 350, letterSpacing: "-0.02em", lineHeight: 1.05, margin: "0 0 18px" }}>
-        Hi, I'm Sylvester
-      </h1>
-      <p style={{ maxWidth: 520, color: "var(--muted)", lineHeight: 1.6, margin: "0 0 22px" }}>{bio.heroSummary}</p>
+      <HeroHeadline titleId={titleId} />
+      <p className="sr-only">{bio.heroSummary}</p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
         <a className="glass-button btn-accent" href={contact.calendar} target="_blank" rel="noopener noreferrer">
           <span aria-hidden="true">📅</span> Book a chat <span aria-hidden="true" className="btn-arrow">→</span>
