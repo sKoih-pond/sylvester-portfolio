@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="kohstack">
+  <title>kohstack — Sylvester Koh</title>
+  <!-- "The Stack": three rising bars = a data stack / analytics growth / clarity
+       built layer on layer. Even transparent padding (9px) all round. Solid
+       copper steps (no opacity) so every bar stays visible on a light tab; a
+       prefers-color-scheme rule brightens them on a dark tab. -->
+  <style>
+    .b1 { fill: #d39f6f; }
+    .b2 { fill: #b8814f; }
+    .b3 { fill: #9c6a47; }
+    @media (prefers-color-scheme: dark) {
+      .b1 { fill: #f2cfa4; }
+      .b2 { fill: #dca873; }
+      .b3 { fill: #c08a57; }
+    }
+  </style>
+  <rect class="b1" x="9" y="9"  width="46" height="10" rx="5"/>
+  <rect class="b2" x="9" y="27" width="37" height="10" rx="5"/>
+  <rect class="b3" x="9" y="45" width="28" height="10" rx="5"/>
+</svg>

@@ -124,25 +124,29 @@ html[data-theme="sunset"] {
   --glass-specular: rgba(255, 235, 195, 0.40);
 }
 
-/* ── Night ───────────────────────────────────────────────────────────────── */
+/* ── Night ───────────────────────────────────────────────────────────────────
+   Warm-brown dark mode (was cool blue-black #07111d). The portrait's residual
+   non-transparent edge halo reads as an ugly cold ring against blue-black; a
+   warm espresso ground sits closer in hue + luminance to that fringe, so the
+   halo all but disappears. Accent + surfaces stay warm/copper for brand unity. */
 html[data-theme="night"] {
   color-scheme: dark;
-  --page-bg: #07111d;
-  --surface: rgba(23, 42, 62, 0.46);
-  --surface-strong: rgba(30, 54, 78, 0.58);
-  --surface-soft: rgba(14, 26, 40, 0.42);
-  --border: rgba(177, 205, 236, 0.24);
-  --border-soft: rgba(177, 205, 236, 0.16);
-  --text: #f5eadc;
-  --muted: #c7b9a8;
-  --accent: #f2bd7a;
-  --accent-soft: rgba(98, 155, 207, 0.18);
-  --shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
-  --shadow-soft: 0 12px 40px rgba(0, 0, 0, 0.32);
-  --chart-projects: #9ec7e8;
-  --glass-tint: rgba(98, 155, 207, 0.10);
-  --glass-edge: rgba(177, 205, 236, 0.40);
-  --glass-specular: rgba(210, 228, 248, 0.34);
+  --page-bg: #241b16;
+  --surface: rgba(122, 86, 60, 0.26);
+  --surface-strong: rgba(168, 122, 82, 0.32);
+  --surface-soft: rgba(70, 49, 34, 0.30);
+  --border: rgba(228, 198, 162, 0.30);
+  --border-soft: rgba(228, 198, 162, 0.16);
+  --text: #f4e8da;
+  --muted: #c9b4a1;
+  --accent: #e3a36d;
+  --accent-soft: rgba(227, 163, 109, 0.18);
+  --shadow: 0 24px 70px rgba(18, 10, 6, 0.50);
+  --shadow-soft: 0 12px 40px rgba(18, 10, 6, 0.34);
+  --chart-projects: #d2b48c;
+  --glass-tint: rgba(227, 163, 109, 0.08);
+  --glass-edge: rgba(228, 198, 162, 0.42);
+  --glass-specular: rgba(245, 228, 202, 0.34);
 }
 
 * { box-sizing: border-box; }
@@ -244,7 +248,7 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: -0.02em;
   line-height: 1.05;
   color: var(--text);
-  cursor: pointer;
+  cursor: default;
   outline: none;
   min-height: clamp(6rem, 20vw, 8rem);
   transition: font-size .25s ease, font-weight .25s ease;
@@ -276,6 +280,165 @@ a { color: inherit; text-decoration: none; }
 @media (prefers-reduced-motion: reduce) {
   .hero-headline { transition: none; }
   .type-caret { animation: none; }
+}
+
+/* ── Hero action frame ────────────────────────────────────────────────────────
+   Sits below the headline and frames the brand statement, the three CTAs and
+   the availability line in one glass panel — the hero's primary call to action.
+   Pillar words (analytics / automation / cloud) are lit in --accent. */
+.hero-frame {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  margin-top: clamp(24px, 4.5vw, 34px);
+  padding: clamp(18px, 3vw, 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  /* Softened, frosted panel (not the high-contrast glass-card): a quiet hairline
+     and surface-soft fill so it doesn't fight the headline or signal line, while
+     the backdrop blur frosts whatever passes behind it. */
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--surface-soft);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  transition: background 2s ease, box-shadow 2s ease;
+}
+.hero-intro {
+  margin: 0;
+  max-width: 54ch;
+  font-size: clamp(0.92rem, 1.6vw, 1.02rem);
+  line-height: 1.55;
+  font-weight: 500;
+  color: var(--text);
+}
+.hero-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.hero-avail {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.avail-city { color: var(--accent); font-weight: 600; }
+.pos-key { color: var(--accent); font-weight: 700; }
+
+/* Dark themes: back the cut-out portrait with a warm cream plate matching the
+   photo's original background, so the hair's faint light edge has nothing dark
+   to halo against (it blends into the cream). Light themes already sit on a
+   light ground, so they get no plate. */
+.portrait-frame {
+  position: relative;
+  display: block;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  line-height: 0;
+}
+/* Warm cream plate with a soft radial fall-off — brightest behind the head
+   (keeps the hair fringe hidden), easing to a warmer tone toward the edges so
+   it's not a flat bright block against the brown. */
+html[data-theme="night"] .portrait-frame,
+html[data-theme="sunset"] .portrait-frame {
+  background: radial-gradient(120% 96% at 50% 36%, #ece3d3 0%, #e7ddcc 56%, #dccfbb 100%);
+}
+/* Seat the photo in the panel: a 1px warm hairline + a soft inner vignette.
+   The vignette only darkens (uniformly at the edges), so it can never re-create
+   a light halo — it just stops the plate reading as a stark cut-out rectangle. */
+html[data-theme="night"] .portrait-frame::after,
+html[data-theme="sunset"] .portrait-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(120, 90, 62, 0.38),
+    inset 0 12px 30px rgba(36, 22, 13, 0.30),
+    inset 0 -16px 34px rgba(36, 22, 13, 0.22);
+}
+
+/* ── Theme pill (day/night toggle) ────────────────────────────────────────── */
+.theme-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 8px 14px;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--text);
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.theme-pill:hover { transform: translateY(-1px); }
+.theme-pill__switch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border-soft);
+  transition: background 0.3s ease;
+}
+.theme-pill__knob {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  transition: transform 0.3s ease;
+}
+.theme-pill[data-dark="true"] .theme-pill__knob { transform: translateX(16px); }
+@media (prefers-reduced-motion: reduce) {
+  .theme-pill, .theme-pill__switch, .theme-pill__knob { transition: none; }
+}
+
+/* ── Hero banner ──────────────────────────────────────────────────────────────
+   Full-bleed decorative backdrop behind the hero. Soft solar-tinted accent
+   glows (CSS) + the brand signal/stack SVG (HeroBanner.jsx). Sits on negative
+   z so the static hero content paints above it; faded at the bottom so it melts
+   into the page. Re-tints with the theme via --accent-soft / --glass-tint. */
+.hero-banner {
+  position: absolute;
+  left: 50%;
+  top: clamp(-150px, -12vw, -96px);
+  width: 100vw;
+  transform: translateX(-50%);
+  height: clamp(440px, 64vh, 680px);
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 82% 8%, var(--accent-soft) 0%, transparent 56%),
+    radial-gradient(90% 80% at 6% 28%, var(--glass-tint) 0%, transparent 62%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 58%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 58%, transparent 100%);
+  transition: background 2s ease;
+}
+.hero-banner__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.hb-line { transition: stroke 2s ease; }
+
+/* Banner is purely decorative — drop it when transparency/motion is reduced
+   so nothing competes with the text or costs a paint. */
+@media (prefers-reduced-transparency: reduce) {
+  .hero-banner { display: none; }
 }
 
 /* Contact section (contact-2 style, warm-themed) */

@@ -2,6 +2,7 @@
 import { useSolarTheme } from "./theme/useSolarTheme.js";
 import { useLenis } from "./hooks/useLenis.js";
 import ThemePill from "./components/ThemePill.jsx";
+import Logo from "./components/Logo.jsx";
 import Hero from "./components/Hero.jsx";
 import ExperienceProjects from "./components/ExperienceProjects.jsx";
 import { Contact } from "./components/contact.jsx";
@@ -38,11 +39,11 @@ export default function App() {
             className="glass-card"
             style={{ width: 38, height: 38, display: "grid", placeItems: "center", borderRadius: "var(--radius-sm)", color: "var(--accent)" }}
           >
-            SK
+            <Logo size={24} />
           </span>
           <span>Sylvester Koh</span>
         </a>
-        <ThemePill icon={theme.icon} label={theme.label} />
+        <ThemePill icon={theme.icon} label={theme.label} isDark={theme.isDark} onToggle={theme.toggle} />
       </header>
 
       <main id="main" style={{ width: "min(1180px, calc(100% - 2rem))", margin: "0 auto", paddingBottom: "2rem" }}>
