@@ -115,7 +115,7 @@ export const contact = {
   linkedin: "https://www.linkedin.com/in/sylvester-koh/",
   github: "https://github.com/sKoih-pond",
   calendar: "https://calendar.app.google/gcrG9Y83c7zax4oM7",
-  upwork: "https://www.upwork.com/freelancers/~014a1010dac4fa36b7",
+  upwork: "https://www.upwork.com/freelancers/~014a1010dac4fa36b7?viewMode=1",
 };
 
 // Client testimonials — EMPTY until real Upwork reviews exist. Nothing invented:
