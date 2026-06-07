@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="day">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SGN Immigration Congestion Risk</title>
+  <script>
+    /* Follow the portfolio's theme (same-origin localStorage): manual override
+       (sk_mode) -> portfolio's last resolved phase (sk_theme) -> OS scheme -> day.
+       Runs before paint to avoid a flash; wires the header theme pill on load. */
+    (function () {
+      var PHASES = {
+        morning: { label: "Morning mode", icon: "☼" },
+        day:     { label: "Day mode",     icon: "☀︎" },
+        sunset:  { label: "Sunset mode",  icon: "◒" },
+        night:   { label: "Night mode",   icon: "☾" }
+      };
+      var DARK = { sunset: 1, night: 1 };
+      function ls(k){ try { return localStorage.getItem(k); } catch (e) { return null; } }
+      function systemMode(){
+        try {
+          if (matchMedia("(prefers-color-scheme: dark)").matches) return "night";
+          if (matchMedia("(prefers-color-scheme: light)").matches) return "day";
+        } catch (e) {}
+        return null;
+      }
+      function resolve(){
+        var m = ls("sk_mode");
+        if (m === "day" || m === "night") return m;
+        var t = ls("sk_theme");
+        if (PHASES[t]) return t;
+        return systemMode() || "day";
+      }
+      function city(){
+        try {
+          var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+          var seg = tz.split("/").pop();
+          return seg ? seg.replace(/_/g, " ") : "";
+        } catch (e) { return ""; }
+      }
+      function apply(phase){
+        document.documentElement.dataset.theme = phase;
+        var pill = document.getElementById("theme-pill");
+        if (pill) {
+          pill.dataset.dark = DARK[phase] ? "true" : "false";
+          var ic = document.getElementById("pill-icon");
+          var lb = document.getElementById("pill-label");
+          var c = city();
+          if (ic) ic.textContent = PHASES[phase].icon;
+          if (lb) lb.textContent = PHASES[phase].label + (c ? " · " + c : "");
+        }
+      }
+      apply(resolve());
+      function wire(){
+        apply(resolve());
+        var pill = document.getElementById("theme-pill");
+        if (pill) pill.addEventListener("click", function () {
+          var next = DARK[document.documentElement.dataset.theme] ? "day" : "night";
+          try { localStorage.setItem("sk_mode", next); } catch (e) {}
+          apply(next);
+        });
+      }
+      if (document.readyState !== "loading") wire();
+      else document.addEventListener("DOMContentLoaded", wire);
+      try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function(){ apply(resolve()); }); } catch (e) {}
+      window.addEventListener("pageshow", function(){ apply(resolve()); });
+      document.addEventListener("visibilitychange", function(){ if (!document.hidden) apply(resolve()); });
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* Cross-document view transitions: morph (cross-fade) to/from the portfolio
+       at kohstack.au instead of a hard load / new tab. Progressive enhancement. */
+    @view-transition { navigation: auto; }
+    @media (prefers-reduced-motion: reduce) {
+      ::view-transition-group(*),
+      ::view-transition-old(*),
+      ::view-transition-new(*) { animation: none !important; }
+    }
+
+    :root {
+      color-scheme: light;
+      --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+      /* Golden-ratio radius scale — mirrors the portfolio */
+      --radius-sm: 14px;
+      --radius-md: 23px;
+      --radius-lg: 37px;
+      --blur: 12px;
+
+      /* Semantic congestion hues — constant across themes (data colours) */
+      --c-low:      #3f8a63;
+      --c-moderate: #c2912f;
+      --c-high:     #c2682f;
+      --c-critical: #be3b3b;
+
+      /* Legacy aliases still referenced by markup/JS */
+      --c-text:  var(--text);
+      --c-muted: var(--muted);
+      --c-accent: var(--accent);
+    }
+
+    /* Theme palettes — copied verbatim from the portfolio so /sgn/ follows Home. */
+    html[data-theme="morning"] {
+      color-scheme: light;
+      --page-bg: #fbefe9; --surface: rgba(255,245,241,0.48); --surface-strong: rgba(255,250,247,0.68); --surface-soft: rgba(255,234,228,0.32);
+      --border-soft: rgba(116,87,62,0.18); --text: #31231f; --muted: #826a62; --accent: #b07155; --accent-soft: rgba(232,154,128,0.20);
+      --shadow: 0 24px 70px rgba(86,62,44,0.16); --shadow-soft: 0 12px 40px rgba(86,62,44,0.10);
+      --glass-tint: rgba(232,154,128,0.08); --glass-edge: rgba(255,255,255,0.90); --glass-specular: rgba(255,255,255,0.78);
+    }
+    html[data-theme="day"] {
+      color-scheme: light;
+      --page-bg: #f8f2ea; --surface: rgba(255,255,255,0.44); --surface-strong: rgba(255,255,255,0.70); --surface-soft: rgba(255,255,255,0.28);
+      --border-soft: rgba(116,87,62,0.18); --text: #2e2925; --muted: #6f645a; --accent: #8f6645; --accent-soft: rgba(201,160,111,0.18);
+      --shadow: 0 24px 70px rgba(86,62,44,0.16); --shadow-soft: 0 12px 40px rgba(86,62,44,0.10);
+      --glass-tint: rgba(201,160,111,0.07); --glass-edge: rgba(255,255,255,0.86); --glass-specular: rgba(255,255,255,0.72);
+    }
+    html[data-theme="sunset"] {
+      color-scheme: dark;
+      --page-bg: #2a211f; --surface: rgba(156,90,43,0.28); --surface-strong: rgba(255,184,96,0.28); --surface-soft: rgba(78,46,31,0.28);
+      --border-soft: rgba(255,218,169,0.20); --text: #fff1dc; --muted: #f0d7bb; --accent: #ffc078; --accent-soft: rgba(255,177,90,0.20);
+      --shadow: 0 24px 70px rgba(47,26,17,0.32); --shadow-soft: 0 12px 40px rgba(47,26,17,0.22);
+      --glass-tint: rgba(255,177,90,0.09); --glass-edge: rgba(255,218,169,0.52); --glass-specular: rgba(255,235,195,0.40);
+    }
+    html[data-theme="night"] {
+      color-scheme: dark;
+      --page-bg: #241b16; --surface: rgba(122,86,60,0.26); --surface-strong: rgba(168,122,82,0.32); --surface-soft: rgba(70,49,34,0.30);
+      --border-soft: rgba(228,198,162,0.16); --text: #f4e8da; --muted: #c9b4a1; --accent: #e3a36d; --accent-soft: rgba(227,163,109,0.18);
+      --shadow: 0 24px 70px rgba(18,10,6,0.50); --shadow-soft: 0 12px 40px rgba(18,10,6,0.34);
+      --glass-tint: rgba(227,163,109,0.08); --glass-edge: rgba(228,198,162,0.42); --glass-specular: rgba(245,228,202,0.34);
+    }
+
+    /* App shell — full-viewport, fixed header, no page scroll (matches portfolio). */
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--page-bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      transition: background 1.2s ease, color 1.2s ease;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* ── Header (identical to the portfolio Home header) ─────────────────── */
+    .app-header {
+      flex: 0 0 auto;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      width: min(1340px, calc(100% - 2rem)); margin: 0 auto; padding: 16px 0;
+      position: relative; z-index: 5;
+    }
+    .header-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .logo-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      font: inherit; font-weight: 700; font-size: 1rem; color: var(--text);
+      text-decoration: none; transition: color .2s ease;
+    }
+    .logo-btn:hover { color: var(--accent); }
+    .logo-mark {
+      width: 38px; height: 38px; flex: 0 0 auto; display: grid; place-items: center;
+      border-radius: var(--radius-sm); color: var(--accent);
+      background: var(--surface-strong); border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-soft);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 8px 14px; border-radius: var(--radius-sm);
+      font: inherit; font-size: 0.82rem; font-weight: 600; color: var(--text);
+      text-decoration: none; cursor: pointer; border: 1px solid transparent;
+      background: transparent; transition: background 0.2s ease, color 0.2s ease;
+    }
+    .nav-btn:hover { background: var(--surface-strong); color: var(--accent); }
+    /* Clear "back to Work & Project Experience" control (header centre, like the
+       portfolio's in-pane nav). Reads as a button at rest; arrow shifts on hover. */
+    .back-nav { background: var(--surface-strong); border-color: var(--border-soft); box-shadow: var(--shadow-soft); }
+    .back-nav span[aria-hidden] { display: inline-block; transition: transform .2s ease; }
+    .back-nav:hover { color: var(--accent); border-color: color-mix(in oklab, var(--accent) 45%, var(--border-soft)); }
+    .back-nav:hover span[aria-hidden] { transform: translateX(-3px); }
+    /* Theme pill — day/night toggle (mirrors the portfolio) */
+    .theme-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 12px 8px 14px; border-radius: var(--radius-sm);
+      font: inherit; font-size: 0.8rem; color: var(--text); white-space: nowrap;
+      cursor: pointer; -webkit-appearance: none; appearance: none;
+      border: 1px solid var(--border-soft); background: var(--surface-strong);
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .theme-pill:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+    .theme-pill__switch {
+      position: relative; flex: 0 0 auto; width: 34px; height: 18px;
+      border-radius: 999px; background: var(--surface-soft); border: 1px solid var(--border-soft);
+      transition: background 0.3s ease;
+    }
+    .theme-pill__knob {
+      position: absolute; top: 1px; left: 1px; width: 14px; height: 14px;
+      border-radius: 50%; background: var(--accent); transition: transform 0.3s ease;
+    }
+    .theme-pill[data-dark="true"] .theme-pill__knob { transform: translateX(16px); }
+
+    /* ── Intro (left column) ─────────────────────────────────────────────── */
+    /* Breathing room before the form, growing into spare vertical space on
+       larger/taller displays. */
+    .intro { margin-bottom: clamp(1rem, 5vh, 3rem); }
+    .airport-tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--surface-strong);
+      border: 1px solid var(--border-soft);
+      padding: 0.3rem 0.8rem;
+      border-radius: 99px;
+      margin-bottom: 0.7rem;
+    }
+    .intro h1 {
+      font-family: var(--font-sans);
+      font-size: clamp(1.5rem, 2.6vw, 2rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.4rem;
+      color: var(--text);
+    }
+    .intro-sub { color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
+
+    /* ── Liquid-glass structural panels ──────────────────────────────────── */
+    .card, .chart-card {
+      border: 1.5px solid transparent;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.26) 0%, rgba(255,255,255,.04) 52%, transparent 100%) padding-box,
+        var(--glass-tint) padding-box,
+        var(--surface) padding-box,
+        linear-gradient(145deg, var(--glass-edge) 0%, rgba(255,255,255,.28) 48%, rgba(255,255,255,.08) 100%) border-box;
+      box-shadow:
+        inset 0 1.5px 0 var(--glass-specular),
+        inset 1px 0 0 rgba(255,255,255,.22),
+        inset 2px 4px 14px rgba(255,255,255,.13),
+        inset 0 -1px 0 rgba(255,255,255,.07),
+        var(--shadow-soft);
+      backdrop-filter: blur(var(--blur)) saturate(150%) brightness(1.04);
+      -webkit-backdrop-filter: blur(var(--blur)) saturate(150%) brightness(1.04);
+    }
+
+    .card {
+      border-radius: var(--radius-lg);
+      padding: 1.1rem 1.3rem;
+      width: 100%;
+    }
+
+    /* ── Input panels ────────────────────────────────────────────────────── */
+
+    .field-label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .field-row { margin-bottom: 0.7rem; }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="time"] {
+      width: 100%;
+      background: var(--surface-soft);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      font-weight: 500;
+      padding: 0.7rem 0.95rem;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      color-scheme: light;
+    }
+    input[type="text"]::placeholder { color: var(--muted); }
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+    input[type="text"] { text-transform: uppercase; letter-spacing: 0.05em; font-size: 1.1rem; font-weight: 700; }
+
+    .date-time-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    /* flight suggestions dropdown */
+    .suggestions {
+      position: relative;
+    }
+    .suggestions-list {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0; right: 0;
+      background: var(--surface-strong);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(var(--blur)) saturate(150%);
+      -webkit-backdrop-filter: blur(var(--blur)) saturate(150%);
+      z-index: 10;
+      max-height: 220px;
+      overflow-y: auto;
+      overflow: hidden auto;
+    }
+    .suggestion-item {
+      padding: 0.65rem 0.95rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      border-bottom: 1px solid var(--border-soft);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.12s;
+    }
+    .suggestion-item:last-child { border-bottom: none; }
+    .suggestion-item:hover { background: var(--accent-soft); }
+    .suggestion-item .sug-fn { font-weight: 700; color: var(--text); }
+    .suggestion-item .sug-meta { color: var(--muted); font-size: 0.78rem; }
+
+    /* flight card (result of flight lookup) */
+    .flight-info {
+      display: none;
+      background: var(--surface-soft);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      padding: 0.8rem 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+    .flight-info.visible { display: block; }
+    .flight-info strong { color: var(--text); }
+
+    /* multi-date picker for flights with multiple occurrences */
+    .date-picker-row {
+      display: none;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+    .date-picker-row.visible { display: flex; }
+    .date-chip {
+      background: var(--surface-soft);
+      border: 1px solid var(--border-soft);
+      border-radius: 99px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.32rem 0.7rem;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .date-chip.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* submit button — liquid-glass primary */
+    .submit-btn {
+      width: 100%;
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.34) 0%, rgba(255,255,255,.06) 52%, transparent 100%) padding-box,
+        var(--glass-tint) padding-box,
+        var(--surface-strong) padding-box,
+        linear-gradient(145deg, var(--glass-edge) 0%, rgba(255,255,255,.30) 50%, rgba(255,255,255,.10) 100%) border-box;
+      box-shadow: inset 0 1.5px 0 var(--glass-specular), var(--shadow-soft);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 0.85rem;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      margin-top: 0.4rem;
+    }
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.54), 0 18px 42px rgba(86,62,44,.16);
+    }
+    .submit-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    /* ── Result ──────────────────────────────────────────────────────────── */
+    #result { display: none; width: 100%; margin-top: 0.85rem; }
+
+    .result-band {
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      border: 1px solid;
+      margin-bottom: 0.65rem;
+    }
+    .band-eyebrow {
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 0.3rem; opacity: 0.8;
+    }
+    .band-name  { font-family: var(--font-sans); font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.05; margin-bottom: 0.4rem; }
+    .band-desc  { font-size: 0.88rem; opacity: 0.9; line-height: 1.5; }
+    .band-meta  { font-size: 0.75rem; margin-top: 0.65rem; opacity: 0.7; }
+
+    .result-metrics { display: grid; grid-template-columns: 1fr; gap: 0.65rem; }
+    .result-metrics.two-up { grid-template-columns: 1fr 1fr; }
+    .metric {
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
+      padding: 0.9rem 1.1rem;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.20) 0%, rgba(255,255,255,.03) 55%, transparent 100%) padding-box,
+        var(--glass-tint) padding-box,
+        var(--surface-soft) padding-box,
+        linear-gradient(145deg, var(--glass-edge) 0%, rgba(255,255,255,.20) 55%, rgba(255,255,255,.05) 100%) border-box;
+      box-shadow: inset 0 1.5px 0 var(--glass-specular), var(--shadow-soft);
+    }
+    .metric-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.25rem; }
+    .metric-value { font-size: 1.4rem; font-weight: 700; color: var(--text); }
+    .metric-sub   { font-size: 0.7rem; color: var(--muted); margin-top: 0.1rem; }
+
+    .band-Low      { background: rgba(63,138,99,0.12);  border-color: rgba(63,138,99,0.34);  color: #2f7350; }
+    .band-Moderate { background: rgba(194,145,47,0.14); border-color: rgba(194,145,47,0.36); color: #8a6014; }
+    .band-High     { background: rgba(194,104,47,0.14); border-color: rgba(194,104,47,0.36); color: #9a4d1c; }
+    .band-Critical { background: rgba(190,59,59,0.12);  border-color: rgba(190,59,59,0.34);  color: #9a2b2b; }
+
+    /* data source badge */
+    .data-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.22rem 0.65rem;
+      border-radius: 99px;
+      margin-top: 0.6rem;
+    }
+    .data-badge.historical { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent-soft); }
+    .data-badge.typical    { background: var(--surface-soft); color: var(--muted);  border: 1px solid var(--border-soft); }
+
+    /* ── Chart ───────────────────────────────────────────────────────────── */
+    .chart-card {
+      width: 100%;
+      border-radius: var(--radius-lg);
+      padding: 1.2rem 1.4rem 1rem;
+      display: flex; flex-direction: column; min-height: 0;
+    }
+    .chart-card h2 {
+      font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.10em;
+      color: var(--muted); margin-bottom: 0.9rem;
+    }
+    .chart-wrap {
+      position: relative; flex: 1 1 auto; min-height: 120px;
+      display: flex; align-items: flex-end; gap: 2px;
+    }
+    .bar-col {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-end;
+      height: 100%; cursor: pointer; position: relative;
+    }
+    .bar {
+      width: 100%; border-radius: 4px 4px 0 0;
+      transition: opacity 0.12s, filter 0.12s; min-height: 2px;
+    }
+    .bar-col:hover .bar { filter: brightness(1.12) saturate(1.1); }
+    .bar-col.active .bar { filter: brightness(1.15); outline: 2px solid var(--accent); outline-offset: 1px; }
+    .bar-col.scheduled .bar { outline: 2px dashed rgba(156,107,61,0.5); outline-offset: 1px; opacity: 0.5; }
+    .bar-tick { font-size: 0.52rem; color: var(--muted); margin-top: 3px; white-space: nowrap; }
+
+    /* bar tooltip */
+    .bar-tooltip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--surface-strong);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(var(--blur)) saturate(150%);
+      -webkit-backdrop-filter: blur(var(--blur)) saturate(150%);
+      color: var(--text);
+      padding: 0.45rem 0.65rem;
+      font-size: 0.72rem;
+      white-space: nowrap;
+      z-index: 20;
+      pointer-events: none;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .bar-tooltip strong { display: block; font-size: 0.78rem; }
+    .bar-col:hover .bar-tooltip { display: block; }
+
+    .legend { display: flex; gap: 1.1rem; flex-wrap: wrap; margin-top: 0.9rem; }
+    .legend-item { display: flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; color: var(--muted); }
+    .legend-dot { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+
+    /* ── Disclaimer ──────────────────────────────────────────────────────── */
+    .disclaimer {
+      flex: 0 0 auto; font-size: 0.66rem;
+      color: var(--muted); line-height: 1.45; text-align: center;
+      width: min(1340px, calc(100% - 2rem)); margin: 0.5rem auto 0; opacity: 0.85;
+    }
+    .disclaimer strong { color: var(--text); }
+
+    /* ── Stage layout — whole tool fits one viewport (matches portfolio) ──── */
+    .stage {
+      flex: 1 1 auto; min-height: 0;
+      width: min(1340px, calc(100% - 2rem)); margin: 0 auto;
+      display: flex; flex-direction: column; min-height: 0;
+    }
+    .tool-grid {
+      flex: 1 1 auto; min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+      gap: clamp(1rem, 2.5vw, 2rem);
+      align-items: stretch;
+    }
+    .tool-left {
+      min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden;
+      display: flex; flex-direction: column;
+    }
+    .tool-right {
+      min-height: 0; min-width: 0;
+      display: flex; flex-direction: column;
+    }
+    .tool-right .chart-card { flex: 1 1 auto; }
+
+    /* Small / short screens: single column, allow normal page scroll. */
+    @media (max-width: 900px), (max-height: 620px) {
+      body { height: auto; min-height: 100dvh; overflow: auto; }
+      .stage { display: block; }
+      .tool-grid { display: block; }
+      .tool-left { overflow: visible; }
+      .tool-left > * + * { margin-top: 1rem; }
+      .tool-right { margin-top: 1rem; }
+      .chart-wrap { height: 150px; flex: none; }
+    }
+    /* Condense the header on small screens (mirrors the portfolio). */
+    @media (max-width: 560px) {
+      .app-header { padding: 12px 0; }
+      .logo-btn > span:last-child { display: none; }  /* keep just the mark */
+      .cv-btn .nav-label { display: none; }            /* keep just the ⇩ */
+      .back-nav .nav-label { display: none; }          /* keep just the ← */
+      .theme-pill__label { display: none; }            /* icon + switch only */
+    }
+  </style>
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="header-left">
+      <a class="logo-btn" href="/#projects" aria-label="Back to Work &amp; Project Experience">
+        <span class="logo-mark" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 64 64" focusable="false" aria-hidden="true">
+            <g fill="currentColor">
+              <rect x="9" y="9" width="46" height="10" rx="5" />
+              <rect x="9" y="27" width="37" height="10" rx="5" opacity="0.72" />
+              <rect x="9" y="45" width="28" height="10" rx="5" opacity="0.48" />
+            </g>
+          </svg>
+        </span>
+        <span>Sylvester Koh</span>
+      </a>
+      <a class="nav-btn cv-btn" href="/assets/Sylvester-Koh-CV.pdf" download aria-label="Download CV">
+        <span aria-hidden="true">⇩</span> <span class="nav-label">CV</span>
+      </a>
+    </div>
+    <a class="nav-btn back-nav" href="/#projects" aria-label="Back to Work &amp; Project Experience">
+      <span aria-hidden="true">&larr;</span> <span class="nav-label">Work &amp; Project Experience</span>
+    </a>
+    <button type="button" class="theme-pill" id="theme-pill" data-dark="false" aria-label="Toggle day or night theme">
+      <span aria-hidden="true" id="pill-icon">☀︎</span>
+      <span class="theme-pill__label" id="pill-label">Day mode</span>
+      <span class="theme-pill__switch" aria-hidden="true"><span class="theme-pill__knob"></span></span>
+    </button>
+  </header>
+
+  <main class="stage">
+    <div class="tool-grid">
+      <div class="tool-left">
+        <div class="intro">
+          <div class="airport-tag">SGN · Tan Son Nhat · Ho Chi Minh City</div>
+          <h1>Immigration Congestion Risk</h1>
+          <p class="intro-sub">Estimate passenger pressure at SGN immigration during your arrival window.</p>
+        </div>
+
+        <!-- Input card -->
+        <div class="card">
+          <div class="field-row">
+            <label class="field-label">Flight number <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem">(optional)</span></label>
+            <div class="suggestions">
+              <input type="text" id="flight-input" placeholder="e.g. VN123" autocomplete="off" spellcheck="false" />
+              <div class="suggestions-list" id="suggestions-list"></div>
+            </div>
+          </div>
+          <div class="flight-info" id="flight-info"></div>
+
+          <div class="field-row">
+            <label class="field-label">Arrival date &amp; time (SGN local)</label>
+            <div class="date-time-row">
+              <input type="date" id="date-input" />
+              <input type="time" id="time-input" value="16:30" />
+            </div>
+          </div>
+          <div class="date-picker-row" id="date-picker-row"></div>
+
+          <button class="submit-btn" id="btn-check">Check congestion risk &rarr;</button>
+        </div>
+
+        <!-- Result -->
+        <div id="result">
+          <div class="result-band" id="result-band">
+            <div class="band-eyebrow">Congestion risk</div>
+            <div class="band-name" id="band-name">—</div>
+            <div class="band-desc" id="band-desc">—</div>
+            <div class="band-meta" id="band-meta">—</div>
+            <div id="data-badge"></div>
+          </div>
+          <div class="result-metrics">
+            <div class="metric">
+              <div class="metric-label">Est. passengers</div>
+              <div class="metric-value" id="metric-avg">—</div>
+              <div class="metric-sub">in your arrival window</div>
+            </div>
+            <div class="metric" id="metric-delay-risk" style="display:none">
+              <div class="metric-label">Flight delay risk</div>
+              <div class="metric-value" id="metric-delay-pct">—</div>
+              <div class="metric-sub">probability of 15+ min delay</div>
+            </div>
+          </div>
+          <div class="metric" id="metric-buffer" style="margin-top:0.65rem">
+            <div class="metric-label">Recommended immigration buffer</div>
+            <div class="metric-value" id="metric-buffer-value">—</div>
+            <div class="metric-sub" id="metric-buffer-tip">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-right">
+        <!-- Chart -->
+        <div class="chart-card">
+          <h2 id="chart-title">Typical daily pressure profile — all 30-min windows</h2>
+          <div class="chart-wrap" id="chart"></div>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--c-low)"></div>Low</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--c-moderate)"></div>Moderate</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--c-high)"></div>High</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--c-critical)"></div>Critical</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="disclaimer">
+      <strong>Proxy metric only.</strong> Estimates are derived from flight schedule data,
+      a predicted delay model, and assumed aircraft load factors (82%). Does not represent
+      observed immigration queue lengths or processing times.
+      Based on <span id="day-count">—</span> days of Flightradar24 arrivals data at SGN.
+    </p>
+  </main>
+
+  <script>
+    const BAND_COLOUR = {
+      Low:      'var(--c-low)',
+      Moderate: 'var(--c-moderate)',
+      High:     'var(--c-high)',
+      Critical: 'var(--c-critical)',
+    };
+    const BAND_DESC = {
+      Low:      'Light traffic — immigration processing typically smooth.',
+      Moderate: 'Normal load — some queuing expected at peak counters.',
+      High:     'Elevated pressure — plan for longer queues.',
+      Critical: 'Peak pressure — significant queuing likely across all lanes.',
+    };
+    const BAND_BUFFER = {
+      Low:      { min: 20,  label: '~20 min',  tip: 'Allow around 20 minutes from landing to clear immigration.' },
+      Moderate: { min: 45,  label: '~45 min',  tip: 'Allow around 45 minutes from landing to clear immigration.' },
+      High:     { min: 75,  label: '~75 min',  tip: 'Allow around 75 minutes from landing to clear immigration.' },
+      Critical: { min: 120, label: '~2 hours', tip: 'Allow around 2 hours from landing to clear immigration.' },
+    };
+
+    let profile      = [];   // typical daily profile (all dates averaged)
+    let flightLookup = {};   // flight_number → [{date, time, window_slot, ...}]
+    let perDate      = {};   // date → { window_slot: {avg, band} }
+
+    let selectedFlight      = null;   // flight lookup entries for current flight number
+    let currentQueryDate    = null;   // last date used in showResult — context for bar clicks
+
+    // ── Load data ──────────────────────────────────────────────────────────
+    Promise.all([
+      fetch('daily_congestion_profile.json').then(r => r.json()),
+      fetch('flight_lookup.json').then(r => r.json()),
+      fetch('per_date_congestion.json').then(r => r.json()),
+    ]).then(([p, f, d]) => {
+      profile      = p;
+      flightLookup = f;
+      perDate      = d;
+      buildChart(profile, null);
+      document.getElementById('date-input').value = new Date().toISOString().split('T')[0];
+      document.getElementById('day-count').textContent = Object.keys(perDate).length;
+    });
+
+    // ── Flight number input ────────────────────────────────────────────────
+    const flightInput   = document.getElementById('flight-input');
+    const suggList      = document.getElementById('suggestions-list');
+    const flightInfo    = document.getElementById('flight-info');
+    const datePickerRow = document.getElementById('date-picker-row');
+
+    flightInput.addEventListener('input', () => {
+      const val = flightInput.value.trim().toUpperCase();
+      selectedFlight = null;
+      flightInfo.classList.remove('visible');
+      datePickerRow.classList.remove('visible');
+      suggList.innerHTML = '';
+
+      if (val.length < 2) { suggList.style.display = 'none'; return; }
+
+      const matches = Object.keys(flightLookup)
+        .filter(fn => fn.startsWith(val))
+        .slice(0, 8);
+
+      if (!matches.length) { suggList.style.display = 'none'; return; }
+
+      suggList.style.display = 'block';
+      matches.forEach(fn => {
+        const entries = flightLookup[fn];
+        const latest  = entries[0];
+        const item = document.createElement('div');
+        item.className = 'suggestion-item';
+        item.innerHTML = `
+          <span class="sug-fn">${fn}</span>
+          <span class="sug-meta">${latest.airline} · ${latest.origin} → SGN · ${latest.time}</span>
+        `;
+        item.addEventListener('click', () => selectFlight(fn));
+        suggList.appendChild(item);
+      });
+    });
+
+    function selectFlight(fn) {
+      flightInput.value = fn;
+      suggList.style.display = 'none';
+      selectedFlight = flightLookup[fn];
+
+      const latest = selectedFlight[0];
+      flightInfo.innerHTML = `
+        <strong>${fn}</strong> &nbsp;·&nbsp; ${latest.airline}
+        &nbsp;·&nbsp; ${latest.origin} → SGN
+        &nbsp;·&nbsp; Scheduled <strong>${latest.time}</strong>
+        &nbsp;·&nbsp; ${latest.aircraft}
+      `;
+      flightInfo.classList.add('visible');
+
+      // Pre-fill date + time from flight data
+      document.getElementById('date-input').value = latest.date;
+      document.getElementById('time-input').value = latest.time;
+
+      if (selectedFlight.length > 1) {
+        // Show date chips so user can pick the right occurrence
+        datePickerRow.innerHTML = '<span style="font-size:0.75rem;color:var(--c-muted);align-self:center;margin-right:0.25rem;">Known dates:</span>';
+        selectedFlight.forEach((entry, i) => {
+          const chip = document.createElement('div');
+          chip.className = 'date-chip' + (i === 0 ? ' active' : '');
+          chip.textContent = entry.date;
+          chip.addEventListener('click', () => {
+            document.querySelectorAll('.date-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            document.getElementById('date-input').value = entry.date;
+            document.getElementById('time-input').value = entry.time;
+          });
+          datePickerRow.appendChild(chip);
+        });
+        datePickerRow.classList.add('visible');
+      }
+    }
+
+    // Clear flight selection when user edits the flight field to something unrecognised
+    flightInput.addEventListener('change', () => {
+      const val = flightInput.value.trim().toUpperCase();
+      if (!flightLookup[val]) {
+        selectedFlight = null;
+        flightInfo.classList.remove('visible');
+        datePickerRow.classList.remove('visible');
+      }
+    });
+
+    // Close suggestions when clicking outside
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.suggestions')) suggList.style.display = 'none';
+    });
+
+    // ── Unified submit ─────────────────────────────────────────────────────
+    document.getElementById('btn-check').addEventListener('click', () => {
+      const dateVal = document.getElementById('date-input').value;
+      const timeVal = document.getElementById('time-input').value;
+      if (!dateVal || !timeVal) return;
+
+      if (selectedFlight) {
+        const fn = flightInput.value.trim().toUpperCase();
+        // Match to a known entry for this date, or fall back to most recent
+        const entry = selectedFlight.find(e => e.date === dateVal) || selectedFlight[0];
+        const MEDIAN_DELAY_MIN = 35;
+        const [h, m]    = timeVal.split(':').map(Number);
+        const schedMin  = h * 60 + m;
+        const schedSlot = Math.floor(schedMin / 30) * 30;
+        const adjMin    = schedMin + entry.delay_proba * MEDIAN_DELAY_MIN;
+        const adjSlot   = Math.floor(adjMin / 30) * 30;
+        const contextLabel = adjSlot !== schedSlot
+          ? `${fn} · sched ${timeVal} → adj ${slotLabel(adjSlot)}`
+          : `${fn} · arr ${timeVal}`;
+        showResult(adjSlot, dateVal, contextLabel, {
+          delayProba:    entry.delay_proba,
+          scheduledSlot: schedSlot,
+          adjustedSlot:  adjSlot,
+        });
+      } else {
+        const [h, m] = timeVal.split(':').map(Number);
+        const slot   = Math.floor((h * 60 + m) / 30) * 30;
+        showResult(slot, dateVal, `${dateVal} · ${timeVal} local`, null);
+      }
+    });
+
+    // ── Show result ────────────────────────────────────────────────────────
+    // flightCtx: { delayProba, scheduledSlot, adjustedSlot } | null
+    function showResult(slot, date, contextLabel, flightCtx) {
+      let avg, band, isHistorical;
+
+      const dateData = perDate[date];
+      if (dateData && dateData[slot]) {
+        avg  = dateData[slot].avg;
+        band = dateData[slot].band;
+        isHistorical = true;
+      } else {
+        const typRow = profile.find(r => r.window_slot_minutes === slot);
+        if (!typRow) return;
+        avg  = Math.round(typRow.avg_estimated_passengers);
+        band = typRow.congestion_band;
+        isHistorical = false;
+      }
+
+      // Result band
+      document.getElementById('result-band').className = `result-band band-${band}`;
+      document.getElementById('band-name').textContent = band;
+      document.getElementById('band-desc').textContent = BAND_DESC[band];
+
+      const windowStr = `Window ${slotLabel(slot)}`;
+      const shiftNote = flightCtx && flightCtx.adjustedSlot !== flightCtx.scheduledSlot
+        ? `  ·  delay-adjusted from ${slotLabel(flightCtx.scheduledSlot)}`
+        : '';
+      document.getElementById('band-meta').textContent = `${windowStr}${shiftNote}  ·  ${contextLabel}`;
+
+      document.getElementById('data-badge').innerHTML = flightCtx
+        ? `<span class="data-badge historical">● Flight-specific prediction</span>`
+        : isHistorical
+          ? `<span class="data-badge historical">● Historical data</span>`
+          : `<span class="data-badge typical">● Approximation — typical profile</span>`;
+
+      document.getElementById('metric-avg').textContent = avg.toLocaleString();
+
+      // Delay risk metric — flight mode only
+      const delayMetric = document.getElementById('metric-delay-risk');
+      const metrics     = document.querySelector('.result-metrics');
+      if (flightCtx) {
+        document.getElementById('metric-delay-pct').textContent =
+          `${Math.round(flightCtx.delayProba * 100)}%`;
+        delayMetric.style.display = '';
+        metrics.classList.add('two-up');
+      } else {
+        delayMetric.style.display = 'none';
+        metrics.classList.remove('two-up');
+      }
+
+      // Buffer recommendation
+      const buf = BAND_BUFFER[band];
+      document.getElementById('metric-buffer-value').textContent = buf.label;
+      document.getElementById('metric-buffer-tip').textContent   = buf.tip;
+      document.getElementById('metric-buffer').style.display = '';
+
+      document.getElementById('result').style.display = 'block';
+
+      // Chart
+      const chartData = (isHistorical && dateData)
+        ? profile.map(r => {
+            const d = dateData[r.window_slot_minutes];
+            return d ? { ...r, avg_estimated_passengers: d.avg, congestion_band: d.band } : r;
+          })
+        : profile;
+
+      buildChart(chartData, slot, flightCtx?.scheduledSlot);
+      document.getElementById('chart-title').textContent = isHistorical
+        ? `Congestion pressure — ${date}`
+        : 'Typical daily pressure profile';
+
+      currentQueryDate = date;
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function slotLabel(slot) {
+      const h1 = Math.floor(slot / 60), m1 = slot % 60;
+      const end = slot + 30;
+      const h2  = Math.floor(end / 60) % 24, m2 = end % 60;
+      return `${pad(h1)}:${pad(m1)}–${pad(h2)}:${pad(m2)}`;
+    }
+
+    // ── Chart ──────────────────────────────────────────────────────────────
+    function buildChart(data, activeSlot, scheduledSlot) {
+      const chart = document.getElementById('chart');
+      chart.innerHTML = '';
+      const maxPax = Math.max(...data.map(r => r.avg_estimated_passengers));
+
+      data.forEach((row, i) => {
+        const slot = row.window_slot_minutes;
+        const isActive    = slot === activeSlot;
+        const isScheduled = scheduledSlot != null && slot === scheduledSlot && slot !== activeSlot;
+        const col  = document.createElement('div');
+        col.className = 'bar-col' + (isActive ? ' active' : '') + (isScheduled ? ' scheduled' : '');
+        col.dataset.slot = slot;
+
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.height     = `${(row.avg_estimated_passengers / maxPax) * 100}%`;
+        bar.style.background = BAND_COLOUR[row.congestion_band];
+
+        // Tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = 'bar-tooltip';
+        const scheduledNote = isScheduled ? '<br><span style="opacity:0.6">Scheduled arrival</span>' : '';
+        tooltip.innerHTML = `<strong>${row.window_label}</strong>${row.congestion_band} · ~${Math.round(row.avg_estimated_passengers).toLocaleString()} pax${scheduledNote}`;
+
+        const tick = document.createElement('div');
+        tick.className = 'bar-tick';
+        if (i % 4 === 0) tick.textContent = `${pad(Math.floor(slot/60))}:00`;
+
+        col.addEventListener('click', () => {
+          const date = currentQueryDate || new Date().toISOString().split('T')[0];
+          showResult(slot, date, row.window_label, null);
+        });
+
+        col.appendChild(tooltip);
+        col.appendChild(bar);
+        col.appendChild(tick);
+
+        chart.appendChild(col);
+      });
+    }
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+  </script>
+
+</body>
+</html>
