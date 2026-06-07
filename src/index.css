@@ -300,7 +300,9 @@ a { color: inherit; text-decoration: none; }
    Pillar words (analytics / automation / cloud) are lit in --accent. */
 .hero-intro {
   margin: 0;
-  max-width: 54ch;
+  /* One line when the column is wide enough, wrap naturally when it isn't. */
+  width: fit-content;
+  max-width: 100%;
   font-size: clamp(0.92rem, 1.6vw, 1.02rem);
   line-height: 1.55;
   font-weight: 500;
@@ -433,9 +435,9 @@ html[data-theme="sunset"] .portrait-frame::after {
   overflow-x: hidden;
   overflow-y: auto;
 }
-.hero-greet { align-self: start; }
 .stage--home .stage-panel { align-self: start; }
-.hero-greet { grid-area: greet; align-self: end; min-width: 0; }
+/* Breathing room between the header and the welcome text. */
+.hero-greet { grid-area: greet; align-self: end; min-width: 0; margin-top: clamp(0.75rem, 2.2vw, 1.75rem); }
 .hero-portrait {
   grid-area: portrait;
   display: flex; align-items: center; justify-content: center;
@@ -445,11 +447,12 @@ html[data-theme="sunset"] .portrait-frame::after {
    width = the smaller of the column width and the width implied by the height
    budget; aspect-ratio derives the height. No page scroll needed. */
 .flip-perspective {
-  --port-offset: 132px;   /* space taken by everything except the portrait */
+  --port-offset: 172px;   /* space taken by everything except the portrait (incl. header gap) */
   width: min(100%, max(0px, calc((100dvh - var(--port-offset)) * 426 / 600)));
   max-width: 100%;
   aspect-ratio: 426 / 600;
 }
+
 /* Hover-driven, not clickable → keep the default cursor. The perspective keeps a
    fixed aspect size, so the hover target never shrinks/moves (no flip loop). */
 .flip-stage { position: relative; width: 100%; height: 100%; cursor: default; outline: none; }
@@ -472,7 +475,10 @@ html[data-theme="sunset"] .portrait-frame::after {
   grid-template-areas: "panel";
   padding: clamp(6px, 1vw, 12px);
 }
-.stage-backdrop { position: absolute; inset: 0; z-index: 0; cursor: pointer; }
+/* In a pane, any empty surface (gutters, around/below the pane, blank header
+   space) is a click-to-home dismiss target. The cursor stays the default arrow
+   on purpose — no pointer — so it reads as one panel flipping in place rather
+   than a link to another page. Real controls keep their own pointer cursor. */
 
 /* The morph surface — frosted panel chrome (same language as the old hero frame). */
 .stage-panel {
@@ -494,8 +500,39 @@ html[data-theme="sunset"] .portrait-frame::after {
   display: flex; flex-direction: column; min-height: 0; height: 100%;
   padding: clamp(12px, 2.2vw, 22px);
 }
-/* Internal scroll for tall pane content; the page itself stays fixed. */
-.pane-scroll { overflow-y: auto; overflow-x: hidden; min-height: 0; flex: 1 1 auto; }
+/* Internal scroll for tall pane content; the page itself stays fixed. The
+   bottom padding keeps the last content clear of the floating Home pill. */
+.pane-scroll {
+  overflow-y: auto; overflow-x: hidden; min-height: 0; flex: 1 1 auto;
+  padding-bottom: clamp(58px, 8vh, 76px);
+}
+
+/* Floating dismiss-to-home control (bottom-centre, neutral across platforms).
+   A non-transform wrapper does the centring so Framer's y-tween can't fight it. */
+.close-home-wrap {
+  position: absolute; left: 0; right: 0;
+  bottom: clamp(14px, 3vh, 26px);
+  display: flex; justify-content: center;
+  z-index: 3; pointer-events: none;
+}
+.close-home {
+  pointer-events: auto;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 18px; border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: var(--surface-strong);
+  color: var(--text);
+  font: inherit; font-size: 0.85rem; font-weight: 600; line-height: 1;
+  cursor: pointer; box-shadow: var(--shadow-soft);
+  transition: color .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.close-home:hover {
+  color: var(--accent);
+  border-color: color-mix(in oklab, var(--accent) 45%, var(--border-soft));
+  box-shadow: var(--shadow);
+}
+.close-home:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.close-home__x { font-size: 0.9em; opacity: 0.85; }
 
 /* Home action panel content (brand statement + CTAs + availability). */
 .action-panel { display: flex; flex-direction: column; gap: 18px; }
@@ -625,18 +662,22 @@ html[data-theme="sunset"] .portrait-frame::after {
 .contact-card {
   display: flex;
   flex-direction: column;       /* lay content top→bottom so the link can pin low */
-  padding: clamp(16px, 2.5vw, 28px);
+  align-items: center;          /* centre every block horizontally */
+  text-align: center;
+  padding: clamp(14px, 2.2vw, 28px);
   color: var(--text);
   transition: transform .25s ease, box-shadow .25s ease;
-  container-type: size;         /* card text scales with the card (cqh) to fill it */
-  min-height: 4.5rem;           /* safety floor so size-containment can't collapse it */
+  /* Text scales with the card's WIDTH (cqi), so as cards narrow on smaller
+     displays the content shrinks proportionately and never overflows. */
+  container-type: inline-size;
+  min-width: 0;
 }
 .contact-card:hover { transform: translateY(-3px); box-shadow: var(--lift-inner), inset 0 0 0 1px var(--accent), var(--lift-outer), var(--shadow); }
-.contact-card .c-head { display: flex; align-items: center; gap: 9px; }
-.contact-card .c-icon { display: inline-flex; align-items: center; color: var(--accent); min-width: 1.2em; font-size: clamp(1.15rem, 8cqh, 2.2rem); }
-.contact-card .c-title { margin: 0; font-weight: 700; font-size: clamp(1.15rem, 8cqh, 2.2rem); }
-.contact-card .c-desc { margin: clamp(10px, 3.5cqh, 24px) 0; color: var(--muted); line-height: 1.55; font-size: clamp(1rem, 5.5cqh, 1.6rem); }
-.contact-card .c-link { color: var(--accent); font-weight: 600; margin-top: auto; font-size: clamp(1.05rem, 5.5cqh, 1.55rem); }
+.contact-card .c-head { display: flex; align-items: center; justify-content: center; gap: 9px; min-width: 0; }
+.contact-card .c-icon { display: inline-flex; align-items: center; color: var(--accent); min-width: 1.2em; font-size: clamp(1.05rem, 10cqi, 2.2rem); }
+.contact-card .c-title { margin: 0; font-weight: 700; min-width: 0; font-size: clamp(1.05rem, 10cqi, 2.2rem); }
+.contact-card .c-desc { margin: clamp(10px, 4cqi, 24px) 0; color: var(--muted); line-height: 1.55; font-size: clamp(0.82rem, 7.3cqi, 1.6rem); }
+.contact-card .c-link { color: var(--accent); font-weight: 600; margin-top: auto; overflow-wrap: anywhere; font-size: clamp(0.78rem, 7cqi, 1.55rem); }
 
 /* Reduced transparency: solid surfaces, no blur. */
 @media (prefers-reduced-transparency: reduce) {
@@ -791,4 +832,31 @@ html[data-theme="sunset"] .portrait-frame::after {
   html {
     @apply font-sans;
   }
+}
+/* Large displays: scale the hero up in place so the content fills the room and
+   reads as open, rather than a small cluster ringed by dead space. The headline's
+   reserved min-height grows in lockstep, so the greeting↔tagline box still never
+   resizes (the portrait, taller now, also absorbs the vertical space). Placed at
+   the end so it wins the cascade over the base layout rules at equal specificity. */
+@media (min-width: 1500px) {
+  /* Re-position the content too: the greeting+panel pair centres vertically
+     (1fr rows top and bottom) alongside the full-height portrait, so the hero
+     sits balanced in the viewport instead of clustered at the top. */
+  .stage--home {
+    grid-template-columns: minmax(0, 1fr) minmax(380px, 460px);
+    grid-template-rows: 1fr auto auto 1fr;
+    grid-template-areas: ". portrait" "greet portrait" "panel portrait" ". portrait";
+  }
+  .hero-headline { font-size: clamp(4.2rem, 4.6vw, 5rem); min-height: 5.4rem; margin-bottom: 22px; }
+  .hero-intro { font-size: 1.18rem; max-width: 62ch; }
+  .action-panel { gap: 22px; }
+  .hero-cta-row .glass-button { font-size: 1.04rem; padding: 14px 22px; }
+  .hero-avail { font-size: 1rem; }
+  .pane-title { font-size: clamp(2rem, 2.3vw, 2.7rem); }
+  /* Panes: centre the content vertically so the tall panel frames it with even
+     breathing room instead of leaving a dead gap at the bottom. Cards size to
+     their content rather than stretching into awkwardly tall blocks. */
+  .pane-experience { display: flex; flex-direction: column; justify-content: center; min-height: 100%; }
+  .pane-contact { justify-content: center; }
+  .contact-grid { flex: 0 0 auto; grid-auto-rows: auto; }
 }

@@ -1,4 +1,4 @@
-import { useId, useRef, useEffect, useState } from "react";
+import { useId, useRef, useEffect } from "react";
 import { m, AnimatePresence, LayoutGroup, useReducedMotion } from "framer-motion";
 import { HeroGreeting, PortraitCard, ActionPanel, FLIP_DURATION, FLIP_EASE } from "./Hero.jsx";
 import ExperienceProjects from "./ExperienceProjects.jsx";
@@ -8,33 +8,25 @@ import { Contact } from "./contact.jsx";
 // morphs (Framer `layout`) from the hero's lower-left cell to the full stage as
 // the greeting + portrait recede (AnimatePresence popLayout). Pane content
 // cross-fades inside the panel; tall panes scroll internally (.pane-scroll).
-export default function Stage({ view, onNavigate }) {
+export default function Stage({ view, onNavigate, aboutOpen, onAboutChange }) {
   const reduce = useReducedMotion();
   const titleId = useId();
   const panelRef = useRef(null);
-  // Portrait flip state, shared so the action panel collapses to just its buttons
-  // while About is showing (About supplies the detail).
-  const [aboutOpen, setAboutOpen] = useState(false);
+  // Portrait flip state is owned by App (so an empty-space click on home can flip
+  // it too); it collapses the action panel to its buttons while About shows.
 
   const morph = reduce ? { duration: 0 } : { duration: FLIP_DURATION, ease: FLIP_EASE };
 
-  // Move focus to the panel when the view changes (keyboard / screen-reader), and
-  // reset the flip when leaving home.
+  // Move focus to the panel when the view changes (keyboard / screen-reader).
   useEffect(() => {
-    if (view !== "home") {
-      setAboutOpen(false);
-      if (panelRef.current) panelRef.current.focus({ preventScroll: true });
-    }
+    if (view !== "home" && panelRef.current) panelRef.current.focus({ preventScroll: true });
   }, [view]);
 
   return (
     <LayoutGroup>
       <div className={`stage stage--${view}`}>
-        {/* Clicking the area around an open pane dismisses back to home. */}
-        {view !== "home" && (
-          <div className="stage-backdrop" onClick={() => onNavigate("home")} aria-hidden="true" />
-        )}
-
+        {/* Dismiss-to-home is handled at the app-shell level (any background
+            click outside the header + pane), so the whole page surface works. */}
         <AnimatePresence mode="popLayout">
           {view === "home" && (
             <m.div
@@ -57,7 +49,7 @@ export default function Stage({ view, onNavigate }) {
               exit={reduce ? {} : { opacity: 0, scale: 0.96 }}
               transition={morph}
             >
-              <PortraitCard open={aboutOpen} onOpenChange={setAboutOpen} />
+              <PortraitCard open={aboutOpen} onOpenChange={onAboutChange} />
             </m.div>
           )}
         </AnimatePresence>
@@ -88,6 +80,25 @@ export default function Stage({ view, onNavigate }) {
             </AnimatePresence>
           </div>
         </m.div>
+
+        {/* Floating, platform-neutral dismiss control. Bottom-centre so it's
+            thumb-reachable on mobile and avoids the iOS/Windows corner signal. */}
+        {view !== "home" && (
+          <div className="close-home-wrap">
+            <m.button
+              type="button"
+              className="close-home"
+              onClick={() => onNavigate("home")}
+              aria-label="Return to home"
+              initial={reduce ? false : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: reduce ? 0 : 0.3, ease: FLIP_EASE }}
+            >
+              <span aria-hidden="true" className="close-home__x">✕</span>
+              <span>Home</span>
+            </m.button>
+          </div>
+        )}
       </div>
     </LayoutGroup>
   );

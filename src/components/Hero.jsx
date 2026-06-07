@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { m, useReducedMotion } from "framer-motion";
 import { bio, positioning } from "../data/profile.js";
 
@@ -189,14 +189,26 @@ export function PortraitCard({ open = false, onOpenChange = () => {} }) {
     );
   }
 
-  const flipControls = hasHover
-    ? {
-        onMouseEnter: () => onOpenChange(true),
-        onMouseLeave: () => onOpenChange(false),
-        onFocus: () => onOpenChange(true),
-        onBlur: () => onOpenChange(false),
-      }
-    : { onClick: () => onOpenChange(!open) };
+  // Branch on the actual pointer type per interaction (robust where the
+  // hover/pointer media query is wrong, e.g. hybrid devices): a mouse flips
+  // while hovering and reverts on leave; a touch tap toggles (and stays), which
+  // mirrors the desktop "hover and dwell" interaction on mobile.
+  const lastPointerType = useRef("mouse");
+  const flipControls = {
+    onPointerEnter: (e) => {
+      lastPointerType.current = e.pointerType;
+      if (e.pointerType === "mouse") onOpenChange(true);
+    },
+    onPointerLeave: (e) => {
+      if (e.pointerType === "mouse") onOpenChange(false);
+    },
+    onPointerDown: (e) => {
+      lastPointerType.current = e.pointerType;
+    },
+    onClick: () => {
+      if (lastPointerType.current !== "mouse") onOpenChange(!open);
+    },
+  };
 
   const onKeyDown = (e) => {
     if (e.key === "Enter" || e.key === " ") {

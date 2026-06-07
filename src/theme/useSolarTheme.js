@@ -32,8 +32,30 @@ function readOverride() {
   }
 }
 
+// The user's OS colour scheme, mapped to our anchors: dark → night, light → day.
+// Returns null when the system expresses no preference, so the caller can fall
+// back to the solar daylight calculation for the user's location.
+function systemMode() {
+  try {
+    if (window.matchMedia?.("(prefers-color-scheme: dark)")?.matches) return "night";
+    if (window.matchMedia?.("(prefers-color-scheme: light)")?.matches) return "day";
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+// Default theme precedence: manual override → system colour scheme → (resolved
+// later) solar phase. Used to seed initial state so the pill doesn't flash.
+function initialPhase() {
+  return readOverride() || systemMode() || "day";
+}
+
 export function useSolarTheme() {
-  const [state, setState] = useState({ phase: "day", icon: PHASES.day.icon, label: PHASES.day.label });
+  const [state, setState] = useState(() => {
+    const p = initialPhase();
+    return { phase: p, icon: PHASES[p].icon, label: PHASES[p].label };
+  });
   const locRef = useRef(Solar.defaultLocation());
   const cityRef = useRef(Solar.timezoneCity());
   const overrideRef = useRef(readOverride());
@@ -43,17 +65,20 @@ export function useSolarTheme() {
     const html = document.documentElement;
 
     const applyNow = () => {
-      // Manual override: pin the pure day/night anchor, skip the solar calc.
-      const override = overrideRef.current;
-      if (override) {
-        const tokens = Palette.resolve(override === "day" ? 100 : -100, false);
+      // Pin a pure day/night anchor when we have an explicit signal: a manual
+      // override (pill) first, then the user's OS colour scheme. Only when the
+      // system expresses no preference do we fall back to the solar calc below.
+      const pinned = overrideRef.current || systemMode();
+      if (pinned) {
+        const tokens = Palette.resolve(pinned === "day" ? 100 : -100, false);
         for (const name in tokens) html.style.setProperty(name, tokens[name]);
-        html.dataset.theme = override;
-        try { localStorage.setItem("sk_theme", override); } catch {}
-        setState({ phase: override, icon: PHASES[override].icon, label: composeLabel(override, cityRef.current) });
+        html.dataset.theme = pinned;
+        try { localStorage.setItem("sk_theme", pinned); } catch {}
+        setState({ phase: pinned, icon: PHASES[pinned].icon, label: composeLabel(pinned, cityRef.current) });
         return;
       }
 
+      // No override and no system preference → daylight for the user's location.
       const loc = locRef.current;
       const { phase, elevation, rising } = Solar.sunPhase(new Date(), loc.lat, loc.lon);
       html.style.setProperty("--sun-elevation", elevation.toFixed(2));
