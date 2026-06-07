@@ -243,6 +243,23 @@ a { color: inherit; text-decoration: none; }
 .btn-arrow { transition: transform .25s ease; }
 .btn-accent:hover .btn-arrow { transform: translateX(3px); }
 
+/* Tertiary CTA — lowest emphasis (3rd in the hierarchy). Same button theme as the
+   others, but a quiet outline with muted text; lifts to accent on hover. */
+.glass-button.btn-tertiary {
+  background: none;
+  border: 1px solid var(--border-soft);
+  color: var(--muted);
+  font-weight: 600;
+  box-shadow: none;
+}
+.glass-button.btn-tertiary:hover {
+  transform: translateY(-2px);
+  color: var(--accent);
+  border-color: color-mix(in oklab, var(--accent) 45%, var(--border-soft));
+  box-shadow: var(--shadow-soft);
+}
+.tm-cta-mark { color: var(--accent); font-size: 1.2em; line-height: 0; position: relative; top: 0.18em; }
+
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: var(--radius-sm); }
 
 /* Merged hero headline: greeting by default, type-animated tagline on hover/tap.
@@ -412,11 +429,16 @@ html[data-theme="sunset"] .portrait-frame::after {
   flex: 0 0 auto;
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
   width: min(1340px, calc(100% - 2rem)); margin: 0 auto; padding: 16px 0;
+  position: relative; z-index: 5;   /* always above the stage — never overlapped */
 }
 .stage-wrap {
   flex: 1 1 auto; min-height: 0;
   width: min(1340px, calc(100% - 2rem)); margin: 0 auto;
   padding-bottom: clamp(0.75rem, 2vw, 1.25rem);
+  /* Hard-clip the stage to the area below the header: nothing inside (incl. a
+     morph/flip animation that transiently escapes the stage box) can ever bleed
+     up into the header. */
+  overflow: hidden;
 }
 .stage { position: relative; height: 100%; display: grid; gap: clamp(1rem, 4vw, 3rem); }
 
@@ -428,7 +450,10 @@ html[data-theme="sunset"] .portrait-frame::after {
      shifts/resizes on flip and the portrait (spanning both rows) stays put. */
   grid-template-rows: auto 1fr;
   grid-template-areas: "greet portrait" "panel portrait";
-  align-items: center;
+  /* `safe center`: centre while it fits, but fall back to top-alignment when the
+     content is too tall — so an overflow scrolls downward from below the header
+     instead of pushing the top up into it. */
+  align-items: safe center;
   /* Fits with no scrollbar on normal devices (the portrait scales to height);
      allow vertical scroll only as a fallback on very short viewports (e.g. tiny
      phones / landscape) so content is never clipped. */
@@ -470,7 +495,7 @@ html[data-theme="sunset"] .portrait-frame::after {
 
 /* Pane views: the panel fills the stage, inset slightly so the dismiss backdrop
    shows as a clickable ring around it (click out → home). */
-.stage--projects, .stage--contact {
+.stage--projects, .stage--contact, .stage--testimonials {
   grid-template-columns: 1fr;
   grid-template-areas: "panel";
   padding: clamp(6px, 1vw, 12px);
@@ -495,7 +520,7 @@ html[data-theme="sunset"] .portrait-frame::after {
   background: var(--surface-strong);
   box-shadow: var(--shadow-soft);
 }
-.stage--projects .stage-panel, .stage--contact .stage-panel { height: 100%; }
+.stage--projects .stage-panel, .stage--contact .stage-panel, .stage--testimonials .stage-panel { height: 100%; }
 .stage-panel__inner {
   display: flex; flex-direction: column; min-height: 0; height: 100%;
   padding: clamp(12px, 2.2vw, 22px);
@@ -577,6 +602,10 @@ html[data-theme="sunset"] .portrait-frame::after {
     overflow-y: auto;   /* fits with no scrollbar normally; scrolls only if too short */
   }
   .stage--home .stage-panel__inner { padding: clamp(14px, 3.5vw, 20px); }
+  /* Tighter spacing — the action panel stacks intro + 3 CTAs + availability, so
+     trim the gaps to keep Home fitting without scroll. */
+  .action-panel { gap: 12px; }
+  .hero-cta-row { gap: 8px; }
   /* Compact theme pill so the header (logo + CV + nav + pill) never clips. */
   .theme-pill__label { display: none; }
   /* Smaller headline + minimal reserved space so the welcome text stays compact. */
@@ -674,10 +703,46 @@ html[data-theme="sunset"] .portrait-frame::after {
 }
 .contact-card:hover { transform: translateY(-3px); box-shadow: var(--lift-inner), inset 0 0 0 1px var(--accent), var(--lift-outer), var(--shadow); }
 .contact-card .c-head { display: flex; align-items: center; justify-content: center; gap: 9px; min-width: 0; }
-.contact-card .c-icon { display: inline-flex; align-items: center; color: var(--accent); min-width: 1.2em; font-size: clamp(1.05rem, 10cqi, 2.2rem); }
-.contact-card .c-title { margin: 0; font-weight: 700; min-width: 0; font-size: clamp(1.05rem, 10cqi, 2.2rem); }
-.contact-card .c-desc { margin: clamp(10px, 4cqi, 24px) 0; color: var(--muted); line-height: 1.55; font-size: clamp(0.82rem, 7.3cqi, 1.6rem); }
-.contact-card .c-link { color: var(--accent); font-weight: 600; margin-top: auto; overflow-wrap: anywhere; font-size: clamp(0.78rem, 7cqi, 1.55rem); }
+/* Headings dominate (and stay larger than the pane title); body + link sit at
+   roughly site body size so the card type aligns with the rest of the site. */
+.contact-card .c-icon { display: inline-flex; align-items: center; color: var(--accent); min-width: 1.2em; font-size: clamp(1.25rem, 9.6cqi, 2.15rem); }
+.contact-card .c-title { margin: 0; font-weight: 700; min-width: 0; font-size: clamp(1.25rem, 9.6cqi, 2.15rem); }
+.contact-card .c-desc { margin: clamp(10px, 3.2cqi, 20px) 0; color: var(--muted); line-height: 1.55; font-size: clamp(0.9rem, 4.5cqi, 1.15rem); }
+.contact-card .c-link { color: var(--accent); font-weight: 600; margin-top: auto; overflow-wrap: anywhere; font-size: clamp(0.88rem, 4.3cqi, 1.1rem); }
+
+/* ── Testimonials ─────────────────────────────────────────────────────────────
+   Honest empty state until real Upwork reviews exist. Three presentations:
+   the full pane, the compact Home teaser, and the Home "expanded" block. */
+.pane-testimonials { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+
+/* Empty-state invitation (shared; alignment differs per variant). */
+.tm-empty { display: flex; flex-direction: column; gap: clamp(10px, 1.6vw, 16px); }
+.tm-empty--pane { margin: auto; align-items: center; text-align: center; max-width: 56ch; padding: clamp(8px, 2vw, 20px) 0; }
+.tm-empty--expanded { align-items: flex-start; text-align: left; }
+.tm-empty__title { margin: 0; font-weight: 700; letter-spacing: -0.01em; }
+.tm-empty--pane .tm-empty__title { font-size: clamp(1.3rem, 3vw, 1.9rem); }
+.tm-empty--expanded .tm-empty__title { font-size: clamp(1.05rem, 2vw, 1.3rem); }
+.tm-empty__body { margin: 0; color: var(--muted); line-height: 1.6; font-size: clamp(0.92rem, 1.4vw, 1.05rem); }
+.tm-cta { align-self: center; }
+.tm-empty--expanded .tm-cta { align-self: flex-start; }
+
+/* Decorative skeleton quote cards (pane only) hinting at future content. */
+.tm-ghosts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; width: 100%; margin-top: clamp(8px, 2vw, 18px); opacity: 0.55; }
+.tm-ghost { display: flex; flex-direction: column; gap: 9px; padding: clamp(12px, 1.6vw, 18px); }
+.tm-ghost__mark { color: var(--accent); font-size: 1.6rem; line-height: 0.6; font-weight: 700; opacity: 0.7; }
+.tm-ghost__line { height: 9px; border-radius: 999px; background: var(--border-soft); }
+.tm-ghost__line--short { width: 55%; }
+
+/* Real testimonial cards (rendered automatically once data exists). */
+.tm-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; width: 100%; }
+.tm-expanded .tm-grid { grid-template-columns: 1fr; }
+.tm-card { display: flex; flex-direction: column; gap: 10px; padding: clamp(16px, 2vw, 24px); }
+.tm-card__mark { color: var(--accent); font-size: 2rem; line-height: 0.5; margin-top: 10px; font-weight: 700; }
+.tm-card__quote { margin: 0; line-height: 1.55; color: var(--text); }
+.tm-card__cite { display: flex; flex-direction: column; gap: 2px; margin-top: auto; }
+.tm-card__author { font-weight: 700; }
+.tm-card__role { color: var(--muted); font-size: 0.85rem; }
+.tm-card__source { color: var(--accent); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
 
 /* Reduced transparency: solid surfaces, no blur. */
 @media (prefers-reduced-transparency: reduce) {
@@ -852,7 +917,9 @@ html[data-theme="sunset"] .portrait-frame::after {
   .action-panel { gap: 22px; }
   .hero-cta-row .glass-button { font-size: 1.04rem; padding: 14px 22px; }
   .hero-avail { font-size: 1rem; }
-  .pane-title { font-size: clamp(2rem, 2.3vw, 2.7rem); }
+  /* Keep pane titles modest on large displays so the contact-card headings stay
+     dominant over the "Let's work together" tile. */
+  .pane-title { font-size: clamp(1.9rem, 1.7vw, 2.05rem); }
   /* Panes: centre the content vertically so the tall panel frames it with even
      breathing room instead of leaving a dead gap at the bottom. Cards size to
      their content rather than stretching into awkwardly tall blocks. */

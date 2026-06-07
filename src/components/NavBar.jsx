@@ -14,6 +14,14 @@ export default function NavBar({ view, onNavigate }) {
       <button
         type="button"
         className="nav-btn"
+        aria-current={view === "testimonials" ? "true" : undefined}
+        onClick={() => onNavigate("testimonials")}
+      >
+        <span aria-hidden="true">{"“"}</span> <span className="nav-label">Testimonials</span>
+      </button>
+      <button
+        type="button"
+        className="nav-btn"
         aria-current={view === "contact" ? "true" : undefined}
         onClick={() => onNavigate("contact")}
       >

@@ -9,7 +9,7 @@ import NavBar from "./components/NavBar.jsx";
 import Stage from "./components/Stage.jsx";
 import HeroBanner from "./components/HeroBanner.jsx";
 
-const HASH_VIEW = { "#projects": "projects", "#contact": "contact" };
+const HASH_VIEW = { "#projects": "projects", "#contact": "contact", "#testimonials": "testimonials" };
 function viewFromHash() {
   if (typeof location === "undefined") return "home";
   return HASH_VIEW[location.hash] || "home";

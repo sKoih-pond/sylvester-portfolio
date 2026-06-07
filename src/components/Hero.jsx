@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { m, useReducedMotion } from "framer-motion";
 import { bio, positioning } from "../data/profile.js";
+import Testimonials from "./Testimonials.jsx";
 
 const HEADLINE = "Hi, I'm Sylvester";
 
@@ -268,6 +269,7 @@ export function PortraitCard({ open = false, onOpenChange = () => {} }) {
 // the buttons remain — the About reads the detail, and this points the eye at the
 // next action (and frees height so the taller About card always fits).
 export function ActionPanel({ onNavigate, collapsed = false }) {
+  const reduce = useReducedMotion();
   return (
     <div className="action-panel" data-collapsed={collapsed ? "true" : undefined}>
       {!collapsed && <p className="hero-intro">{highlightPillars(INTRO)}</p>}
@@ -283,12 +285,32 @@ export function ActionPanel({ onNavigate, collapsed = false }) {
           </span>{" "}
           Book a chat
         </button>
+        {/* Testimonials — the 3rd, lowest-emphasis CTA. It's the collapsed state of
+            the testimonials; on the portrait-flip trigger it gives way to the
+            expanded block below. */}
+        {!collapsed && (
+          <button type="button" className="glass-button btn-tertiary" onClick={() => onNavigate("testimonials")}>
+            <span aria-hidden="true" className="tm-cta-mark">“</span> Testimonials
+          </button>
+        )}
       </div>
       {!collapsed && (
         <p className="hero-avail">
           <span aria-hidden="true">⌖</span> <span className="avail-city">{LOC_CITY}</span>
           {LOC_REGION ? `, ${LOC_REGION}` : ""} · Open to analytics and cloud roles
         </p>
+      )}
+      {/* On the flip trigger the descriptive lines + the tertiary CTA hide, and the
+          testimonials expand into the freed space. */}
+      {collapsed && (
+        <m.div
+          className="tm-slot"
+          initial={reduce ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: reduce ? 0 : 0.25, delay: reduce ? 0 : 0.1 }}
+        >
+          <Testimonials variant="expanded" onNavigate={onNavigate} />
+        </m.div>
       )}
     </div>
   );

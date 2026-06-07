@@ -3,6 +3,7 @@ import { m, AnimatePresence, LayoutGroup, useReducedMotion } from "framer-motion
 import { HeroGreeting, PortraitCard, ActionPanel, FLIP_DURATION, FLIP_EASE } from "./Hero.jsx";
 import ExperienceProjects from "./ExperienceProjects.jsx";
 import { Contact } from "./contact.jsx";
+import Testimonials from "./Testimonials.jsx";
 
 // The single full-viewport stage. The frosted panel is a persistent element that
 // morphs (Framer `layout`) from the hero's lower-left cell to the full stage as
@@ -74,6 +75,11 @@ export default function Stage({ view, onNavigate, aboutOpen, onAboutChange }) {
                 {view === "contact" && (
                   <div className="pane-scroll">
                     <Contact onNavigate={onNavigate} />
+                  </div>
+                )}
+                {view === "testimonials" && (
+                  <div className="pane-scroll">
+                    <Testimonials variant="pane" onNavigate={onNavigate} />
                   </div>
                 )}
               </m.div>
