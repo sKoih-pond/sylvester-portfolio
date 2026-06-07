@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { m, useReducedMotion } from "framer-motion";
 import { bio, positioning } from "../data/profile.js";
 
 const HEADLINE = "Hi, I'm Sylvester";
@@ -141,7 +141,7 @@ function Portrait() {
           width="426"
           height="600"
           decoding="async"
-          fetchPriority="high"
+          fetchpriority="high"
           style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "var(--radius-md)", display: "block" }}
         />
       </picture>
@@ -216,7 +216,7 @@ export function PortraitCard({ open = false, onOpenChange = () => {} }) {
         onKeyDown={onKeyDown}
         {...flipControls}
       >
-        <motion.div
+        <m.div
           className="flip-card"
           animate={{ rotateY: flipped ? 180 : 0 }}
           transition={{ duration: FLIP_DURATION, ease: FLIP_EASE }}
@@ -245,7 +245,7 @@ export function PortraitCard({ open = false, onOpenChange = () => {} }) {
           >
             <AboutContent />
           </div>
-        </motion.div>
+        </m.div>
       </div>
     </div>
   );
@@ -264,7 +264,12 @@ export function ActionPanel({ onNavigate, collapsed = false }) {
           <span aria-hidden="true">↗</span> View experience <span aria-hidden="true" className="btn-arrow">→</span>
         </button>
         <button type="button" className="glass-button" onClick={() => onNavigate("contact")}>
-          <span aria-hidden="true">📅</span> Book a chat
+          <span aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" focusable="false" style={{ display: "block" }}>
+              <path fillRule="evenodd" clipRule="evenodd" d="M6.75 2.25A.75.75 0 0 1 7.5 3v1.5h9V3a.75.75 0 0 1 1.5 0v1.5h.75a3 3 0 0 1 3 3v11.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V7.5a3 3 0 0 1 3-3H6V3a.75.75 0 0 1 .75-.75Zm13.5 9a1.5 1.5 0 0 0-1.5-1.5H5.25a1.5 1.5 0 0 0-1.5 1.5v7.5a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5v-7.5Z" />
+            </svg>
+          </span>{" "}
+          Book a chat
         </button>
       </div>
       {!collapsed && (

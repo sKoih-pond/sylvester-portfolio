@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { motion, animate, useMotionValue, useTransform, useReducedMotion } from "framer-motion";
+import { m, animate, useMotionValue, useTransform, useReducedMotion } from "framer-motion";
 
 // Custom-SVG radar. One shared taxonomy; per-axis highlight on hover/tap.
 // Resting = uniform muted heptagon. Active = morph spokes to the entry's mapped
@@ -106,14 +106,21 @@ export default function Radar({ axes, max, active, resting, idPrefix = "radar", 
               fontWeight="600"
               fill="var(--muted)"
             >
-              {label}
+              {label.includes("/") ? (
+                <>
+                  <tspan x={lx} dy="-0.45em">{label.split("/")[0]}/</tspan>
+                  <tspan x={lx} dy="1.05em">{label.split("/")[1]}</tspan>
+                </>
+              ) : (
+                label
+              )}
             </text>
           </g>
         );
       })}
 
       {/* animated value polygon */}
-      <motion.polygon
+      <m.polygon
         points={points}
         fill="var(--accent)"
         stroke="var(--accent)"

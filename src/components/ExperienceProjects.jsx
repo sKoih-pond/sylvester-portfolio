@@ -73,7 +73,7 @@ export default function ExperienceProjects() {
         {/* Radar — centre hero */}
         <div className="radar-col">
           <Radar axes={AXES} max={MAX_AXIS} active={active ? active.axes : null} resting={RESTING} maxWidth={340} idPrefix="radar-main" />
-          <p className="radar-caption">{active ? active.label : "Overall capability — hover an entry to focus"}</p>
+          <p className="radar-caption">{active ? active.label : ""}</p>
         </div>
 
         {/* Projects — right */}

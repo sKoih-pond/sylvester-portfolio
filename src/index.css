@@ -1,6 +1,4 @@
 @import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
 /* (Geist font import removed — the site uses self-hosted Inter.) */
 
 @custom-variant dark (&:is(.dark *));
@@ -14,7 +12,7 @@
 
 :root {
   color-scheme: light;
-  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: "Inter Variable", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
   /* Golden-ratio radius scale (φ ≈ 1.618), r₀ = 14px */
   --radius-sm: 14px;
@@ -22,7 +20,7 @@
   --radius-lg: 37px;
   --radius-xl: 60px;
 
-  --blur: 18px;
+  --blur: 12px;
 
   /* Lifted-edge hairlines (warm, not cold black) */
   --lift-inner: inset 0 0 0 1px rgba(255, 255, 255, 0.10);
@@ -225,7 +223,11 @@ a { color: inherit; text-decoration: none; }
   box-shadow: var(--lift-inner), var(--lift-outer), var(--shadow-soft);
   transition: transform .25s ease, box-shadow .25s ease;
 }
-.glass-button:hover { transform: translateY(-2px); }
+.glass-button:hover {
+  transform: translateY(-2px);
+  /* clearer hover: accent hairline ring + deeper shadow */
+  box-shadow: var(--lift-inner), inset 0 0 0 1px var(--accent), var(--lift-outer), var(--shadow);
+}
 .glass-button.primary { background: var(--surface-strong); }
 
 /* Accent-filled primary CTA — the dominant action in the visual hierarchy.
@@ -237,7 +239,7 @@ a { color: inherit; text-decoration: none; }
   border: 1px solid transparent;
   box-shadow: var(--lift-inner), var(--shadow-soft);
 }
-.btn-accent:hover { transform: translateY(-2px); filter: brightness(1.05); }
+.btn-accent:hover { transform: translateY(-2px); filter: brightness(1.07); box-shadow: var(--lift-inner), var(--shadow); }
 .btn-arrow { transition: transform .25s ease; }
 .btn-accent:hover .btn-arrow { transform: translateX(3px); }
 
@@ -296,26 +298,6 @@ a { color: inherit; text-decoration: none; }
    Sits below the headline and frames the brand statement, the three CTAs and
    the availability line in one glass panel — the hero's primary call to action.
    Pillar words (analytics / automation / cloud) are lit in --accent. */
-.hero-frame {
-  position: relative;
-  width: 100%;
-  max-width: 100%;
-  margin-top: clamp(24px, 4.5vw, 34px);
-  padding: clamp(18px, 3vw, 24px);
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  /* Softened, frosted panel (not the high-contrast glass-card): a quiet hairline
-     and surface-soft fill so it doesn't fight the headline or signal line, while
-     the backdrop blur frosts whatever passes behind it. */
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-lg);
-  background: var(--surface-soft);
-  box-shadow: var(--shadow-soft);
-  backdrop-filter: blur(10px) saturate(120%);
-  -webkit-backdrop-filter: blur(10px) saturate(120%);
-  transition: background 2s ease, box-shadow 2s ease;
-}
 .hero-intro {
   margin: 0;
   max-width: 54ch;
@@ -390,7 +372,7 @@ html[data-theme="sunset"] .portrait-frame::after {
   appearance: none;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-.theme-pill:hover { transform: translateY(-1px); }
+.theme-pill:hover { transform: translateY(-1px); box-shadow: var(--lift-inner), var(--lift-outer), var(--shadow); }
 .theme-pill__switch {
   position: relative;
   flex: 0 0 auto;
@@ -418,7 +400,12 @@ html[data-theme="sunset"] .portrait-frame::after {
 
 /* ── App shell & morphing stage ─────────────────────────────────────────────── */
 #root { height: 100%; }
-.app-shell { display: flex; flex-direction: column; height: 100dvh; }
+.app-shell {
+  display: flex; flex-direction: column; height: 100dvh;
+  position: relative;        /* containing block for the hero banner */
+  isolation: isolate;        /* so the banner's z-index:-1 sits behind shell content */
+  overflow-x: hidden;        /* contain the full-bleed banner (no horizontal scroll) */
+}
 .app-header {
   flex: 0 0 auto;
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
@@ -496,10 +483,11 @@ html[data-theme="sunset"] .portrait-frame::after {
   overflow: hidden;
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-lg);
-  background: var(--surface-soft);
+  /* A more opaque surface instead of a backdrop blur: the panel animates (morph)
+     and a blurred element re-blurs every frame, which janks. Solid-ish surface
+     keeps the frosted look while the morph stays transform-only. */
+  background: var(--surface-strong);
   box-shadow: var(--shadow-soft);
-  backdrop-filter: blur(10px) saturate(120%);
-  -webkit-backdrop-filter: blur(10px) saturate(120%);
 }
 .stage--projects .stage-panel, .stage--contact .stage-panel { height: 100%; }
 .stage-panel__inner {
@@ -518,7 +506,9 @@ html[data-theme="sunset"] .portrait-frame::after {
   display: inline-flex; align-items: center; gap: 10px;
   font: inherit; font-weight: 700; color: var(--text);
   background: none; border: 0; padding: 0; cursor: pointer;
+  transition: color .2s ease;
 }
+.logo-btn:hover { color: var(--accent); }
 .navbar { display: flex; gap: 8px; align-items: center; }
 .nav-btn {
   display: inline-flex; align-items: center; gap: 7px;
@@ -529,7 +519,7 @@ html[data-theme="sunset"] .portrait-frame::after {
   transition: background 0.2s ease, color 0.2s ease;
 }
 .nav-btn[aria-current="true"] { background: var(--accent); color: var(--page-bg); font-weight: 700; }
-.nav-btn:not([aria-current="true"]):hover { background: var(--surface-soft); }
+.nav-btn:not([aria-current="true"]):hover { background: var(--surface-strong); color: var(--accent); }
 
 /* Pane heading — Work & Project Experience elevated as the primary pane title. */
 .pane-title {
@@ -589,19 +579,19 @@ html[data-theme="sunset"] .portrait-frame::after {
    into the page. Re-tints with the theme via --accent-soft / --glass-tint. */
 .hero-banner {
   position: absolute;
-  left: 50%;
-  top: clamp(-150px, -12vw, -96px);
-  width: 100vw;
-  transform: translateX(-50%);
-  height: clamp(440px, 64vh, 680px);
-  z-index: -1;
+  top: 0; left: 0;
+  width: 100%;
+  height: clamp(440px, 70vh, 800px);
+  z-index: -1;                 /* behind the shell content, incl. the header */
   pointer-events: none;
   overflow: hidden;
   background:
     radial-gradient(120% 90% at 82% 8%, var(--accent-soft) 0%, transparent 56%),
-    radial-gradient(90% 80% at 6% 28%, var(--glass-tint) 0%, transparent 62%);
-  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 58%, transparent 100%);
-  mask-image: linear-gradient(180deg, #000 0%, #000 58%, transparent 100%);
+    radial-gradient(90% 80% at 6% 26%, var(--glass-tint) 0%, transparent 62%);
+  /* Solid from the very top (flows up behind the header → seamless with it);
+     fades only at the bottom into the hero. */
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 55%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 55%, transparent 100%);
   transition: background 2s ease;
 }
 .hero-banner__svg {
@@ -637,13 +627,13 @@ html[data-theme="sunset"] .portrait-frame::after {
   flex-direction: column;       /* lay content top→bottom so the link can pin low */
   padding: clamp(16px, 2.5vw, 28px);
   color: var(--text);
-  transition: transform .25s ease;
+  transition: transform .25s ease, box-shadow .25s ease;
   container-type: size;         /* card text scales with the card (cqh) to fill it */
   min-height: 4.5rem;           /* safety floor so size-containment can't collapse it */
 }
-.contact-card:hover { transform: translateY(-3px); }
+.contact-card:hover { transform: translateY(-3px); box-shadow: var(--lift-inner), inset 0 0 0 1px var(--accent), var(--lift-outer), var(--shadow); }
 .contact-card .c-head { display: flex; align-items: center; gap: 9px; }
-.contact-card .c-icon { color: var(--accent); font-weight: 700; min-width: 1.2em; font-size: clamp(1.15rem, 8cqh, 2.2rem); }
+.contact-card .c-icon { display: inline-flex; align-items: center; color: var(--accent); min-width: 1.2em; font-size: clamp(1.15rem, 8cqh, 2.2rem); }
 .contact-card .c-title { margin: 0; font-weight: 700; font-size: clamp(1.15rem, 8cqh, 2.2rem); }
 .contact-card .c-desc { margin: clamp(10px, 3.5cqh, 24px) 0; color: var(--muted); line-height: 1.55; font-size: clamp(1rem, 5.5cqh, 1.6rem); }
 .contact-card .c-link { color: var(--accent); font-weight: 600; margin-top: auto; font-size: clamp(1.05rem, 5.5cqh, 1.55rem); }
@@ -716,7 +706,7 @@ html[data-theme="sunset"] .portrait-frame::after {
 
 @theme inline {
   --font-heading: var(--font-sans);
-  --font-sans: 'Geist Variable', sans-serif;
+  --font-sans: "Inter Variable", system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);

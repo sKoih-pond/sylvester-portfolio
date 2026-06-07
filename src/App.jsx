@@ -7,6 +7,7 @@ import ThemePill from "./components/ThemePill.jsx";
 import Logo from "./components/Logo.jsx";
 import NavBar from "./components/NavBar.jsx";
 import Stage from "./components/Stage.jsx";
+import HeroBanner from "./components/HeroBanner.jsx";
 
 const HASH_VIEW = { "#projects": "projects", "#contact": "contact" };
 function viewFromHash() {
@@ -45,6 +46,10 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      {/* Decorative backdrop behind the whole shell (incl. the header) so it
+          blends seamlessly with the header instead of starting below it. */}
+      {view === "home" && <HeroBanner />}
+
       <header className="app-header">
         <div className="header-left">
           <button type="button" className="logo-btn" onClick={() => navigate("home")} aria-label="kohstack — home">

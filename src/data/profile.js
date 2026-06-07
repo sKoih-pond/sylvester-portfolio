@@ -22,9 +22,9 @@ export const bio = {
 export const AXES = [
   "SQL",
   "Python",
-  "Cloud/Azure",
+  "Network/Cloud",
   "Pipelines/Automation",
-  "Reporting/Viz",
+  "Reporting/Visualisation",
   "Stakeholder",
   "Incident",
 ];
@@ -42,9 +42,9 @@ export const experience = [
     period: "Sep 2025 — present",
     current: true,
     blurb:
-      "Senior escalation lead for enterprise incidents, coordinating internal, vendor and Client Delivery teams to drive customer-focused resolutions and RCA learnings.",
-    //     SQL Py Cloud Pipe Report Stake Incident
-    axes: [0, 0, 1, 0, 1, 3, 3],
+      "Senior escalation lead for enterprise incidents across fixed network and mobile, coordinating internal, vendor and Client Delivery teams to drive customer-focused resolutions and RCA learnings.",
+    //     SQL Py Net Pipe Vis Stake Incident
+    axes: [0, 0, 3, 0, 1, 3, 3],
   },
   {
     id: "rcs",
@@ -65,7 +65,7 @@ export const experience = [
     period: "Feb 2023 — Aug 2023",
     tier: "earlier",
     blurb: "Re-coded product records against multi-client rulebooks; refined rules to improve data quality.",
-    //     SQL Py Cloud Pipe Report Stake Incident
+    //     SQL Py Net Pipe Vis Stake Incident
     axes: [1, 0, 0, 0, 1, 0, 0],
   },
   {
@@ -75,7 +75,7 @@ export const experience = [
     period: "Jun 2021 — Mar 2022",
     tier: "earlier",
     blurb: "Verified financial data across 7,000+ company profiles; co-led the Top 500 Private Companies project.",
-    //     SQL Py Cloud Pipe Report Stake Incident
+    //     SQL Py Net Pipe Vis Stake Incident
     axes: [1, 0, 0, 0, 2, 1, 0],
   },
 ];
@@ -86,18 +86,18 @@ export const projects = [
     id: "sgn",
     flagship: true,
     eyebrow: "Flagship platform",
-    title: "Tan Son Nhat Airport Arrivals Analytics Platform",
+    title: "Predicting Arrival & Departure Congestion",
     summary:
-      "An Azure-backed data pipeline feeding a custom JavaScript reporting tool that uses ML delay prediction to surface arrival congestion and immigration queue pressure.",
+      "An Azure cloud platform that uses machine learning on live flight data to predict delays and congestion, helping plan contingencies for both arrivals and departures.",
     href: "https://kohstack.au/sgn/",
-    //     SQL Py Cloud Pipe Report Stake Incident
+    //     SQL Py Net Pipe Vis Stake Incident
     axes: [3, 3, 2, 3, 3, 0, 0],
     components: [
       {
         icon: "⌁",
-        title: "Arrival Delay Prediction Model",
-        body: "Machine learning model in Python to predict arrival delays and identify key operational drivers.",
-        tags: ["Python", "Pandas", "Scikit-learn", "Azure"],
+        title: "Arrival & Departure Delay Prediction",
+        body: "A Python ML model predicts arrival delays and their key drivers; aircraft-rotation matching then propagates each inbound delay through turnaround to forecast the departure delay.",
+        tags: ["Python", "Pandas", "Scikit-learn", "SQL", "Azure"],
       },
       {
         icon: "▥",

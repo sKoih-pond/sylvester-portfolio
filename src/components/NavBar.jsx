@@ -17,7 +17,7 @@ export default function NavBar({ view, onNavigate }) {
         aria-current={view === "contact" ? "true" : undefined}
         onClick={() => onNavigate("contact")}
       >
-        <span aria-hidden="true">📅</span> <span className="nav-label">Contact</span>
+        <span aria-hidden="true">{"✉︎"}</span> <span className="nav-label">Contact</span>
       </button>
     </nav>
   );

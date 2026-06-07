@@ -1,7 +1,6 @@
 import { useId, useRef, useEffect, useState } from "react";
-import { motion, AnimatePresence, LayoutGroup, useReducedMotion } from "framer-motion";
+import { m, AnimatePresence, LayoutGroup, useReducedMotion } from "framer-motion";
 import { HeroGreeting, PortraitCard, ActionPanel, FLIP_DURATION, FLIP_EASE } from "./Hero.jsx";
-import HeroBanner from "./HeroBanner.jsx";
 import ExperienceProjects from "./ExperienceProjects.jsx";
 import { Contact } from "./contact.jsx";
 
@@ -31,8 +30,6 @@ export default function Stage({ view, onNavigate }) {
   return (
     <LayoutGroup>
       <div className={`stage stage--${view}`}>
-        {view === "home" && <HeroBanner />}
-
         {/* Clicking the area around an open pane dismisses back to home. */}
         {view !== "home" && (
           <div className="stage-backdrop" onClick={() => onNavigate("home")} aria-hidden="true" />
@@ -40,7 +37,7 @@ export default function Stage({ view, onNavigate }) {
 
         <AnimatePresence mode="popLayout">
           {view === "home" && (
-            <motion.div
+            <m.div
               key="greet"
               className="hero-greet"
               initial={reduce ? false : { opacity: 0 }}
@@ -49,10 +46,10 @@ export default function Stage({ view, onNavigate }) {
               transition={morph}
             >
               <HeroGreeting titleId={titleId} />
-            </motion.div>
+            </m.div>
           )}
           {view === "home" && (
-            <motion.div
+            <m.div
               key="portrait"
               className="hero-portrait"
               initial={reduce ? false : { opacity: 0, scale: 0.97 }}
@@ -61,14 +58,14 @@ export default function Stage({ view, onNavigate }) {
               transition={morph}
             >
               <PortraitCard open={aboutOpen} onOpenChange={setAboutOpen} />
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
 
-        <motion.div layout={!reduce} transition={morph} className="stage-panel">
+        <m.div layout={!reduce} transition={morph} className="stage-panel">
           <div className="stage-panel__inner" ref={panelRef} tabIndex={-1}>
             <AnimatePresence mode="wait">
-              <motion.div
+              <m.div
                 key={view}
                 initial={reduce ? false : { opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -87,10 +84,10 @@ export default function Stage({ view, onNavigate }) {
                     <Contact onNavigate={onNavigate} />
                   </div>
                 )}
-              </motion.div>
+              </m.div>
             </AnimatePresence>
           </div>
-        </motion.div>
+        </m.div>
       </div>
     </LayoutGroup>
   );
