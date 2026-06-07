@@ -169,6 +169,17 @@ body {
 
 a { color: inherit; text-decoration: none; }
 
+/* Cross-document view transitions: same-origin navigations between the portfolio
+   and /sgn/ morph (cross-fade) instead of a hard load / new tab. Progressive
+   enhancement — unsupported browsers just navigate normally. In-SPA hash routing
+   is not a document navigation, so the existing Framer morphs are unaffected. */
+@view-transition { navigation: auto; }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+}
+
 /* ── Glass primitives (port of the legacy liquid-glass language) ──────────── */
 /* Structural surfaces: backdrop blur kept ONLY here (perf lesson carried over). */
 .glass-panel {

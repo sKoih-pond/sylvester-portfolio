@@ -94,12 +94,10 @@ export default function ExperienceProjects() {
                   <a
                     className="glass-button primary"
                     href={p.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
                     style={{ fontSize: ".8rem", padding: "8px 14px" }}
                   >
-                    <span aria-hidden="true">↗</span> View project
+                    View project <span aria-hidden="true">→</span>
                   </a>
                   {p.components?.length > 0 && (
                     <ul style={{ listStyle: "none", margin: "9px 0 0", padding: "9px 0 0", borderTop: "1px solid var(--border-soft)", display: "grid", gap: 8 }}>

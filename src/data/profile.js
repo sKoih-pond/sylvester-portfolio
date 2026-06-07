@@ -89,7 +89,7 @@ export const projects = [
     title: "Predicting Arrival & Departure Congestion",
     summary:
       "An Azure cloud platform that uses machine learning on live flight data to predict delays and congestion, helping plan contingencies for both arrivals and departures.",
-    href: "https://kohstack.au/sgn/",
+    href: "/sgn/",
     //     SQL Py Net Pipe Vis Stake Incident
     axes: [3, 3, 2, 3, 3, 0, 0],
     components: [
