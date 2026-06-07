@@ -1,5 +1,4 @@
 import Radar from "./Radar.jsx";
-import Reveal from "./Reveal.jsx";
 import { experience, projects, AXES, MAX_AXIS } from "../data/profile.js";
 import { useActiveEntry } from "../hooks/useActiveEntry.js";
 
@@ -33,8 +32,8 @@ export default function ExperienceProjects() {
   const earlier = experience.filter((e) => e.tier === "earlier");
 
   return (
-    <Reveal as="section" id="experience" className="glass-card section-block" style={{ padding: "clamp(1rem, 3vw, 1.75rem)" }}>
-      <h2 className="section-title section-title--center">Work &amp; Project Experience</h2>
+    <section id="experience" className="pane-experience">
+      <h2 className="pane-title">Work &amp; Project Experience</h2>
 
       <div className="merged-3col">
         {/* Work — left */}
@@ -125,6 +124,6 @@ export default function ExperienceProjects() {
           </ul>
         </div>
       </div>
-    </Reveal>
+    </section>
   );
 }

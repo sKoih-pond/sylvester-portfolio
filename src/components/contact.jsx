@@ -29,19 +29,12 @@ const channels = [
   },
 ];
 
-export function Contact() {
+export function Contact({ onNavigate }) {
   return (
-    <section
-      id="contact"
-      className="glass-panel"
-      aria-labelledby="contact-heading"
-      style={{ padding: "clamp(1.5rem, 5vw, 2.75rem)", marginTop: "clamp(1.5rem, 5vw, 3rem)" }}
-    >
-      {/* cta-4 style: centred heading + supporting line + a single primary action */}
+    <section id="contact" aria-labelledby="contact-heading" className="pane-contact">
+      <h2 className="pane-title" id="contact-heading">Let's work together</h2>
+      {/* cta-4 style: supporting line + a single primary action */}
       <div style={{ maxWidth: 560, margin: "0 auto", textAlign: "center" }}>
-        <h2 id="contact-heading" style={{ margin: "0 0 10px", fontSize: "clamp(1.5rem, 4vw, 2rem)", fontWeight: 700, letterSpacing: "-0.01em" }}>
-          Let's work together
-        </h2>
         <p style={{ margin: "0 0 20px", color: "var(--muted)", lineHeight: 1.6 }}>
           {bio.location} · open to analytics and cloud roles. Book a quick call, or reach out through any channel below.
         </p>
@@ -49,9 +42,9 @@ export function Contact() {
           <a className="glass-button btn-accent" href={contact.calendar} target="_blank" rel="noopener noreferrer">
             <span aria-hidden="true">📅</span> Book a chat <span aria-hidden="true" className="btn-arrow">→</span>
           </a>
-          <a className="glass-button" href="#projects">
-            <span aria-hidden="true">↗</span> View projects
-          </a>
+          <button type="button" className="glass-button" onClick={() => onNavigate?.("projects")}>
+            <span aria-hidden="true">↗</span> View experience
+          </button>
         </div>
       </div>
 

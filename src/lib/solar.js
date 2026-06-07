@@ -130,7 +130,7 @@ async function ipLocation() {
     const lat = parseFloat(data.latitude);
     const lon = parseFloat(data.longitude);
     if (!isFinite(lat) || !isFinite(lon)) return null;
-    const result = { lat, lon, city: data.city || null, source: "ip" };
+    const result = { lat, lon, city: data.city || null, timezone: data.timezone || null, source: "ip" };
     try {
       sessionStorage.setItem(IP_CACHE_KEY, JSON.stringify(result));
     } catch {}
@@ -161,14 +161,31 @@ async function reverseGeocode(lat, lon) {
 
 export async function resolveLocation() {
   const tzCity = timezoneCity();
+  let deviceTz = null;
+  try {
+    deviceTz = Intl.DateTimeFormat().resolvedOptions().timeZone || null;
+  } catch {}
+  const tzLoc = defaultLocation(); // longitude from the device's UTC offset
+
   const [gps, ip] = await Promise.all([preciseLocation(), ipLocation()]);
-  let result;
-  if (gps) result = { lat: gps.lat, lon: gps.lon, source: "gps", city: (ip && ip.city) || tzCity };
-  else if (ip) result = ip;
-  else return { ...defaultLocation(), city: tzCity };
-  if (result.city) return result;
-  const nomCity = await reverseGeocode(result.lat, result.lon);
-  return { ...result, city: nomCity || tzCity || null };
+
+  // 1. GPS (only when already granted) = the true device location.
+  if (gps) {
+    const nomCity = await reverseGeocode(gps.lat, gps.lon);
+    return { lat: gps.lat, lon: gps.lon, source: "gps", city: nomCity || tzCity || null };
+  }
+
+  // 2. IP geo only when its timezone matches the device's. A mismatch means the
+  //    IP is a VPN / proxy / carrier hop reporting the wrong place (e.g. "Hanoi"
+  //    for a device set to another zone) — distrust it and fall through to the
+  //    device timezone instead.
+  if (ip && deviceTz && ip.timezone && ip.timezone === deviceTz) {
+    return { lat: ip.lat, lon: ip.lon, source: "ip", city: ip.city || tzCity || null };
+  }
+
+  // 3. Device timezone: the city the OS is set to, plus a longitude from the
+  //    user's own clock offset — never fooled by IP routing.
+  return { ...tzLoc, source: "tz", city: tzCity || null };
 }
 
 export function persistLocation(lat, lon) {

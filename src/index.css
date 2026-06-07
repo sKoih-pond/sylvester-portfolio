@@ -151,9 +151,15 @@ html[data-theme="night"] {
 
 * { box-sizing: border-box; }
 
+/* Full-viewport app: the page itself never scrolls — the stage fills the
+   screen and individual panes scroll internally when taller (see .pane-scroll). */
+html, body { height: 100%; }
+html { overflow: hidden; }
+
 body {
   margin: 0;
-  min-height: 100vh;
+  height: 100%;
+  overflow: hidden;
   font-family: var(--font-sans);
   color: var(--text);
   /* Solar page background. (shadcn init added a neutral --background to :root;
@@ -240,7 +246,9 @@ a { color: inherit; text-decoration: none; }
 /* Merged hero headline: greeting by default, type-animated tagline on hover/tap.
    min-height reserves the revealed tagline's space so the layout doesn't jump. */
 .hero-headline {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* keep both states vertically centred in the box */
   margin: 0 0 18px;
   font-family: var(--font-sans);
   font-size: clamp(2.6rem, 8vw, 4.2rem);
@@ -250,14 +258,16 @@ a { color: inherit; text-decoration: none; }
   color: var(--text);
   cursor: default;
   outline: none;
-  min-height: clamp(6rem, 20vw, 8rem);
+  /* Reserve enough for the (smaller) revealed tagline so the box NEVER resizes
+     between the greeting and the tagline — the welcome text stays put on hover. */
+  min-height: clamp(4rem, 7vw, 4.8rem);
   transition: font-size .25s ease, font-weight .25s ease;
 }
 .hero-headline.is-revealed {
-  font-size: clamp(1.5rem, 3.8vw, 2rem);
+  font-size: clamp(1.05rem, 2.2vw, 1.35rem);   /* smaller so the tagline fits the reserved box */
   font-weight: 400;
   letter-spacing: -0.01em;
-  line-height: 1.3;
+  line-height: 1.35;
 }
 .hero-headline:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: var(--radius-sm); }
 
@@ -335,10 +345,12 @@ a { color: inherit; text-decoration: none; }
 .portrait-frame {
   position: relative;
   display: block;
+  height: 100%;
   border-radius: var(--radius-md);
   overflow: hidden;
   line-height: 0;
 }
+.portrait-frame picture { display: block; width: 100%; height: 100%; }
 /* Warm cream plate with a soft radial fall-off — brightest behind the head
    (keeps the hair fringe hidden), easing to a warmer tone toward the edges so
    it's not a flat bright block against the brown. */
@@ -402,6 +414,167 @@ html[data-theme="sunset"] .portrait-frame::after {
 .theme-pill[data-dark="true"] .theme-pill__knob { transform: translateX(16px); }
 @media (prefers-reduced-motion: reduce) {
   .theme-pill, .theme-pill__switch, .theme-pill__knob { transition: none; }
+}
+
+/* ── App shell & morphing stage ─────────────────────────────────────────────── */
+#root { height: 100%; }
+.app-shell { display: flex; flex-direction: column; height: 100dvh; }
+.app-header {
+  flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  width: min(1180px, calc(100% - 2rem)); margin: 0 auto; padding: 16px 0;
+}
+.stage-wrap {
+  flex: 1 1 auto; min-height: 0;
+  width: min(1180px, calc(100% - 2rem)); margin: 0 auto;
+  padding-bottom: clamp(0.75rem, 2vw, 1.25rem);
+}
+.stage { position: relative; height: 100%; display: grid; gap: clamp(1rem, 4vw, 3rem); }
+
+/* Home: greeting top-left, portrait right (spanning), action panel bottom-left. */
+.stage--home {
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 340px);
+  /* Greeting sits in a fixed `auto` row at the top; the panel collapses inside the
+     `1fr` row below. Nothing above the panel moves, so the welcome text never
+     shifts/resizes on flip and the portrait (spanning both rows) stays put. */
+  grid-template-rows: auto 1fr;
+  grid-template-areas: "greet portrait" "panel portrait";
+  align-items: center;
+  overflow: hidden;   /* fits by design (portrait scales to height) — no page scroll */
+}
+.hero-greet { align-self: start; }
+.stage--home .stage-panel { align-self: start; }
+.hero-greet { grid-area: greet; align-self: end; min-width: 0; }
+.hero-portrait {
+  grid-area: portrait;
+  display: flex; align-items: center; justify-content: center;
+  min-width: 0; min-height: 0;
+}
+/* Flip card scales to the available viewport height so the home never overflows:
+   width = the smaller of the column width and the width implied by the height
+   budget; aspect-ratio derives the height. No page scroll needed. */
+.flip-perspective {
+  --port-offset: 132px;   /* space taken by everything except the portrait */
+  width: min(100%, max(0px, calc((100dvh - var(--port-offset)) * 426 / 600)));
+  max-width: 100%;
+  aspect-ratio: 426 / 600;
+}
+/* Hover-driven, not clickable → keep the default cursor. The perspective keeps a
+   fixed aspect size, so the hover target never shrinks/moves (no flip loop). */
+.flip-stage { position: relative; width: 100%; height: 100%; cursor: default; outline: none; }
+.flip-card { width: 100%; height: 100%; }
+.flip-face {
+  position: absolute; inset: 0;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  border-radius: var(--radius-lg); overflow: hidden;
+}
+/* Flipped: the About face flows so the text shows in full with no scroll. The
+   card may only GROW (min-height = the resting portrait) — never shrink — so the
+   fixed-size hover target can't fall out from under the cursor and loop. */
+.flip-perspective[data-flipped="true"] .flip-card { height: auto; min-height: 100%; }
+.flip-perspective[data-flipped="true"] .flip-back { position: relative; inset: auto; }
+
+/* Pane views: the panel fills the stage, inset slightly so the dismiss backdrop
+   shows as a clickable ring around it (click out → home). */
+.stage--projects, .stage--contact {
+  grid-template-columns: 1fr;
+  grid-template-areas: "panel";
+  padding: clamp(10px, 2vw, 22px);
+}
+.stage-backdrop { position: absolute; inset: 0; z-index: 0; cursor: pointer; }
+
+/* The morph surface — frosted panel chrome (same language as the old hero frame). */
+.stage-panel {
+  grid-area: panel;
+  position: relative; z-index: 1;   /* above the dismiss backdrop */
+  min-width: 0; min-height: 0;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--surface-soft);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+}
+.stage--projects .stage-panel, .stage--contact .stage-panel { height: 100%; }
+.stage-panel__inner {
+  display: flex; flex-direction: column; min-height: 0; height: 100%;
+  padding: clamp(18px, 3vw, 28px);
+}
+/* Internal scroll for tall pane content; the page itself stays fixed. */
+.pane-scroll { overflow-y: auto; overflow-x: hidden; min-height: 0; flex: 1 1 auto; }
+
+/* Home action panel content (brand statement + CTAs + availability). */
+.action-panel { display: flex; flex-direction: column; gap: 18px; }
+
+/* Logo button + slim top nav (the latter appears once a pane is open). */
+.header-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.logo-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  font: inherit; font-weight: 700; color: var(--text);
+  background: none; border: 0; padding: 0; cursor: pointer;
+}
+.navbar { display: flex; gap: 8px; align-items: center; }
+.nav-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 14px; border-radius: var(--radius-sm);
+  font: inherit; font-size: 0.82rem; font-weight: 600; color: var(--text);
+  cursor: pointer; border: 1px solid transparent;
+  -webkit-appearance: none; appearance: none; background: transparent;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.nav-btn[aria-current="true"] { background: var(--accent); color: var(--page-bg); font-weight: 700; }
+.nav-btn:not([aria-current="true"]):hover { background: var(--surface-soft); }
+
+/* Pane heading — Work & Project Experience elevated as the primary pane title. */
+.pane-title {
+  margin: 0 0 clamp(0.75rem, 2vw, 1.25rem);
+  font-size: clamp(1.4rem, 3.4vw, 2rem); font-weight: 700; letter-spacing: -0.01em;
+  color: var(--text); text-align: center;
+}
+
+/* Responsive: stack home; allow it to scroll if short viewports can't fit it. */
+@media (max-width: 860px) {
+  .stage--home {
+    grid-template-columns: minmax(0, 1fr);  /* minmax(0,…) stops the track blowing past the viewport */
+    grid-template-areas: "greet" "portrait" "panel";
+    grid-template-rows: auto auto auto;
+    align-content: start;   /* greeting fixed at top — doesn't shift when the panel collapses on flip */
+    gap: clamp(0.6rem, 2.5vw, 1rem);
+    overflow: hidden;   /* fits by design — no scroll */
+  }
+  .stage--home .stage-panel__inner { padding: clamp(14px, 3.5vw, 20px); }
+  /* Compact theme pill so the header (logo + CV + nav + pill) never clips. */
+  .theme-pill__label { display: none; }
+  /* Smaller headline + minimal reserved space so the welcome text stays compact. */
+  .hero-headline { font-size: clamp(2rem, 8.5vw, 2.9rem); min-height: clamp(4rem, 13vw, 4.8rem); }
+  .hero-headline.is-revealed { font-size: clamp(0.92rem, 3.4vw, 1.1rem); }
+  /* Portrait: cap width, and budget more height for the stacked greeting + panel. */
+  .hero-portrait { width: min(270px, 72vw); justify-self: center; }
+  /* On mobile the stacked greeting + tall action panel eat the height, so budget
+     more for them; the portrait scales down on short screens but stays large on
+     tall ones (where the width cap binds instead). */
+  .flip-perspective { --port-offset: 440px; }
+  /* On mobile (touch — no hover loop) the flipped card widens to full width so
+     About isn't squeezed into a narrow column. */
+  .flip-perspective[data-flipped="true"] { width: 100%; aspect-ratio: auto; }
+  .flip-perspective[data-flipped="true"] .flip-card { min-height: 0; }
+  /* Slim-nav pills go icon-only, but keep the CV label so it's clearly the CV. */
+  .nav-btn:not(.cv-btn) .nav-label { display: none; }
+  /* Flipped "About" face: tighter type + padding (the card resizes to fit it). */
+  .portrait-back { padding: 16px !important; }
+  .about-content h2 { font-size: 1.1rem; }
+  .about-content p { font-size: 0.82rem; line-height: 1.45; }
+}
+
+@media (max-width: 560px) {
+  .logo-btn > span:last-child { display: none; }                    /* keep just the logo glyph in the header */
+  .app-header { padding: 12px 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-btn { transition: none; }
 }
 
 /* ── Hero banner ──────────────────────────────────────────────────────────────

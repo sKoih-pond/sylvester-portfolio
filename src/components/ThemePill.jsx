@@ -12,7 +12,7 @@ export default function ThemePill({ icon, label, isDark, onToggle }) {
       title={`Switch to ${target} mode`}
     >
       <span aria-hidden="true">{icon}</span>
-      <span aria-live="polite">{label}</span>
+      <span className="theme-pill__label" aria-live="polite">{label}</span>
       <span className="theme-pill__switch" aria-hidden="true">
         <span className="theme-pill__knob" />
       </span>
