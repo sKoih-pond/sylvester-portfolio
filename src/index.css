@@ -440,7 +440,11 @@ html[data-theme="sunset"] .portrait-frame::after {
   grid-template-rows: auto 1fr;
   grid-template-areas: "greet portrait" "panel portrait";
   align-items: center;
-  overflow: hidden;   /* fits by design (portrait scales to height) — no page scroll */
+  /* Fits with no scrollbar on normal devices (the portrait scales to height);
+     allow vertical scroll only as a fallback on very short viewports (e.g. tiny
+     phones / landscape) so content is never clipped. */
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 .hero-greet { align-self: start; }
 .stage--home .stage-panel { align-self: start; }
@@ -542,7 +546,8 @@ html[data-theme="sunset"] .portrait-frame::after {
     grid-template-rows: auto auto auto;
     align-content: start;   /* greeting fixed at top — doesn't shift when the panel collapses on flip */
     gap: clamp(0.6rem, 2.5vw, 1rem);
-    overflow: hidden;   /* fits by design — no scroll */
+    overflow-x: hidden;
+    overflow-y: auto;   /* fits with no scrollbar normally; scrolls only if too short */
   }
   .stage--home .stage-panel__inner { padding: clamp(14px, 3.5vw, 20px); }
   /* Compact theme pill so the header (logo + CV + nav + pill) never clips. */
