@@ -57,11 +57,11 @@ export function Contact({ onNavigate }) {
             href={c.href}
             {...(c.ext ? { target: "_blank", rel: "noopener noreferrer" } : {})}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+            <div className="c-head">
               <span aria-hidden="true" className="c-icon">{c.icon}</span>
-              <h3 style={{ margin: 0, fontSize: ".95rem", fontWeight: 700 }}>{c.title}</h3>
+              <h3 className="c-title">{c.title}</h3>
             </div>
-            <p style={{ margin: "8px 0 12px", color: "var(--muted)", fontSize: ".82rem", lineHeight: 1.45 }}>{c.desc}</p>
+            <p className="c-desc">{c.desc}</p>
             <span className="c-link">{c.label} <span aria-hidden="true">→</span></span>
           </a>
         ))}

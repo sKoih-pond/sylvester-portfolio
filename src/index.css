@@ -422,11 +422,11 @@ html[data-theme="sunset"] .portrait-frame::after {
 .app-header {
   flex: 0 0 auto;
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  width: min(1180px, calc(100% - 2rem)); margin: 0 auto; padding: 16px 0;
+  width: min(1340px, calc(100% - 2rem)); margin: 0 auto; padding: 16px 0;
 }
 .stage-wrap {
   flex: 1 1 auto; min-height: 0;
-  width: min(1180px, calc(100% - 2rem)); margin: 0 auto;
+  width: min(1340px, calc(100% - 2rem)); margin: 0 auto;
   padding-bottom: clamp(0.75rem, 2vw, 1.25rem);
 }
 .stage { position: relative; height: 100%; display: grid; gap: clamp(1rem, 4vw, 3rem); }
@@ -479,7 +479,7 @@ html[data-theme="sunset"] .portrait-frame::after {
 .stage--projects, .stage--contact {
   grid-template-columns: 1fr;
   grid-template-areas: "panel";
-  padding: clamp(10px, 2vw, 22px);
+  padding: clamp(6px, 1vw, 12px);
 }
 .stage-backdrop { position: absolute; inset: 0; z-index: 0; cursor: pointer; }
 
@@ -500,7 +500,7 @@ html[data-theme="sunset"] .portrait-frame::after {
 .stage--projects .stage-panel, .stage--contact .stage-panel { height: 100%; }
 .stage-panel__inner {
   display: flex; flex-direction: column; min-height: 0; height: 100%;
-  padding: clamp(18px, 3vw, 28px);
+  padding: clamp(12px, 2.2vw, 22px);
 }
 /* Internal scroll for tall pane content; the page itself stays fixed. */
 .pane-scroll { overflow-y: auto; overflow-x: hidden; min-height: 0; flex: 1 1 auto; }
@@ -529,7 +529,7 @@ html[data-theme="sunset"] .portrait-frame::after {
 
 /* Pane heading — Work & Project Experience elevated as the primary pane title. */
 .pane-title {
-  margin: 0 0 clamp(0.75rem, 2vw, 1.25rem);
+  margin: 0 0 clamp(0.4rem, 1.2vw, 0.85rem);
   font-size: clamp(1.4rem, 3.4vw, 2rem); font-weight: 700; letter-spacing: -0.01em;
   color: var(--text); text-align: center;
 }
@@ -614,22 +614,34 @@ html[data-theme="sunset"] .portrait-frame::after {
   .hero-banner { display: none; }
 }
 
-/* Contact section (contact-2 style, warm-themed) */
+/* Contact section (contact-2 style, warm-themed).
+   The pane is a full-height column so the channel cards grow to fill the space
+   below the intro (instead of leaving a gap) — no vertical centering needed. */
+.pane-contact { display: flex; flex-direction: column; height: 100%; min-height: 0; }
 .contact-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-auto-rows: 1fr;          /* cards stretch to fill the grid's height */
   gap: 12px;
   margin-top: clamp(1.25rem, 4vw, 2rem);
+  flex: 1 1 auto;               /* the grid absorbs the leftover height */
+  min-height: 0;
 }
 .contact-card {
-  display: block;
-  padding: 16px;
+  display: flex;
+  flex-direction: column;       /* lay content top→bottom so the link can pin low */
+  padding: clamp(16px, 2.5vw, 28px);
   color: var(--text);
   transition: transform .25s ease;
+  container-type: size;         /* card text scales with the card (cqh) to fill it */
+  min-height: 4.5rem;           /* safety floor so size-containment can't collapse it */
 }
 .contact-card:hover { transform: translateY(-3px); }
-.contact-card .c-icon { color: var(--accent); font-weight: 700; min-width: 1.2em; }
-.contact-card .c-link { color: var(--accent); font-weight: 600; font-size: .82rem; }
+.contact-card .c-head { display: flex; align-items: center; gap: 9px; }
+.contact-card .c-icon { color: var(--accent); font-weight: 700; min-width: 1.2em; font-size: clamp(1.15rem, 8cqh, 2.2rem); }
+.contact-card .c-title { margin: 0; font-weight: 700; font-size: clamp(1.15rem, 8cqh, 2.2rem); }
+.contact-card .c-desc { margin: clamp(10px, 3.5cqh, 24px) 0; color: var(--muted); line-height: 1.55; font-size: clamp(1rem, 5.5cqh, 1.6rem); }
+.contact-card .c-link { color: var(--accent); font-weight: 600; margin-top: auto; font-size: clamp(1.05rem, 5.5cqh, 1.55rem); }
 
 /* Reduced transparency: solid surfaces, no blur. */
 @media (prefers-reduced-transparency: reduce) {
@@ -688,7 +700,7 @@ html[data-theme="sunset"] .portrait-frame::after {
   letter-spacing: .1em; text-transform: uppercase;
   color: var(--muted);
 }
-.entry-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.entry-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 
 @media (max-width: 920px) {
   .hero-grid { grid-template-columns: 1fr !important; }

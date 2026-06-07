@@ -15,7 +15,7 @@ const RESTING = AXES.map((_, i) => Math.max(...ALL.map((e) => e.axes[i])));
 
 function cardStyle(isActive, anyActive) {
   return {
-    padding: 13,
+    padding: 11,
     cursor: "pointer",
     outline: "none",
     transition: "transform .25s ease, opacity .25s ease",
@@ -72,7 +72,7 @@ export default function ExperienceProjects() {
 
         {/* Radar — centre hero */}
         <div className="radar-col">
-          <Radar axes={AXES} max={MAX_AXIS} active={active ? active.axes : null} resting={RESTING} maxWidth={400} idPrefix="radar-main" />
+          <Radar axes={AXES} max={MAX_AXIS} active={active ? active.axes : null} resting={RESTING} maxWidth={340} idPrefix="radar-main" />
           <p className="radar-caption">{active ? active.label : "Overall capability — hover an entry to focus"}</p>
         </div>
 
@@ -89,8 +89,8 @@ export default function ExperienceProjects() {
                       <span aria-hidden="true">✈ </span>{p.eyebrow}
                     </p>
                   )}
-                  <h4 style={{ margin: "0 0 6px", fontSize: ".98rem", fontWeight: 700, lineHeight: 1.22 }}>{p.title}</h4>
-                  <p style={{ margin: "0 0 10px", color: "var(--muted)", fontSize: ".82rem", lineHeight: 1.45 }}>{p.summary}</p>
+                  <h4 style={{ margin: "0 0 5px", fontSize: ".98rem", fontWeight: 700, lineHeight: 1.22 }}>{p.title}</h4>
+                  <p style={{ margin: "0 0 8px", color: "var(--muted)", fontSize: ".82rem", lineHeight: 1.4 }}>{p.summary}</p>
                   <a
                     className="glass-button primary"
                     href={p.href}
@@ -102,7 +102,7 @@ export default function ExperienceProjects() {
                     <span aria-hidden="true">↗</span> View project
                   </a>
                   {p.components?.length > 0 && (
-                    <ul style={{ listStyle: "none", margin: "12px 0 0", padding: "12px 0 0", borderTop: "1px solid var(--border-soft)", display: "grid", gap: 9 }}>
+                    <ul style={{ listStyle: "none", margin: "9px 0 0", padding: "9px 0 0", borderTop: "1px solid var(--border-soft)", display: "grid", gap: 8 }}>
                       {p.components.map((c) => (
                         <li key={c.title} style={{ display: "flex", gap: 9, alignItems: "flex-start" }}>
                           <span aria-hidden="true" style={{ color: "var(--accent)", fontSize: ".95rem", lineHeight: 1.3 }}>{c.icon}</span>
