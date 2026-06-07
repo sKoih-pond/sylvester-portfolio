@@ -25,7 +25,7 @@ function cardStyle(isActive, anyActive) {
 }
 
 export default function ExperienceProjects() {
-  const { activeId, getProps } = useActiveEntry();
+  const { activeId, getProps, setActiveId } = useActiveEntry();
   const active = ALL.find((e) => e.id === activeId);
   const anyActive = !!activeId;
   const primary = experience.filter((e) => e.tier !== "earlier");
@@ -82,8 +82,23 @@ export default function ExperienceProjects() {
           <ul className="entry-list">
             {projects.map((p) => {
               const isActive = activeId === p.id;
+              // The whole flagship tile is the navigation into the project (morphs
+              // to /sgn/). Hover/focus still drives the shared radar.
+              const linkHover = {
+                onMouseEnter: () => setActiveId(p.id),
+                onMouseLeave: () => setActiveId(null),
+                onFocus: () => setActiveId(p.id),
+                onBlur: () => setActiveId(null),
+              };
               return (
-                <li key={p.id} {...getProps(p.id)} aria-pressed={isActive} className="glass-card entry-card" style={cardStyle(isActive, anyActive)}>
+                <li key={p.id}>
+                  <a
+                    className="glass-card entry-card entry-card--link"
+                    href={p.href}
+                    aria-label={`Open project: ${p.title}`}
+                    style={cardStyle(isActive, anyActive)}
+                    {...linkHover}
+                  >
                   {p.eyebrow && (
                     <p style={{ margin: "0 0 4px", fontSize: ".64rem", letterSpacing: ".1em", textTransform: "uppercase", color: "var(--accent)", fontWeight: 700 }}>
                       <span aria-hidden="true">✈ </span>{p.eyebrow}
@@ -91,14 +106,9 @@ export default function ExperienceProjects() {
                   )}
                   <h4 style={{ margin: "0 0 5px", fontSize: ".98rem", fontWeight: 700, lineHeight: 1.22 }}>{p.title}</h4>
                   <p style={{ margin: "0 0 8px", color: "var(--muted)", fontSize: ".82rem", lineHeight: 1.4 }}>{p.summary}</p>
-                  <a
-                    className="glass-button primary"
-                    href={p.href}
-                    onClick={(e) => e.stopPropagation()}
-                    style={{ fontSize: ".8rem", padding: "8px 14px" }}
-                  >
-                    View project <span aria-hidden="true">→</span>
-                  </a>
+                  <span className="glass-button primary entry-cta" style={{ fontSize: ".8rem", padding: "8px 14px" }}>
+                    View project <span aria-hidden="true" className="btn-arrow">→</span>
+                  </span>
                   {p.components?.length > 0 && (
                     <ul style={{ listStyle: "none", margin: "9px 0 0", padding: "9px 0 0", borderTop: "1px solid var(--border-soft)", display: "grid", gap: 8 }}>
                       {p.components.map((c) => (
@@ -116,6 +126,7 @@ export default function ExperienceProjects() {
                       ))}
                     </ul>
                   )}
+                  </a>
                 </li>
               );
             })}

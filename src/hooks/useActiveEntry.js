@@ -28,5 +28,5 @@ export function useActiveEntry() {
           },
         };
 
-  return { activeId, getProps };
+  return { activeId, getProps, setActiveId };
 }
