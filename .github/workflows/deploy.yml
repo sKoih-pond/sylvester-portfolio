@@ -4,14 +4,20 @@ on:
   push:
     branches: [main]
 
+# Run JavaScript actions on Node 24. GitHub forces this on 2026-06-16 and removes
+# Node 20 from runners on 2026-09-16; the pinned actions below already use node24,
+# this is belt-and-suspenders for any transitive action that hasn't migrated yet.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: npm
@@ -31,7 +37,7 @@ jobs:
       # action's sync state, so it is left intact. dangerous-clean-slate is left
       # at its default (false) — do NOT enable it, or /sgn/ would be wiped.
       - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
