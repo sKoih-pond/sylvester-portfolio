@@ -632,6 +632,11 @@ html[data-theme="sunset"] .portrait-frame::after {
      About isn't squeezed into a narrow column. */
   .flip-perspective[data-flipped="true"] { width: 100%; aspect-ratio: auto; }
   .flip-perspective[data-flipped="true"] .flip-card { min-height: 0; }
+  /* Flipped on mobile: the About card + 2 actions already fill the column, so drop
+     the expanded-testimonials block (the nav pane no longer grows past the
+     viewport → no scroll). Testimonials stay reachable as the 3rd CTA when not
+     flipped, and via the slim nav. */
+  .action-panel[data-collapsed="true"] .tm-slot { display: none; }
   /* Slim-nav pills go icon-only, but keep the CV label so it's clearly the CV. */
   .nav-btn:not(.cv-btn) .nav-label { display: none; }
   /* Flipped "About" face: tighter type + padding (the card resizes to fit it). */

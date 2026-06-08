@@ -180,16 +180,6 @@ export function PortraitCard({ open = false, onOpenChange = () => {} }) {
   const reduce = useReducedMotion();
   const flipped = open;
 
-  if (reduce) {
-    return (
-      <div className="flip-perspective">
-        <div className="glass-panel" style={{ padding: 14, width: "100%", height: "100%" }}>
-          <Portrait />
-        </div>
-      </div>
-    );
-  }
-
   // Branch on the actual pointer type per interaction (robust where the
   // hover/pointer media query is wrong, e.g. hybrid devices): a mouse flips
   // while hovering and reverts on leave; a touch tap toggles (and stays), which
@@ -217,6 +207,29 @@ export function PortraitCard({ open = false, onOpenChange = () => {} }) {
       onOpenChange(!open);
     }
   };
+
+  // Reduced motion: keep the SAME tap/hover interaction, but swap the faces
+  // instantly (no 3D rotation) — so the portrait still flips to About on tap
+  // even when the OS has "Reduce Motion" enabled (common on phones).
+  if (reduce) {
+    return (
+      <div className="flip-perspective" data-flipped={flipped ? "true" : "false"}>
+        <div
+          role="button"
+          className="flip-stage"
+          tabIndex={0}
+          aria-pressed={flipped}
+          aria-label={flipped ? "Show portrait" : "Flip to read About"}
+          onKeyDown={onKeyDown}
+          {...flipControls}
+        >
+          <div className="glass-panel portrait-static" style={{ padding: flipped ? 20 : 14, width: "100%", height: "100%", display: "flex", alignItems: "center" }}>
+            {flipped ? <AboutContent /> : <Portrait />}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flip-perspective" data-flipped={flipped ? "true" : "false"} style={{ perspective: 1200 }}>
