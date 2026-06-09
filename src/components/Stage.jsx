@@ -66,7 +66,7 @@ export default function Stage({ view, onNavigate, aboutOpen, onAboutChange }) {
                 transition={{ duration: reduce ? 0 : 0.22 }}
                 style={{ display: "flex", flexDirection: "column", minHeight: 0, height: "100%" }}
               >
-                {view === "home" && <ActionPanel onNavigate={onNavigate} collapsed={aboutOpen} />}
+                {view === "home" && <ActionPanel onNavigate={onNavigate} />}
                 {view === "projects" && (
                   <div className="pane-scroll">
                     <ExperienceProjects />

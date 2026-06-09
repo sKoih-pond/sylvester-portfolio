@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { m, useReducedMotion } from "framer-motion";
 import { bio, positioning } from "../data/profile.js";
-import Testimonials from "./Testimonials.jsx";
 
 const HEADLINE = "Hi, I'm Sylvester";
 
@@ -208,12 +207,10 @@ export function PortraitCard({ open = false, onOpenChange = () => {} }) {
     }
   };
 
-  // Touch devices OR reduced motion: skip the 3D flip and swap the faces in
-  // normal flow (no absolute-positioned faces). This keeps the same tap-to-About
-  // interaction, but the card grows naturally so the About text can never
-  // overlap/clip the nav pane below it (ultra-short screens just scroll), and it
-  // still works when the OS has "Reduce Motion" enabled (common on phones).
-  if (reduce || !hasHover) {
+  // Reduced motion: skip the 3D rotation and swap the faces instantly (still in
+  // place) so the portrait flips to About on tap even with "Reduce Motion" on.
+  // Everything else (desktop + mobile) uses the same 3D flip below.
+  if (reduce) {
     return (
       <div className="flip-perspective" data-flipped={flipped ? "true" : "false"}>
         <div
@@ -269,7 +266,7 @@ export function PortraitCard({ open = false, onOpenChange = () => {} }) {
           </div>
           <div
             className="glass-panel flip-face flip-back portrait-back"
-            style={{ transform: "rotateY(180deg)", padding: 24, display: "flex", alignItems: "center" }}
+            style={{ transform: "rotateY(180deg)", padding: 24, display: "flex", flexDirection: "column", justifyContent: "safe center" }}
           >
             <AboutContent />
           </div>
@@ -283,11 +280,13 @@ export function PortraitCard({ open = false, onOpenChange = () => {} }) {
 // portrait is flipped to About (`collapsed`), the descriptive lines hide so only
 // the buttons remain — the About reads the detail, and this points the eye at the
 // next action (and frees height so the taller About card always fits).
-export function ActionPanel({ onNavigate, collapsed = false }) {
-  const reduce = useReducedMotion();
+export function ActionPanel({ onNavigate }) {
+  // The nav pane stays constant — it never changes size or content on the
+  // portrait flip, so the layout reads identically (and at the same height)
+  // whether or not About is showing, on both desktop and mobile.
   return (
-    <div className="action-panel" data-collapsed={collapsed ? "true" : undefined}>
-      {!collapsed && <p className="hero-intro">{highlightPillars(INTRO)}</p>}
+    <div className="action-panel">
+      <p className="hero-intro">{highlightPillars(INTRO)}</p>
       <div className="hero-cta-row">
         <button type="button" className="glass-button btn-accent" onClick={() => onNavigate("projects")}>
           <span aria-hidden="true">↗</span> View experience <span aria-hidden="true" className="btn-arrow">→</span>
@@ -300,33 +299,14 @@ export function ActionPanel({ onNavigate, collapsed = false }) {
           </span>{" "}
           Book a chat
         </button>
-        {/* Testimonials — the 3rd, lowest-emphasis CTA. It's the collapsed state of
-            the testimonials; on the portrait-flip trigger it gives way to the
-            expanded block below. */}
-        {!collapsed && (
-          <button type="button" className="glass-button btn-tertiary" onClick={() => onNavigate("testimonials")}>
-            <span aria-hidden="true" className="tm-cta-mark">“</span> Testimonials
-          </button>
-        )}
+        <button type="button" className="glass-button btn-tertiary" onClick={() => onNavigate("testimonials")}>
+          <span aria-hidden="true" className="tm-cta-mark">“</span> Testimonials
+        </button>
       </div>
-      {!collapsed && (
-        <p className="hero-avail">
-          <span aria-hidden="true">⌖</span> <span className="avail-city">{LOC_CITY}</span>
-          {LOC_REGION ? `, ${LOC_REGION}` : ""} · Open to analytics and cloud roles
-        </p>
-      )}
-      {/* On the flip trigger the descriptive lines + the tertiary CTA hide, and the
-          testimonials expand into the freed space. */}
-      {collapsed && (
-        <m.div
-          className="tm-slot"
-          initial={reduce ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: reduce ? 0 : 0.25, delay: reduce ? 0 : 0.1 }}
-        >
-          <Testimonials variant="expanded" onNavigate={onNavigate} />
-        </m.div>
-      )}
+      <p className="hero-avail">
+        <span aria-hidden="true">⌖</span> <span className="avail-city">{LOC_CITY}</span>
+        {LOC_REGION ? `, ${LOC_REGION}` : ""} · Open to analytics and cloud roles
+      </p>
     </div>
   );
 }

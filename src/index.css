@@ -498,11 +498,10 @@ html[data-theme="sunset"] .portrait-frame::after {
   backface-visibility: hidden; -webkit-backface-visibility: hidden;
   border-radius: var(--radius-lg); overflow: hidden;
 }
-/* Flipped: the About face flows so the text shows in full with no scroll. The
-   card may only GROW (min-height = the resting portrait) — never shrink — so the
-   fixed-size hover target can't fall out from under the cursor and loop. */
-.flip-perspective[data-flipped="true"] .flip-card { height: auto; min-height: 100%; }
-.flip-perspective[data-flipped="true"] .flip-back { position: relative; inset: auto; }
+/* In-place flip: the card keeps the portrait's fixed size (front ↔ back), so the
+   flip never changes the layout height (no clip with the nav pane, no flip loop).
+   If About is taller than the card it scrolls inside the face. */
+.flip-back { overflow-y: auto; }
 
 /* Pane views: the panel fills the stage, inset slightly so the dismiss backdrop
    shows as a clickable ring around it (click out → home). */
@@ -622,27 +621,13 @@ html[data-theme="sunset"] .portrait-frame::after {
   /* Smaller headline + minimal reserved space so the welcome text stays compact. */
   .hero-headline { font-size: clamp(2rem, 8.5vw, 2.9rem); min-height: clamp(4rem, 13vw, 4.8rem); }
   .hero-headline.is-revealed { font-size: clamp(0.92rem, 3.4vw, 1.1rem); }
-  /* Portrait: cap width, and budget more height for the stacked greeting + panel. */
-  .hero-portrait { width: min(330px, 86vw); justify-self: center; }
-  /* The unflipped portrait image stays ~270px; the flipped About card uses the
-     wider cell so its text wraps to fewer lines and no longer clips the nav pane. */
-  .flip-perspective:not([data-flipped="true"]) { max-width: 270px; margin-inline: auto; }
-  /* On mobile the stacked greeting + tall action panel eat the height, so budget
-     more for them; the portrait scales down on short screens but stays large on
-     tall ones (where the width cap binds instead). */
+  /* Portrait card size on mobile. The flip is in-place (same card front + back),
+     so it never changes the layout height — the About text scrolls inside the
+     card if needed rather than growing it and clipping the nav pane. */
+  .hero-portrait { width: min(270px, 72vw); justify-self: center; }
+  /* Budget more height for the stacked greeting + panel; the portrait scales down
+     on short screens but stays large on tall ones (where the width cap binds). */
   .flip-perspective { --port-offset: 440px; }
-  /* On mobile (touch — no hover loop) the flipped card widens to full width so
-     About isn't squeezed into a narrow column. */
-  .flip-perspective[data-flipped="true"] { width: 100%; max-width: none; aspect-ratio: auto; }
-  /* Let the stage + card grow to the About content so the cell contains it
-     (no overlap with the nav pane); ultra-short screens scroll instead of clip. */
-  .flip-perspective[data-flipped="true"] .flip-stage { height: auto; }
-  .flip-perspective[data-flipped="true"] .flip-card { min-height: 0; height: auto; }
-  /* Flipped on mobile: the About card + 2 actions already fill the column, so drop
-     the expanded-testimonials block (the nav pane no longer grows past the
-     viewport → no scroll). Testimonials stay reachable as the 3rd CTA when not
-     flipped, and via the slim nav. */
-  .action-panel[data-collapsed="true"] .tm-slot { display: none; }
   /* Slim-nav pills go icon-only, but keep the CV label so it's clearly the CV. */
   .nav-btn:not(.cv-btn) .nav-label { display: none; }
   /* Flipped "About" face: tighter type + padding (the card resizes to fit it). */
