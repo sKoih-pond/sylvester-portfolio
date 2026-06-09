@@ -8,7 +8,6 @@ const DAY_ELEV = 10;            // above this → day
 const CIVIL_ELEV = -6;          // below this → night (civil twilight)
 const LOOKAHEAD_MS = 10 * 60 * 1000;
 
-const IP_CACHE_KEY = "solar_ipgeo_v1";
 const LOC_PERSIST_KEY = "solar_loc_v1";
 
 const TZ_CITY_ALIASES = {
@@ -95,97 +94,15 @@ export function defaultLocation() {
   return { lat: 0, lon, source: "default" };
 }
 
-async function preciseLocation() {
-  if (!("geolocation" in navigator) || !("permissions" in navigator)) return null;
-  try {
-    const perm = await navigator.permissions.query({ name: "geolocation" });
-    if (perm.state !== "granted") return null;
-  } catch {
-    return null;
-  }
-  return new Promise((resolve) => {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude, source: "gps" }),
-      () => resolve(null),
-      { timeout: 3000, maximumAge: 30 * 60 * 1000, enableHighAccuracy: false }
-    );
-  });
-}
-
-async function ipLocation() {
-  try {
-    const raw = sessionStorage.getItem(IP_CACHE_KEY);
-    if (raw) {
-      const cached = JSON.parse(raw);
-      if (cached && typeof cached.lat === "number" && typeof cached.lon === "number") return cached;
-    }
-  } catch {}
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 4000);
-  try {
-    const r = await fetch("https://get.geojs.io/v1/ip/geo.json", { signal: ctrl.signal });
-    if (!r.ok) throw new Error("IP geo HTTP " + r.status);
-    const data = await r.json();
-    if (!data) return null;
-    const lat = parseFloat(data.latitude);
-    const lon = parseFloat(data.longitude);
-    if (!isFinite(lat) || !isFinite(lon)) return null;
-    const result = { lat, lon, city: data.city || null, timezone: data.timezone || null, source: "ip" };
-    try {
-      sessionStorage.setItem(IP_CACHE_KEY, JSON.stringify(result));
-    } catch {}
-    return result;
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-async function reverseGeocode(lat, lon) {
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 3000);
-  try {
-    const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=10`;
-    const r = await fetch(url, { signal: ctrl.signal, headers: { "Accept-Language": "en" } });
-    if (!r.ok) return null;
-    const data = await r.json();
-    const a = data && data.address;
-    return (a && (a.city || a.town || a.village || a.suburb || a.county)) || null;
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
+// Location = the device timezone ONLY. We deliberately make no third-party
+// network requests (no IP-geo / reverse-geocode) and don't touch the geolocation
+// API — those are tracking/fingerprinting vectors that privacy browsers block,
+// e.g. Safari Private Browsing's protection, which then prompts the user to
+// "reduce protections". The OS timezone gives the city label and a longitude
+// from the clock offset — enough for the location pill + solar phase, with zero
+// tracking surface and no blocked requests.
 export async function resolveLocation() {
-  const tzCity = timezoneCity();
-  let deviceTz = null;
-  try {
-    deviceTz = Intl.DateTimeFormat().resolvedOptions().timeZone || null;
-  } catch {}
-  const tzLoc = defaultLocation(); // longitude from the device's UTC offset
-
-  const [gps, ip] = await Promise.all([preciseLocation(), ipLocation()]);
-
-  // 1. GPS (only when already granted) = the true device location.
-  if (gps) {
-    const nomCity = await reverseGeocode(gps.lat, gps.lon);
-    return { lat: gps.lat, lon: gps.lon, source: "gps", city: nomCity || tzCity || null };
-  }
-
-  // 2. IP geo only when its timezone matches the device's. A mismatch means the
-  //    IP is a VPN / proxy / carrier hop reporting the wrong place (e.g. "Hanoi"
-  //    for a device set to another zone) — distrust it and fall through to the
-  //    device timezone instead.
-  if (ip && deviceTz && ip.timezone && ip.timezone === deviceTz) {
-    return { lat: ip.lat, lon: ip.lon, source: "ip", city: ip.city || tzCity || null };
-  }
-
-  // 3. Device timezone: the city the OS is set to, plus a longitude from the
-  //    user's own clock offset — never fooled by IP routing.
-  return { ...tzLoc, source: "tz", city: tzCity || null };
+  return { ...defaultLocation(), source: "tz", city: timezoneCity() || null };
 }
 
 export function persistLocation(lat, lon) {
