@@ -208,10 +208,12 @@ export function PortraitCard({ open = false, onOpenChange = () => {} }) {
     }
   };
 
-  // Reduced motion: keep the SAME tap/hover interaction, but swap the faces
-  // instantly (no 3D rotation) — so the portrait still flips to About on tap
-  // even when the OS has "Reduce Motion" enabled (common on phones).
-  if (reduce) {
+  // Touch devices OR reduced motion: skip the 3D flip and swap the faces in
+  // normal flow (no absolute-positioned faces). This keeps the same tap-to-About
+  // interaction, but the card grows naturally so the About text can never
+  // overlap/clip the nav pane below it (ultra-short screens just scroll), and it
+  // still works when the OS has "Reduce Motion" enabled (common on phones).
+  if (reduce || !hasHover) {
     return (
       <div className="flip-perspective" data-flipped={flipped ? "true" : "false"}>
         <div
@@ -223,7 +225,7 @@ export function PortraitCard({ open = false, onOpenChange = () => {} }) {
           onKeyDown={onKeyDown}
           {...flipControls}
         >
-          <div className="glass-panel portrait-static" style={{ padding: flipped ? 20 : 14, width: "100%", height: "100%", display: "flex", alignItems: "center" }}>
+          <div className="glass-panel portrait-static" style={{ padding: flipped ? 18 : 14, width: "100%", height: "100%" }}>
             {flipped ? <AboutContent /> : <Portrait />}
           </div>
         </div>
