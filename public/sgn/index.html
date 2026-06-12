@@ -529,11 +529,17 @@
       .chart-wrap { height: 150px; flex: none; }
     }
     /* Condense the header on small screens (mirrors the portfolio). */
+    /* The back-nav carries the longest label ("Work & Project Experience"), so it
+       runs out of room first. Collapse it to the arrow alone before the three
+       header groups can touch (full-label layout needs ~600px incl. the wider
+       "Night mode · <city>" pill) — prevents it clipping the CV button. */
+    @media (max-width: 680px) {
+      .back-nav .nav-label { display: none; }          /* keep just the ← */
+    }
     @media (max-width: 560px) {
       .app-header { padding: 12px 0; }
       .logo-btn > span:last-child { display: none; }  /* keep just the mark */
       .cv-btn .nav-label { display: none; }            /* keep just the ⇩ */
-      .back-nav .nav-label { display: none; }          /* keep just the ← */
       .theme-pill__label { display: none; }            /* icon + switch only */
     }
   </style>
