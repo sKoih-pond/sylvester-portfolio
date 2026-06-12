@@ -301,105 +301,6 @@
       gap: 0.75rem;
     }
 
-    /* flight suggestions dropdown */
-    .suggestions {
-      position: relative;
-    }
-    .suggestions-list {
-      display: none;
-      position: absolute;
-      top: calc(100% + 4px);
-      left: 0; right: 0;
-      background: var(--surface-strong);
-      border: 1px solid var(--border-soft);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-soft);
-      backdrop-filter: blur(var(--blur)) saturate(150%);
-      -webkit-backdrop-filter: blur(var(--blur)) saturate(150%);
-      z-index: 10;
-      max-height: 220px;
-      overflow-y: auto;
-      overflow: hidden auto;
-    }
-    .suggestion-item {
-      padding: 0.65rem 0.95rem;
-      cursor: pointer;
-      font-size: 0.85rem;
-      border-bottom: 1px solid var(--border-soft);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: background 0.12s;
-    }
-    .suggestion-item:last-child { border-bottom: none; }
-    .suggestion-item:hover { background: var(--accent-soft); }
-    .suggestion-item .sug-fn { font-weight: 700; color: var(--text); }
-    .suggestion-item .sug-meta { color: var(--muted); font-size: 0.78rem; }
-
-    /* flight card (result of flight lookup) */
-    .flight-info {
-      display: none;
-      background: var(--surface-soft);
-      border: 1px solid var(--border-soft);
-      border-radius: var(--radius-sm);
-      padding: 0.8rem 1rem;
-      margin-bottom: 1rem;
-      font-size: 0.84rem;
-      color: var(--muted);
-    }
-    .flight-info.visible { display: block; }
-    .flight-info strong { color: var(--text); }
-
-    /* multi-date picker for flights with multiple occurrences */
-    .date-picker-row {
-      display: none;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-      margin-bottom: 1rem;
-    }
-    .date-picker-row.visible { display: flex; }
-    .date-chip {
-      background: var(--surface-soft);
-      border: 1px solid var(--border-soft);
-      border-radius: 99px;
-      color: var(--muted);
-      font-size: 0.78rem;
-      font-weight: 600;
-      padding: 0.32rem 0.7rem;
-      cursor: pointer;
-      transition: all 0.12s;
-    }
-    .date-chip.active {
-      background: var(--accent-soft);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    /* submit button — liquid-glass primary */
-    .submit-btn {
-      width: 100%;
-      border: 1px solid transparent;
-      border-radius: var(--radius-md);
-      background:
-        linear-gradient(145deg, rgba(255,255,255,.34) 0%, rgba(255,255,255,.06) 52%, transparent 100%) padding-box,
-        var(--glass-tint) padding-box,
-        var(--surface-strong) padding-box,
-        linear-gradient(145deg, var(--glass-edge) 0%, rgba(255,255,255,.30) 50%, rgba(255,255,255,.10) 100%) border-box;
-      box-shadow: inset 0 1.5px 0 var(--glass-specular), var(--shadow-soft);
-      color: var(--text);
-      font-family: var(--font-sans);
-      font-size: 0.95rem;
-      font-weight: 700;
-      padding: 0.85rem;
-      cursor: pointer;
-      transition: transform 0.18s ease, box-shadow 0.18s ease;
-      margin-top: 0.4rem;
-    }
-    .submit-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.54), 0 18px 42px rgba(86,62,44,.16);
-    }
-    .submit-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 
     /* ── Chatbot ─────────────────────────────────────────────────────────── */
     .chat { width: 100%; margin-bottom: 0.9rem; }
@@ -420,6 +321,13 @@
     }
     .chat-send:hover { transform: translateY(-2px); }
     .chat-send:disabled { opacity: 0.45; cursor: progress; transform: none; }
+    /* optional precise arrival window, merged into the chat block */
+    .chat-when { margin-top: 0.7rem; }
+    .chat-when__label {
+      display: block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem;
+    }
+    .chat-when__opt { font-weight: 400; letter-spacing: 0; text-transform: none; opacity: 0.85; }
     .chat-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.55rem; }
     .chat-chip {
       background: var(--surface-soft); border: 1px solid var(--border-soft); border-radius: 99px;
@@ -651,41 +559,27 @@
           <p class="intro-sub">Estimate passenger pressure at SGN immigration during your arrival window.</p>
         </div>
 
-        <!-- Chatbot — gated (hidden until the data is fresh; ?chat=preview to test).
-             Drives the same visualisations below from a validated view-spec. -->
-        <div class="chat" id="chat" hidden>
+        <!-- Single chat-centric control. Always visible: the date/time path is
+             pure client-side, so the manual estimate keeps working even if the LLM
+             endpoint is down or the data is mid-refresh. Flight lookup + narration
+             come from the chat, which drives the same visualisations below. -->
+        <div class="chat card" id="chat">
           <form class="chat-form" id="chat-form" autocomplete="off">
             <label class="field-label" for="chat-input">Ask about SGN arrivals</label>
             <div class="chat-row">
               <input type="text" id="chat-input" maxlength="300" placeholder="e.g. I&rsquo;m on VN772 — what should I expect?" autocomplete="off" spellcheck="false" />
               <button type="submit" class="chat-send" id="chat-send" aria-label="Send">&rarr;</button>
             </div>
+            <div class="chat-when">
+              <span class="chat-when__label">or set an arrival window <span class="chat-when__opt">(optional)</span></span>
+              <div class="date-time-row">
+                <input type="date" id="date-input" aria-label="Arrival date (SGN local)" />
+                <input type="time" id="time-input" value="16:30" aria-label="Arrival time (SGN local)" />
+              </div>
+            </div>
           </form>
           <div class="chat-chips" id="chat-chips"></div>
           <div class="chat-answer" id="chat-answer" aria-live="polite" hidden></div>
-        </div>
-
-        <!-- Input card -->
-        <div class="card">
-          <div class="field-row">
-            <label class="field-label">Flight number <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem">(optional)</span></label>
-            <div class="suggestions">
-              <input type="text" id="flight-input" placeholder="e.g. VN123" autocomplete="off" spellcheck="false" />
-              <div class="suggestions-list" id="suggestions-list"></div>
-            </div>
-          </div>
-          <div class="flight-info" id="flight-info"></div>
-
-          <div class="field-row">
-            <label class="field-label">Arrival date &amp; time (SGN local)</label>
-            <div class="date-time-row">
-              <input type="date" id="date-input" />
-              <input type="time" id="time-input" value="16:30" />
-            </div>
-          </div>
-          <div class="date-picker-row" id="date-picker-row"></div>
-
-          <button class="submit-btn" id="btn-check">Check congestion risk &rarr;</button>
         </div>
 
         <!-- Result -->
@@ -764,7 +658,6 @@
     let flightLookup = {};   // flight_number → [{date, time, window_slot, ...}]
     let perDate      = {};   // date → { window_slot: {avg, band} }
 
-    let selectedFlight      = null;   // flight lookup entries for current flight number
     let currentQueryDate    = null;   // last date used in showResult — context for bar clicks
 
     // ── Load data ──────────────────────────────────────────────────────────
@@ -782,124 +675,30 @@
       initChat();
     });
 
-    // ── Flight number input ────────────────────────────────────────────────
-    const flightInput   = document.getElementById('flight-input');
-    const suggList      = document.getElementById('suggestions-list');
-    const flightInfo    = document.getElementById('flight-info');
-    const datePickerRow = document.getElementById('date-picker-row');
+    // ── Arrival window controls (flight lookup is driven by the chat) ───────
+    const dateInput = document.getElementById('date-input');
+    const timeInput = document.getElementById('time-input');
 
-    flightInput.addEventListener('input', () => {
-      const val = flightInput.value.trim().toUpperCase();
-      selectedFlight = null;
-      flightInfo.classList.remove('visible');
-      datePickerRow.classList.remove('visible');
-      suggList.innerHTML = '';
-
-      if (val.length < 2) { suggList.style.display = 'none'; return; }
-
-      const matches = Object.keys(flightLookup)
-        .filter(fn => fn.startsWith(val))
-        .slice(0, 8);
-
-      if (!matches.length) { suggList.style.display = 'none'; return; }
-
-      suggList.style.display = 'block';
-      matches.forEach(fn => {
-        const entries = flightLookup[fn];
-        const latest  = entries[0];
-        const item = document.createElement('div');
-        item.className = 'suggestion-item';
-        item.innerHTML = `
-          <span class="sug-fn">${fn}</span>
-          <span class="sug-meta">${latest.airline} · ${latest.origin} → SGN · ${latest.time}</span>
-        `;
-        item.addEventListener('click', () => selectFlight(fn));
-        suggList.appendChild(item);
-      });
-    });
-
+    // Called by the chat after a successful flight lookup — just reflect the
+    // flight's date/time in the pickers so the window controls stay in sync.
     function selectFlight(fn) {
-      flightInput.value = fn;
-      suggList.style.display = 'none';
-      selectedFlight = flightLookup[fn];
-
-      const latest = selectedFlight[0];
-      flightInfo.innerHTML = `
-        <strong>${fn}</strong> &nbsp;·&nbsp; ${latest.airline}
-        &nbsp;·&nbsp; ${latest.origin} → SGN
-        &nbsp;·&nbsp; Scheduled <strong>${latest.time}</strong>
-        &nbsp;·&nbsp; ${latest.aircraft}
-      `;
-      flightInfo.classList.add('visible');
-
-      // Pre-fill date + time from flight data
-      document.getElementById('date-input').value = latest.date;
-      document.getElementById('time-input').value = latest.time;
-
-      if (selectedFlight.length > 1) {
-        // Show date chips so user can pick the right occurrence
-        datePickerRow.innerHTML = '<span style="font-size:0.75rem;color:var(--c-muted);align-self:center;margin-right:0.25rem;">Known dates:</span>';
-        selectedFlight.forEach((entry, i) => {
-          const chip = document.createElement('div');
-          chip.className = 'date-chip' + (i === 0 ? ' active' : '');
-          chip.textContent = entry.date;
-          chip.addEventListener('click', () => {
-            document.querySelectorAll('.date-chip').forEach(c => c.classList.remove('active'));
-            chip.classList.add('active');
-            document.getElementById('date-input').value = entry.date;
-            document.getElementById('time-input').value = entry.time;
-          });
-          datePickerRow.appendChild(chip);
-        });
-        datePickerRow.classList.add('visible');
-      }
+      const entries = flightLookup[fn];
+      if (!entries || !entries.length) return;
+      dateInput.value = entries[0].date;
+      timeInput.value = entries[0].time;
     }
 
-    // Clear flight selection when user edits the flight field to something unrecognised
-    flightInput.addEventListener('change', () => {
-      const val = flightInput.value.trim().toUpperCase();
-      if (!flightLookup[val]) {
-        selectedFlight = null;
-        flightInfo.classList.remove('visible');
-        datePickerRow.classList.remove('visible');
-      }
-    });
-
-    // Close suggestions when clicking outside
-    document.addEventListener('click', e => {
-      if (!e.target.closest('.suggestions')) suggList.style.display = 'none';
-    });
-
-    // ── Unified submit ─────────────────────────────────────────────────────
-    document.getElementById('btn-check').addEventListener('click', () => {
-      const dateVal = document.getElementById('date-input').value;
-      const timeVal = document.getElementById('time-input').value;
-      if (!dateVal || !timeVal) return;
-
-      if (selectedFlight) {
-        const fn = flightInput.value.trim().toUpperCase();
-        // Match to a known entry for this date, or fall back to most recent
-        const entry = selectedFlight.find(e => e.date === dateVal) || selectedFlight[0];
-        const MEDIAN_DELAY_MIN = 35;
-        const [h, m]    = timeVal.split(':').map(Number);
-        const schedMin  = h * 60 + m;
-        const schedSlot = Math.floor(schedMin / 30) * 30;
-        const adjMin    = schedMin + entry.delay_proba * MEDIAN_DELAY_MIN;
-        const adjSlot   = Math.floor(adjMin / 30) * 30;
-        const contextLabel = adjSlot !== schedSlot
-          ? `${fn} · sched ${timeVal} → adj ${slotLabel(adjSlot)}`
-          : `${fn} · arr ${timeVal}`;
-        showResult(adjSlot, dateVal, contextLabel, {
-          delayProba:    entry.delay_proba,
-          scheduledSlot: schedSlot,
-          adjustedSlot:  adjSlot,
-        });
-      } else {
-        const [h, m] = timeVal.split(':').map(Number);
-        const slot   = Math.floor((h * 60 + m) / 30) * 30;
-        showResult(slot, dateVal, `${dateVal} · ${timeVal} local`, null);
-      }
-    });
+    // Manual window estimate: pure client-side, no endpoint. Runs when the chat
+    // box is empty and the user just sets a date + time.
+    function manualWindowCheck() {
+      const dateVal = dateInput.value;
+      const timeVal = timeInput.value;
+      if (!dateVal || !timeVal) return false;
+      const [h, m] = timeVal.split(':').map(Number);
+      const slot   = Math.floor((h * 60 + m) / 30) * 30;
+      showResult(slot, dateVal, `${dateVal} · ${timeVal} local`, null);
+      return true;
+    }
 
     // ── Show result ────────────────────────────────────────────────────────
     // flightCtx: { delayProba, scheduledSlot, adjustedSlot } | null
@@ -1074,24 +873,37 @@
 
     function initChat() {
       Object.values(flightLookup).forEach(arr => arr.forEach(e => e.origin && chatOrigins.add(e.origin)));
-      if (!CHAT_ENABLED) return;
-      const preview = new URLSearchParams(location.search).get('chat') === 'preview';
-      const fresh   = chatIsFresh();
-      if (!fresh && !preview) return;                // dark until the data is fresh
-      document.getElementById('chat').hidden = false;
-      if (!fresh && preview) showChatNote('Preview — SGN data is refreshing; answers reflect the coverage shown.');
 
-      const chipsEl = document.getElementById('chat-chips');
-      CHAT_CHIPS.forEach(text => {
-        const b = document.createElement('button');
-        b.type = 'button'; b.className = 'chat-chip'; b.textContent = text;
-        b.addEventListener('click', () => { document.getElementById('chat-input').value = text; chatSubmit(text); });
-        chipsEl.appendChild(b);
-      });
+      // The form is always wired: text → chat (LLM); empty text + a set window →
+      // a pure client-side estimate. So the tool works even when the LLM is off.
       document.getElementById('chat-form').addEventListener('submit', e => {
         e.preventDefault();
-        chatSubmit(document.getElementById('chat-input').value.trim());
+        const text = document.getElementById('chat-input').value.trim();
+        if (text) chatSubmit(text);
+        else if (!manualWindowCheck()) document.getElementById('chat-input').focus();
       });
+
+      if (CHAT_ENABLED) {
+        const chipsEl = document.getElementById('chat-chips');
+        CHAT_CHIPS.forEach(text => {
+          const b = document.createElement('button');
+          b.type = 'button'; b.className = 'chat-chip'; b.textContent = text;
+          b.addEventListener('click', () => { document.getElementById('chat-input').value = text; chatSubmit(text); });
+          chipsEl.appendChild(b);
+        });
+      }
+
+      chatWelcome();   // landing hint: what the user can enter
+    }
+
+    // Landing message — names both inputs (flight number, or date & time).
+    function chatWelcome() {
+      const el = chatAnswerEl();
+      const p = document.createElement('p'); p.className = 'chat-answer__summary';
+      p.textContent = chatIsFresh()
+        ? 'Ask about an SGN arrival — type a flight number, or set your arrival date & time above, and I’ll estimate the immigration congestion you can expect.'
+        : 'SGN data is refreshing. Set your arrival date & time above for a congestion estimate; flight-number chat resumes once the latest data lands.';
+      el.appendChild(p);
     }
 
     function setChatBusy(b) { document.getElementById('chat-send').disabled = b; }
@@ -1151,6 +963,10 @@
 
     async function chatSubmit(message) {
       if (!message) return;
+      // LLM kill-switch / freshness gate — the chat must not answer from stale
+      // data. The manual date/time estimate below still works regardless.
+      if (!CHAT_ENABLED) return showChatNote('Set your arrival date & time above for a congestion estimate.');
+      if (!chatIsFresh()) return showChatNote('SGN data is refreshing — set your arrival date & time above for a direct estimate.');
       setChatBusy(true);
       try {
         let resp;
