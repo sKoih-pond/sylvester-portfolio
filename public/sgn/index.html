@@ -401,6 +401,53 @@
     }
     .submit-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 
+    /* ── Chatbot ─────────────────────────────────────────────────────────── */
+    .chat { width: 100%; margin-bottom: 0.9rem; }
+    .chat-row { display: flex; gap: 0.5rem; align-items: stretch; }
+    #chat-input {
+      flex: 1 1 auto; min-width: 0;
+      text-transform: none; letter-spacing: normal; font-size: 0.95rem; font-weight: 500;
+    }
+    .chat-send {
+      flex: 0 0 auto; width: 44px; border: 1px solid transparent; border-radius: var(--radius-sm);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.34) 0%, rgba(255,255,255,.06) 52%, transparent 100%) padding-box,
+        var(--surface-strong) padding-box,
+        linear-gradient(145deg, var(--glass-edge) 0%, rgba(255,255,255,.30) 50%, rgba(255,255,255,.10) 100%) border-box;
+      box-shadow: inset 0 1.5px 0 var(--glass-specular), var(--shadow-soft);
+      color: var(--text); font-size: 1.1rem; font-weight: 700; cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .chat-send:hover { transform: translateY(-2px); }
+    .chat-send:disabled { opacity: 0.45; cursor: progress; transform: none; }
+    .chat-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.55rem; }
+    .chat-chip {
+      background: var(--surface-soft); border: 1px solid var(--border-soft); border-radius: 99px;
+      color: var(--muted); font-size: 0.74rem; font-weight: 600; padding: 0.3rem 0.7rem;
+      cursor: pointer; transition: all 0.12s; font-family: var(--font-sans);
+    }
+    .chat-chip:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+    .chat-answer {
+      margin-top: 0.7rem; padding: 0.85rem 1rem; border-radius: var(--radius-md);
+      background: var(--surface-soft); border: 1px solid var(--border-soft);
+      font-size: 0.86rem; line-height: 1.55; color: var(--text);
+    }
+    .chat-answer__summary { margin: 0; }
+    .chat-answer__note { margin: 0; color: var(--accent); font-weight: 600; }
+    .chat-answer__footer {
+      margin: 0.6rem 0 0; padding-top: 0.55rem; border-top: 1px solid var(--border-soft);
+      font-size: 0.66rem; line-height: 1.5; color: var(--muted);
+    }
+    .chat-list { list-style: none; margin: 0.4rem 0 0; padding: 0; display: grid; gap: 0.4rem; }
+    .chat-list li {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 0.6rem;
+      padding: 0.4rem 0.6rem; border-radius: var(--radius-sm); background: var(--surface-soft);
+      border: 1px solid var(--border-soft); font-size: 0.8rem;
+    }
+    .chat-list .cl-name { font-weight: 700; color: var(--text); }
+    .chat-list .cl-meta { color: var(--muted); font-size: 0.74rem; text-align: right; }
+    .chat-list .cl-band { font-weight: 700; }
+
     /* ── Result ──────────────────────────────────────────────────────────── */
     #result { display: none; width: 100%; margin-top: 0.85rem; }
 
@@ -604,6 +651,20 @@
           <p class="intro-sub">Estimate passenger pressure at SGN immigration during your arrival window.</p>
         </div>
 
+        <!-- Chatbot — gated (hidden until the data is fresh; ?chat=preview to test).
+             Drives the same visualisations below from a validated view-spec. -->
+        <div class="chat" id="chat" hidden>
+          <form class="chat-form" id="chat-form" autocomplete="off">
+            <label class="field-label" for="chat-input">Ask about SGN arrivals</label>
+            <div class="chat-row">
+              <input type="text" id="chat-input" maxlength="300" placeholder="e.g. I&rsquo;m on VN772 — what should I expect?" autocomplete="off" spellcheck="false" />
+              <button type="submit" class="chat-send" id="chat-send" aria-label="Send">&rarr;</button>
+            </div>
+          </form>
+          <div class="chat-chips" id="chat-chips"></div>
+          <div class="chat-answer" id="chat-answer" aria-live="polite" hidden></div>
+        </div>
+
         <!-- Input card -->
         <div class="card">
           <div class="field-row">
@@ -718,6 +779,7 @@
       buildChart(profile, null);
       document.getElementById('date-input').value = new Date().toISOString().split('T')[0];
       document.getElementById('day-count').textContent = Object.keys(perDate).length;
+      initChat();
     });
 
     // ── Flight number input ────────────────────────────────────────────────
@@ -964,6 +1026,276 @@
     }
 
     function pad(n) { return String(n).padStart(2, '0'); }
+
+    // ── Chatbot ──────────────────────────────────────────────────────────────
+    // Translator pattern: the endpoint returns a validated view-spec only; THIS
+    // code computes every number client-side from the loaded JSON and drives the
+    // existing visualisations. LLM text reaches the DOM via textContent ONLY.
+    const CHAT_ENDPOINT = 'https://sgn-flight-scraper-func-b3e3eccwavfud7e3.australiasoutheast-01.azurewebsites.net/api/sgn-chat';
+    const CHAT_ENABLED = true;                       // manual kill-switch
+    const FRESH_MAX_AGE_MS = 48 * 3600 * 1000;       // chat self-gates on data freshness
+    const BAND_WEIGHT = { Low: 1, Moderate: 2, High: 3, Critical: 4 };
+    const CHAT_CHIPS = [
+      'Flights from Sydney',
+      "I'm on VN772 — what should I expect?",
+      'What if my flight is 1h late?',
+      'Saturday morning from Sydney, low delay',
+      'Busiest immigration windows',
+      'How much buffer at 6pm?',
+    ];
+
+    let chatCarry   = {};
+    let chatOrigins = new Set();
+
+    function chatCoverage() {
+      const dates = Object.keys(perDate).sort();
+      return { min: dates[0] || null, max: dates[dates.length - 1] || null, days: dates.length };
+    }
+    function chatIsFresh() {
+      const { max } = chatCoverage();
+      if (!max) return false;
+      return (Date.now() - new Date(max + 'T23:59:59').getTime()) <= FRESH_MAX_AGE_MS;
+    }
+    function bandForSlot(date, slot) {
+      const dd = perDate[date];
+      if (dd && dd[slot]) return { band: dd[slot].band, avg: dd[slot].avg };
+      const row = profile.find(r => r.window_slot_minutes === slot);
+      if (!row) return null;
+      return { band: row.congestion_band, avg: Math.round(row.avg_estimated_passengers) };
+    }
+    function toSlot(hhmm) { const [h, m] = String(hhmm).split(':').map(Number); return Math.floor((h * 60 + (m || 0)) / 30) * 30; }
+    function slotForTime(time, delayProba) {
+      const [h, m] = String(time).split(':').map(Number);
+      const schedMin  = h * 60 + m;
+      const schedSlot = Math.floor(schedMin / 30) * 30;
+      const adjSlot   = Math.floor((schedMin + (delayProba || 0) * 35) / 30) * 30;
+      return { schedSlot, adjSlot };
+    }
+
+    function initChat() {
+      Object.values(flightLookup).forEach(arr => arr.forEach(e => e.origin && chatOrigins.add(e.origin)));
+      if (!CHAT_ENABLED) return;
+      const preview = new URLSearchParams(location.search).get('chat') === 'preview';
+      const fresh   = chatIsFresh();
+      if (!fresh && !preview) return;                // dark until the data is fresh
+      document.getElementById('chat').hidden = false;
+      if (!fresh && preview) showChatNote('Preview — SGN data is refreshing; answers reflect the coverage shown.');
+
+      const chipsEl = document.getElementById('chat-chips');
+      CHAT_CHIPS.forEach(text => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'chat-chip'; b.textContent = text;
+        b.addEventListener('click', () => { document.getElementById('chat-input').value = text; chatSubmit(text); });
+        chipsEl.appendChild(b);
+      });
+      document.getElementById('chat-form').addEventListener('submit', e => {
+        e.preventDefault();
+        chatSubmit(document.getElementById('chat-input').value.trim());
+      });
+    }
+
+    function setChatBusy(b) { document.getElementById('chat-send').disabled = b; }
+    function chatAnswerEl() { const el = document.getElementById('chat-answer'); el.hidden = false; el.replaceChildren(); return el; }
+    function showChatNote(msg) {
+      const el = chatAnswerEl();
+      const p = document.createElement('p'); p.className = 'chat-answer__note'; p.textContent = msg; el.appendChild(p);
+    }
+    function chatFooter(facts, disclosure, extra) {
+      const cov = chatCoverage();
+      const el = document.createElement('p'); el.className = 'chat-answer__footer';
+      const bits = [];
+      if (cov.min && cov.max) bits.push(`Data ${cov.min} → ${cov.max}`);
+      if (facts && facts.n != null) bits.push(`${facts.n} obs.`);
+      if (disclosure) bits.push(disclosure);
+      if (extra) bits.push(extra);
+      el.textContent = bits.join('  ·  ');
+      return el;
+    }
+    async function narrate(facts) {
+      try {
+        const resp = await fetch(CHAT_ENDPOINT, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ facts }),
+        });
+        if (!resp.ok) return null;
+        const j = await resp.json();
+        return j && j.ok ? j.summary : null;
+      } catch (e) { return null; }
+    }
+    async function answer(fallbackSummary, facts, disclosure, extraFooter, listNode) {
+      const el = chatAnswerEl();
+      const p = document.createElement('p'); p.className = 'chat-answer__summary';
+      const llm = await narrate(facts);
+      p.textContent = llm || fallbackSummary;       // textContent ONLY
+      el.appendChild(p);
+      if (listNode) el.appendChild(listNode);
+      el.appendChild(chatFooter(facts, disclosure, extraFooter));
+    }
+    function rankedList(rows, withScore) {
+      const ul = document.createElement('ul'); ul.className = 'chat-list';
+      rows.forEach(r => {
+        const li = document.createElement('li');
+        const name = document.createElement('span'); name.className = 'cl-name'; name.textContent = r.fn;
+        const meta = document.createElement('span'); meta.className = 'cl-meta';
+        const band = document.createElement('span'); band.className = 'cl-band'; band.style.color = BAND_COLOUR[r.band] || 'inherit'; band.textContent = r.band || '—';
+        const tail = withScore ? `  ·  score ${r.score.toFixed(2)}` : '';
+        meta.append(`${slotLabel(r.slot)}  ·  ${Math.round((r.delay || 0) * 100)}% delay  ·  `, band, tail);
+        li.append(name, meta);
+        ul.appendChild(li);
+      });
+      return ul;
+    }
+
+    async function chatSubmit(message) {
+      if (!message) return;
+      setChatBusy(true);
+      try {
+        let resp;
+        try {
+          resp = await fetch(CHAT_ENDPOINT, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message.slice(0, 300), carry: chatCarry }),
+          });
+        } catch (e) { return showChatNote('Chat is unavailable right now — the controls below still work.'); }
+        if (resp.status === 429) {
+          const j = await resp.json().catch(() => ({}));
+          return showChatNote(j.message || 'Chat is resting — use the controls below.');
+        }
+        let data;
+        try { data = await resp.json(); } catch (e) { return showChatNote('Chat is unavailable right now — the controls below still work.'); }
+        if (!data || !data.ok) return showChatNote((data && data.message) || 'I can only help with SGN arrivals questions for now.');
+        await renderSpec(data.spec || {}, data.disclosure || '');
+      } finally { setChatBusy(false); }
+    }
+
+    async function renderSpec(spec, disclosure) {
+      switch (spec.view) {
+        case 'flight_card':          return renderFlightCard(spec, disclosure);
+        case 'ranked_flights':       return renderRanked(spec, disclosure);
+        case 'congestion_highlight': return renderCongestion(spec, disclosure);
+        case 'buffer_advice':        return renderBuffer(spec, disclosure);
+        case 'what_if':              return renderWhatIf(spec, disclosure);
+        case 'plan_result':          return renderPlan(spec, disclosure);
+        default:                     return showChatNote('I can only help with SGN arrivals questions for now.');
+      }
+    }
+
+    function renderFlightCard(spec, disclosure) {
+      const fn = String(spec.flight || '').toUpperCase().trim();
+      if (!fn || !flightLookup[fn]) return showChatNote(`No SGN arrivals data for ${fn || 'that flight'}.`);
+      selectFlight(fn);
+      const entries = flightLookup[fn];
+      const entry = entries.find(e => e.date === spec.date) || entries[0];
+      const { schedSlot, adjSlot } = slotForTime(entry.time, entry.delay_proba);
+      const ctxLabel = adjSlot !== schedSlot ? `${fn} · sched ${entry.time} → adj ${slotLabel(adjSlot)}` : `${fn} · arr ${entry.time}`;
+      showResult(adjSlot, entry.date, ctxLabel, { delayProba: entry.delay_proba, scheduledSlot: schedSlot, adjustedSlot: adjSlot });
+      const b = bandForSlot(entry.date, adjSlot) || {};
+      const buf = BAND_BUFFER[b.band] || {};
+      chatCarry = { flight: fn, origin: entry.origin, date: entry.date };
+      return answer(
+        `${fn} from ${entry.origin} lands around ${slotLabel(adjSlot)} into a ${b.band} immigration window — allow about ${buf.min} minutes.`,
+        { flight: fn, origin: entry.origin, window: slotLabel(adjSlot), band: b.band, delay_proba: entry.delay_proba, est_passengers: b.avg, buffer_min: buf.min, n: entries.length },
+        disclosure
+      );
+    }
+
+    function renderRanked(spec, disclosure) {
+      const origin = String(spec.origin || '').toUpperCase().trim();
+      if (!origin || !chatOrigins.has(origin)) return showChatNote(`No SGN arrivals data from ${origin || 'that origin'}.`);
+      const rows = [];
+      Object.keys(flightLookup).forEach(fn => {
+        const e = flightLookup[fn].find(x => x.origin === origin);
+        if (!e) return;
+        const { adjSlot } = slotForTime(e.time, e.delay_proba);
+        const b = bandForSlot(e.date, adjSlot) || {};
+        rows.push({ fn, slot: adjSlot, delay: e.delay_proba, band: b.band });
+      });
+      if (!rows.length) return showChatNote(`No SGN arrivals data from ${origin}.`);
+      rows.sort((a, b) => (BAND_WEIGHT[b.band] || 0) - (BAND_WEIGHT[a.band] || 0) || (b.delay - a.delay));
+      const top = rows.slice(0, 8);
+      chatCarry = { origin };
+      return answer(
+        `${rows.length} arrivals from ${origin}. The tightest immigration windows are ${top.slice(0, 3).map(r => r.fn).join(', ')}.`,
+        { origin, n: rows.length, top_flight: top[0] && top[0].fn, top_band: top[0] && top[0].band },
+        disclosure, null, rankedList(top, false)
+      );
+    }
+
+    function renderCongestion(spec, disclosure) {
+      const peak = profile.reduce((a, r) => (r.avg_estimated_passengers > a.avg_estimated_passengers ? r : a), profile[0]);
+      buildChart(profile, peak.window_slot_minutes);
+      const cov = chatCoverage();
+      chatCarry = {};
+      return answer(
+        `Immigration pressure peaks around ${slotLabel(peak.window_slot_minutes)} (${peak.congestion_band}); the chart highlights it.`,
+        { peak_window: slotLabel(peak.window_slot_minutes), peak_band: peak.congestion_band, est_passengers: Math.round(peak.avg_estimated_passengers), n: cov.days },
+        disclosure
+      );
+    }
+
+    function renderBuffer(spec, disclosure) {
+      if (spec.window == null) return showChatNote('Which arrival time? e.g. "How much buffer at 6pm?"');
+      const slot = toSlot(spec.window);
+      const cov = chatCoverage();
+      const date = cov.max || new Date().toISOString().split('T')[0];
+      showResult(slot, date, `Buffer · ${slotLabel(slot)}`, null);
+      const b = bandForSlot(date, slot) || {};
+      const buf = BAND_BUFFER[b.band] || {};
+      chatCarry = { window: slotLabel(slot) };
+      return answer(
+        `For an arrival around ${slotLabel(slot)} (${b.band}), allow about ${buf.min} minutes to clear immigration.`,
+        { window: slotLabel(slot), band: b.band, buffer_min: buf.min, est_passengers: b.avg, n: cov.days },
+        disclosure
+      );
+    }
+
+    function renderWhatIf(spec, disclosure) {
+      const shift = Number(spec.delay_shift_minutes) || 0;
+      const fn = String(spec.flight || chatCarry.flight || '').toUpperCase().trim();
+      if (!fn || !flightLookup[fn]) return showChatNote('Tell me which flight, e.g. "What if VN772 is 1h late?"');
+      const entries = flightLookup[fn];
+      const entry = entries.find(e => e.date === spec.date) || entries[0];
+      const [h, m] = entry.time.split(':').map(Number);
+      const newSlot = Math.floor((h * 60 + m + shift) / 30) * 30;
+      showResult(newSlot, entry.date, `${fn} · +${shift} min → ${slotLabel(newSlot)}`, null);
+      const b = bandForSlot(entry.date, newSlot) || {};
+      const buf = BAND_BUFFER[b.band] || {};
+      chatCarry = { flight: fn, date: entry.date };
+      return answer(
+        `If ${fn} runs ${shift} minutes late it lands in the ${slotLabel(newSlot)} window (${b.band}) — allow about ${buf.min} minutes.`,
+        { flight: fn, shift_min: shift, window: slotLabel(newSlot), band: b.band, buffer_min: buf.min, n: entries.length },
+        disclosure
+      );
+    }
+
+    function renderPlan(spec, disclosure) {
+      const c = spec.constraints || {};
+      const origin = c.origin ? String(c.origin).toUpperCase() : null;
+      if (origin && !chatOrigins.has(origin)) return showChatNote(`No SGN arrivals data from ${origin}.`);
+      const byFn = {};
+      Object.keys(flightLookup).forEach(fn => {
+        flightLookup[fn].forEach(e => {
+          if (origin && e.origin !== origin) return;
+          if (c.day_of_week && (new Date(e.date + 'T00:00:00').getDay() + 1) !== c.day_of_week) return;
+          const { adjSlot } = slotForTime(e.time, e.delay_proba);
+          if (c.earliest_window != null && adjSlot < toSlot(c.earliest_window)) return;
+          if (c.latest_window   != null && adjSlot > toSlot(c.latest_window))   return;
+          if (c.max_delay_proba != null && e.delay_proba > c.max_delay_proba)   return;
+          const b = bandForSlot(e.date, adjSlot) || {};
+          if (c.max_congestion_band && (BAND_WEIGHT[b.band] || 9) > (BAND_WEIGHT[c.max_congestion_band] || 9)) return;
+          const score = e.delay_proba * (BAND_WEIGHT[b.band] || 0);
+          if (!byFn[fn] || score < byFn[fn].score) byFn[fn] = { fn, slot: adjSlot, delay: e.delay_proba, band: b.band, score };
+        });
+      });
+      const list = Object.values(byFn).sort((a, b) => a.score - b.score).slice(0, 8);
+      if (!list.length) return showChatNote('No SGN arrivals match those constraints in the data.');
+      chatCarry = origin ? { origin } : {};
+      return answer(
+        `${list.length} arrivals fit. Best by the composite score: ${list.slice(0, 3).map(r => r.fn).join(', ')}.`,
+        { n: list.length, best_flight: list[0].fn, best_score: Number(list[0].score.toFixed(2)) },
+        disclosure, 'score = delay_proba × congestion_band_weight', rankedList(list, true)
+      );
+    }
   </script>
 
 </body>
