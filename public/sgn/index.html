@@ -1114,7 +1114,10 @@
     async function narrate(facts) {
       try {
         const resp = await fetch(CHAT_ENDPOINT, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          // text/plain keeps this a CORS "simple request" — no preflight (the
+          // Function's OPTIONS doesn't emit CORS headers); the server parses the
+          // JSON body regardless of Content-Type.
+          method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
           body: JSON.stringify({ facts }),
         });
         if (!resp.ok) return null;
@@ -1153,7 +1156,8 @@
         let resp;
         try {
           resp = await fetch(CHAT_ENDPOINT, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            // text/plain → CORS-simple request, no preflight (see narrate()).
+            method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
             body: JSON.stringify({ message: message.slice(0, 300), carry: chatCarry }),
           });
         } catch (e) { return showChatNote('Chat is unavailable right now — the controls below still work.'); }
