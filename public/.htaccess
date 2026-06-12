@@ -37,6 +37,14 @@
   # Cross-origin isolation hygiene.
   Header always set Cross-Origin-Opener-Policy "same-origin"
   Header always set X-Permitted-Cross-Domain-Policies "none"
+
+  # HTML must always revalidate so deploys (e.g. /sgn/ chat updates) are seen
+  # immediately — without this the server sends no Cache-Control and browsers
+  # cache pages heuristically, serving a stale copy. Hashed JS/CSS/font assets
+  # keep their own long-lived caching (their filenames change on rebuild).
+  <FilesMatch "\.html$">
+    Header always set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
 </IfModule>
 
 # No directory browsing (prevents listing/enumeration of files).
