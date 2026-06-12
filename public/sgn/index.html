@@ -392,8 +392,17 @@
     .band-desc  { font-size: 0.88rem; opacity: 0.9; line-height: 1.5; }
     .band-meta  { font-size: 0.75rem; margin-top: 0.65rem; opacity: 0.7; }
 
-    .result-metrics { display: grid; grid-template-columns: 1fr; gap: 0.65rem; }
+    .result-metrics { display: grid; grid-template-columns: 1fr; gap: 0.65rem; margin-top: 0.65rem; }
     .result-metrics.two-up { grid-template-columns: 1fr 1fr; }
+
+    /* Output hierarchy: buffer is the secondary read (after the congestion band),
+       so it carries an accent edge + larger value; the supporting metrics
+       (est. pax, delay risk) are tertiary and visually quieter. */
+    .metric--buffer { border-left: 3px solid var(--accent); }
+    .metric--buffer .metric-value { font-size: 1.7rem; }
+    .metric--detail { padding: 0.7rem 0.9rem; }
+    .metric--detail .metric-value { font-size: 1.15rem; opacity: 0.92; }
+    .metric--detail .metric-label { opacity: 0.85; }
     .metric {
       border: 1px solid transparent;
       border-radius: var(--radius-md);
@@ -460,6 +469,9 @@
     .bar-col:hover .bar { filter: brightness(1.12) saturate(1.1); }
     .bar-col.active .bar { filter: brightness(1.15); outline: 2px solid var(--accent); outline-offset: 1px; }
     .bar-col.scheduled .bar { outline: 2px dashed rgba(156,107,61,0.5); outline-offset: 1px; opacity: 0.5; }
+    /* Query-aware emphasis: when the chart answers "busiest windows", the busy
+       bars stay lit and the rest dim back so the answer reads at a glance. */
+    .bar-col.dim .bar { opacity: 0.26; }
     .bar-tick { font-size: 0.52rem; color: var(--muted); margin-top: 3px; white-space: nowrap; }
 
     /* bar tooltip */
@@ -521,6 +533,16 @@
       display: flex; flex-direction: column;
     }
     .tool-right .chart-card { flex: 1 1 auto; }
+
+    /* The chart is query-aware: for outputs it can't meaningfully illustrate
+       (ranked / plan lists), hide it and let the output use the full width. */
+    .tool-grid.chart-hidden { grid-template-columns: minmax(0, 1fr); }
+    .tool-grid.chart-hidden .tool-right { display: none; }
+
+    /* After an output, the input pane collapses to just its hero row to free
+       vertical room for the result; focusing the input expands it again. */
+    .chat.is-collapsed .chat-chips,
+    .chat.is-collapsed .chat-when { display: none; }
 
     /* Small / short screens: single column, allow normal page scroll. */
     @media (max-width: 900px), (max-height: 620px) {
@@ -629,7 +651,8 @@
           <div class="chat-answer" id="chat-answer" aria-live="polite" hidden></div>
         </div>
 
-        <!-- Result -->
+        <!-- Result — ordered by hierarchy: 1) congestion risk (hero),
+             2) immigration buffer (secondary), 3) supporting metrics (tertiary). -->
         <div id="result">
           <div class="result-band" id="result-band">
             <div class="band-eyebrow">Congestion risk</div>
@@ -638,23 +661,23 @@
             <div class="band-meta" id="band-meta">—</div>
             <div id="data-badge"></div>
           </div>
-          <div class="result-metrics">
-            <div class="metric">
-              <div class="metric-label">Est. passengers</div>
-              <div class="metric-value" id="metric-avg">—</div>
-              <div class="metric-sub">in your arrival window</div>
-            </div>
-            <div class="metric" id="metric-delay-risk" style="display:none">
-              <div class="metric-label">Flight delay risk</div>
-              <div class="metric-value" id="metric-delay-pct">—</div>
-              <div class="metric-sub">probability of 15+ min delay</div>
-            </div>
-          </div>
-          <div class="metric" id="metric-buffer" style="margin-top:0.65rem">
+          <div class="metric metric--buffer" id="metric-buffer">
             <div class="metric-label">Recommended immigration buffer</div>
             <div class="metric-value" id="metric-buffer-value">—</div>
             <div class="metric-sub" id="metric-buffer-tip">—</div>
             <div class="metric-observed" id="metric-buffer-observed" hidden></div>
+          </div>
+          <div class="result-metrics">
+            <div class="metric metric--detail">
+              <div class="metric-label">Est. passengers</div>
+              <div class="metric-value" id="metric-avg">—</div>
+              <div class="metric-sub">in your arrival window</div>
+            </div>
+            <div class="metric metric--detail" id="metric-delay-risk" style="display:none">
+              <div class="metric-label">Flight delay risk</div>
+              <div class="metric-value" id="metric-delay-pct">—</div>
+              <div class="metric-sub">probability of 15+ min delay</div>
+            </div>
           </div>
         </div>
       </div>
@@ -836,11 +859,13 @@
           })
         : profile;
 
+      showChart();   // a window result → the chart illustrates it
       buildChart(chartData, slot, flightCtx?.scheduledSlot);
       document.getElementById('chart-title').textContent = isHistorical
         ? `Congestion pressure — ${date}`
         : 'Typical daily pressure profile';
 
+      collapseInput();   // free room for the output
       currentQueryDate = date;
       document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
@@ -853,17 +878,21 @@
     }
 
     // ── Chart ──────────────────────────────────────────────────────────────
-    function buildChart(data, activeSlot, scheduledSlot) {
+    function buildChart(data, activeSlot, scheduledSlot, opts = {}) {
       const chart = document.getElementById('chart');
       chart.innerHTML = '';
       const maxPax = Math.max(...data.map(r => r.avg_estimated_passengers));
+      const highlight = opts.highlightSet || null;   // Set of slots to keep lit
+      const dimOthers = !!opts.dimOthers;            // dim everything not highlighted
 
       data.forEach((row, i) => {
         const slot = row.window_slot_minutes;
-        const isActive    = slot === activeSlot;
+        const inHighlight = highlight ? highlight.has(slot) : false;
+        const isActive    = inHighlight || slot === activeSlot;
         const isScheduled = scheduledSlot != null && slot === scheduledSlot && slot !== activeSlot;
+        const isDim       = dimOthers && highlight && !inHighlight;
         const col  = document.createElement('div');
-        col.className = 'bar-col' + (isActive ? ' active' : '') + (isScheduled ? ' scheduled' : '');
+        col.className = 'bar-col' + (isActive ? ' active' : '') + (isScheduled ? ' scheduled' : '') + (isDim ? ' dim' : '');
         col.dataset.slot = slot;
 
         const bar = document.createElement('div');
@@ -895,6 +924,19 @@
     }
 
     function pad(n) { return String(n).padStart(2, '0'); }
+
+    // ── Output-driven UI state ──────────────────────────────────────────────
+    // After any output, collapse the input to its hero row (free room for the
+    // result); focusing the input expands it again.
+    function collapseInput() { document.getElementById('chat').classList.add('is-collapsed'); }
+    function expandInput()   { document.getElementById('chat').classList.remove('is-collapsed'); }
+    // The chart only shows when it can illustrate the answer (a window/profile);
+    // list answers (ranked / plan) hide it and hand the width to the output.
+    function showChart() { document.querySelector('.tool-grid').classList.remove('chart-hidden'); }
+    function hideChart() { document.querySelector('.tool-grid').classList.add('chart-hidden'); }
+    // Hide the congestion/buffer result card for outputs that don't produce one
+    // (ranked / plan / congestion), so a stale card never lingers under them.
+    function hideResult() { document.getElementById('result').style.display = 'none'; }
 
     // ── Chatbot ──────────────────────────────────────────────────────────────
     // Translator pattern: the endpoint returns a validated view-spec only; THIS
@@ -952,6 +994,8 @@
         if (text) chatSubmit(text);
         else if (!manualWindowCheck()) document.getElementById('chat-input').focus();
       });
+      // Re-expand the collapsed input when the user returns to ask again.
+      document.getElementById('chat-input').addEventListener('focus', expandInput);
 
       if (CHAT_ENABLED) {
         const chipsEl = document.getElementById('chat-chips');
@@ -967,7 +1011,7 @@
     }
 
     function setChatBusy(b) { document.getElementById('chat-send').disabled = b; }
-    function chatAnswerEl() { const el = document.getElementById('chat-answer'); el.hidden = false; el.replaceChildren(); return el; }
+    function chatAnswerEl() { collapseInput(); const el = document.getElementById('chat-answer'); el.hidden = false; el.replaceChildren(); return el; }
     function showChatNote(msg) {
       const el = chatAnswerEl();
       const p = document.createElement('p'); p.className = 'chat-answer__note'; p.textContent = msg; el.appendChild(p);
@@ -1093,6 +1137,7 @@
       if (!rows.length) return showChatNote(`No SGN arrivals data from ${origin}.`);
       rows.sort((a, b) => (BAND_WEIGHT[b.band] || 0) - (BAND_WEIGHT[a.band] || 0) || (b.delay - a.delay));
       const top = rows.slice(0, 8);
+      hideChart(); hideResult();   // a ranked list — the daily chart doesn't illustrate it
       chatCarry = { origin };
       return answer(
         `${rows.length} arrivals from ${origin}. The tightest immigration windows are ${top.slice(0, 3).map(r => r.fn).join(', ')}.`,
@@ -1102,13 +1147,24 @@
     }
 
     function renderCongestion(spec, disclosure) {
-      const peak = profile.reduce((a, r) => (r.avg_estimated_passengers > a.avg_estimated_passengers ? r : a), profile[0]);
-      buildChart(profile, peak.window_slot_minutes);
+      // "Busiest windows": light up the windows in the highest band present
+      // (Critical, else High…) and dim the rest, so the chart answers the query.
+      const topBandWeight = Math.max(...profile.map(r => BAND_WEIGHT[r.congestion_band] || 0));
+      const busy = profile.filter(r => (BAND_WEIGHT[r.congestion_band] || 0) === topBandWeight);
+      const busiestSet = new Set(busy.map(r => r.window_slot_minutes));
+      const busySorted = busy.slice().sort((a, b) => b.avg_estimated_passengers - a.avg_estimated_passengers);
+      const peak = busySorted[0];
+      const topBand = peak.congestion_band;
+
+      showChart(); hideResult();   // chart answers this; no per-window result card
+      buildChart(profile, null, null, { highlightSet: busiestSet, dimOthers: true });
+      document.getElementById('chart-title').textContent = `Busiest windows — ${topBand}`;
       const cov = chatCoverage();
       chatCarry = {};
+      const labels = busySorted.slice(0, 3).map(r => slotLabel(r.window_slot_minutes)).join(', ');
       return answer(
-        `Immigration pressure peaks around ${slotLabel(peak.window_slot_minutes)} (${peak.congestion_band}); the chart highlights it.`,
-        { peak_window: slotLabel(peak.window_slot_minutes), peak_band: peak.congestion_band, est_passengers: Math.round(peak.avg_estimated_passengers), n: cov.days },
+        `Immigration pressure is heaviest in the ${topBand} windows — ${labels}${busy.length > 3 ? ` (+${busy.length - 3} more)` : ''}. The chart highlights them.`,
+        { peak_window: slotLabel(peak.window_slot_minutes), peak_band: topBand, busy_windows: busy.length, est_passengers: Math.round(peak.avg_estimated_passengers), n: cov.days },
         disclosure
       );
     }
@@ -1169,6 +1225,7 @@
       });
       const list = Object.values(byFn).sort((a, b) => a.score - b.score).slice(0, 8);
       if (!list.length) return showChatNote('No SGN arrivals match those constraints in the data.');
+      hideChart(); hideResult();   // a ranked plan list — not a single-window chart view
       chatCarry = origin ? { origin } : {};
       return answer(
         `${list.length} arrivals fit. Best by the composite score: ${list.slice(0, 3).map(r => r.fn).join(', ')}.`,
