@@ -408,6 +408,10 @@
     .metric-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.25rem; }
     .metric-value { font-size: 1.4rem; font-weight: 700; color: var(--text); }
     .metric-sub   { font-size: 0.7rem; color: var(--muted); margin-top: 0.1rem; }
+    .metric-observed {
+      font-size: 0.7rem; line-height: 1.45; color: var(--accent);
+      margin-top: 0.4rem; padding-top: 0.4rem; border-top: 1px solid var(--border-soft);
+    }
 
     .band-Low      { background: rgba(63,138,99,0.12);  border-color: rgba(63,138,99,0.34);  color: #2f7350; }
     .band-Moderate { background: rgba(194,145,47,0.14); border-color: rgba(194,145,47,0.36); color: #8a6014; }
@@ -650,6 +654,7 @@
             <div class="metric-label">Recommended immigration buffer</div>
             <div class="metric-value" id="metric-buffer-value">—</div>
             <div class="metric-sub" id="metric-buffer-tip">—</div>
+            <div class="metric-observed" id="metric-buffer-observed" hidden></div>
           </div>
         </div>
       </div>
@@ -670,10 +675,11 @@
     </div>
 
     <p class="disclaimer">
-      <strong>Proxy metric only.</strong> Estimates are derived from flight schedule data,
-      a predicted delay model, and assumed aircraft load factors (82%). Does not represent
-      observed immigration queue lengths or processing times.
-      Based on <span id="day-count">—</span> days of Flightradar24 arrivals data at SGN.
+      <strong>Proxy metric only.</strong> Congestion estimates are derived from flight schedule data,
+      a predicted delay model, and assumed aircraft load factors (82%) &mdash; not observed queue lengths.
+      Buffer estimates are conservative: the ~40&nbsp;min minimum is anchored on one observed clearance
+      (VN772, 23&nbsp;May &mdash; an unusually quiet hall); busier-band figures remain estimates pending
+      more observations. Based on <span id="day-count">—</span> days of Flightradar24 arrivals data at SGN.
     </p>
   </main>
 
@@ -690,11 +696,21 @@
       High:     'Elevated pressure — plan for longer queues.',
       Critical: 'Peak pressure — significant queuing likely across all lanes.',
     };
+    // Buffer floor (~40 min) is anchored on one observed clearance (VN772, 23 May,
+    // a quiet hall took ~42 min); busier bands stay conservative ASSUMPTIONS, kept
+    // monotonic above the floor — not calibrated to data. See OBSERVED_TIMINGS.
     const BAND_BUFFER = {
-      Low:      { min: 20,  label: '~20 min',  tip: 'Allow around 20 minutes from landing to clear immigration.' },
-      Moderate: { min: 45,  label: '~45 min',  tip: 'Allow around 45 minutes from landing to clear immigration.' },
-      High:     { min: 75,  label: '~75 min',  tip: 'Allow around 75 minutes from landing to clear immigration.' },
+      Low:      { min: 40,  label: '~40 min',  tip: 'Allow around 40 minutes from landing to clear immigration. Even an unusually quiet hall took ~42 min in our one observed timing.' },
+      Moderate: { min: 55,  label: '~55 min',  tip: 'Allow around 55 minutes from landing to clear immigration.' },
+      High:     { min: 80,  label: '~80 min',  tip: 'Allow around 80 minutes from landing to clear immigration.' },
       Critical: { min: 120, label: '~2 hours', tip: 'Allow around 2 hours from landing to clear immigration.' },
+    };
+
+    // Ground-truth clearance observations (n=1). Keyed by 30-min window slot; shown
+    // beside the modelled buffer so the traveller sees both (the project's
+    // "surface the deviation, let them decide" principle). Not a calibrated model.
+    const OBSERVED_TIMINGS = {
+      960: { minutes: 42, date: '23 May', flight: 'VN772', condition: 'an unusually quiet hall' },
     };
 
     let profile      = [];   // typical daily profile (all dates averaged)
@@ -798,6 +814,17 @@
       document.getElementById('metric-buffer-value').textContent = buf.label;
       document.getElementById('metric-buffer-tip').textContent   = buf.tip;
       document.getElementById('metric-buffer').style.display = '';
+
+      // Surface a logged ground-truth clearance for this window, if any, beside
+      // the modelled buffer — "show both, let the traveller decide".
+      const obsEl = document.getElementById('metric-buffer-observed');
+      const obs = OBSERVED_TIMINGS[slot];
+      if (obs) {
+        obsEl.textContent = `Observed: ${obs.flight} cleared in ~${obs.minutes} min on ${obs.date} (${obs.condition}). One data point — not a calibrated estimate.`;
+        obsEl.hidden = false;
+      } else {
+        obsEl.hidden = true;
+      }
 
       document.getElementById('result').style.display = 'block';
 
