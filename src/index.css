@@ -613,29 +613,35 @@ html[data-theme="sunset"] .portrait-frame::after {
      height against a flex-item parent (Chromium resolves it), which collapsed the
      home stack to content height and parked the slack below it (no centring). */
   .stage-wrap { overflow-x: hidden; overflow-y: auto; display: flex; flex-direction: column; }
-  /* Centre the hero GROUP (greeting + portrait + panel) as a balanced cluster.
-     Auto margins on the first/last items split the leftover space EQUALLY above
-     the greeting and below the panel — so there's no dead gap under the header
-     and the cluster reads centred. (Pinning the portrait to the exact pixel
-     centre instead left a big empty band above the short greeting.) Auto margins
-     are universal/iOS-safe and collapse to 0 → top-align + scroll when content
-     is taller than the viewport. The portrait stays the prominent lead via its
-     own size, not via position. */
+  /* PORTRAIT pinned to the display's vertical centre, greeting kept near the
+     header. 3-row grid (1fr · auto · 1fr): portrait in the centre (auto) row →
+     exact viewport midpoint; greeting in the top row aligned to its START (just
+     under the header → no dead band); panel just below the portrait. The gap
+     that makes the portrait centred falls BETWEEN the greeting and the portrait,
+     not under the header. Explicit single-column areas override the desktop
+     2-col template (else a phantom column squeezes the layout). */
   .stage--home {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    flex: 1 0 auto; min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 1fr auto 1fr;
+    grid-template-areas: "greet" "portrait" "panel";
+    align-items: normal;               /* clear the base `safe center` (iOS-flaky) */
+    justify-items: stretch;
+    flex: 1 1 auto; min-height: 0;
     gap: clamp(0.5rem, 2vw, 0.9rem);
     overflow: visible;
   }
-  .stage--home > .hero-greet  { margin-top: auto; }     /* equal slack above… */
-  .stage--home > .stage-panel { margin-bottom: auto; }  /* …and below → group centred */
+  .stage--home > .hero-greet    { grid-area: greet;    align-self: start; margin-top: clamp(8px, 2.5vw, 22px); }
+  .stage--home > .hero-portrait { grid-area: portrait; align-self: center; justify-self: center; }
+  .stage--home > .stage-panel   { grid-area: panel;    align-self: start; }
+  /* Flipped to About: the card grows tall → top-aligned flex column so it isn't
+     fighting the centre row. */
+  .stage--home:has(.flip-perspective[data-flipped="true"]) { display: flex; flex-direction: column; justify-content: flex-start; }
+  .stage--home:has(.flip-perspective[data-flipped="true"]) > * { align-self: stretch; }
+  .stage--home:has(.flip-perspective[data-flipped="true"]) > .hero-portrait { align-self: center; }
   /* Pane views keep filling the (flex) stage-wrap via flex too. */
   .stage--projects, .stage--contact, .stage--testimonials { flex: 1 1 auto; min-height: 0; }
-  /* align-self:stretch overrides the desktop `.hero-greet{align-self:end}` (which
-     in this flex column would right-align the greeting); text stays centred. */
-  .hero-greet { align-self: stretch; text-align: center; }
+  .hero-greet { text-align: center; }
   .hero-portrait { align-self: center; }
   .stage--home .stage-panel__inner { padding: clamp(14px, 3.5vw, 20px); }
   /* Tighter spacing — the action panel stacks intro + 3 CTAs + availability, so
