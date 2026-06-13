@@ -619,17 +619,15 @@ html[data-theme="sunset"] .portrait-frame::after {
     align-items: stretch;
     /* Grow to fill the stage-wrap (flex, not %) so there's height to centre into. */
     flex: 1 0 auto; min-height: 0;
-    gap: clamp(0.6rem, 2.5vw, 1rem);
+    gap: clamp(0.5rem, 2vw, 0.9rem);
     overflow: visible;
   }
-  /* Centre the hero stack with AUTO MARGINS, not `justify-content: safe center`:
-     the `safe` alignment keyword has patchy iOS Safari support (when unsupported
-     the whole declaration is dropped → top-aligned, which is what happened on
-     device). Auto margins are universal and degrade the same way — when content
-     overflows, the autos collapse to 0 so it top-aligns + scrolls (never clips). */
-  .stage--home > .hero-greet { margin-top: auto; }
-  .stage--home > .stage-panel { margin-bottom: auto; }
-  /* Pane views keep filling the (now flex) stage-wrap via flex too. */
+  /* The PORTRAIT is the focal point / first in the visual hierarchy: auto
+     block-margins centre it as the lead element (greeting a small label above,
+     panel below). Auto margins are universal (unlike `safe center`, which iOS
+     Safari often drops) and collapse to 0 → top-align + scroll on overflow. */
+  .stage--home > .hero-portrait { margin-block: auto; }
+  /* Pane views keep filling the (flex) stage-wrap via flex too. */
   .stage--projects, .stage--contact, .stage--testimonials { flex: 1 1 auto; min-height: 0; }
   .hero-greet { align-self: stretch; text-align: center; }
   .hero-portrait { align-self: center; }
@@ -644,11 +642,13 @@ html[data-theme="sunset"] .portrait-frame::after {
   /* Compact theme pill so the header (logo + CV + nav + pill) never clips. */
   .theme-pill__label { display: none; }
   /* Smaller headline + minimal reserved space so the welcome text stays compact. */
-  .hero-headline { font-size: clamp(2rem, 8.5vw, 2.9rem); min-height: clamp(4rem, 13vw, 4.8rem); }
+  /* Greeting is a small label above the portrait — the portrait leads, so the
+     headline no longer dominates. */
+  .hero-headline { font-size: clamp(1.55rem, 6.4vw, 2.1rem); min-height: clamp(2.6rem, 9vw, 3.2rem); }
   .hero-headline.is-revealed { font-size: clamp(0.92rem, 3.4vw, 1.1rem); }
   /* display:block (not flex-centre) so the cell grows with the flipped card and
      pushes the nav pane down instead of the card overflowing/overlapping it. */
-  .hero-portrait { width: min(220px, 62vw); justify-self: center; margin-inline: auto; display: block; }
+  .hero-portrait { width: min(270px, 74vw); justify-self: center; margin-inline: auto; display: block; }
   /* When flipped to About, the card takes the FULL column width so the text reads
      in far fewer lines (was locked to the ~270px portrait width → many short
      lines + overflow). The portrait face stays its natural width when not flipped. */
@@ -658,8 +658,8 @@ html[data-theme="sunset"] .portrait-frame::after {
      short screens keep a real portrait (not a thumbnail) and scroll as a fallback
      rather than collapsing it. */
   .flip-perspective {
-    --port-offset: 500px;
-    width: min(100%, max(150px, calc((100dvh - var(--port-offset)) * 426 / 600)));
+    --port-offset: 440px;
+    width: min(100%, max(160px, calc((100dvh - var(--port-offset)) * 426 / 600)));
   }
   /* Flipped: free the height + take the full width so About sizes to its content
      (wide → short), never clipped; ultra-short screens then scroll as a fallback. */
