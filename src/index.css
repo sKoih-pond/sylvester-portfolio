@@ -616,7 +616,7 @@ html[data-theme="sunset"] .portrait-frame::after {
     height: auto; min-height: 100%;
     overflow: visible;
   }
-  .hero-greet { align-self: stretch; }
+  .hero-greet { align-self: stretch; text-align: center; }
   .hero-portrait { align-self: center; }
   /* On mobile the stage-wrap scrolls (instead of clipping), so a grown About card
      is fully reachable and never clips the nav pane. */
@@ -624,8 +624,11 @@ html[data-theme="sunset"] .portrait-frame::after {
   .stage--home .stage-panel__inner { padding: clamp(14px, 3.5vw, 20px); }
   /* Tighter spacing — the action panel stacks intro + 3 CTAs + availability, so
      trim the gaps to keep Home fitting without scroll. */
-  .action-panel { gap: 12px; }
-  .hero-cta-row { gap: 8px; }
+  /* Centre-align the hero content on mobile for a cleaner, symmetric column. */
+  .action-panel { gap: 12px; align-items: center; text-align: center; }
+  .hero-intro { width: auto; }              /* let the centred text use the column */
+  .hero-cta-row { gap: 8px; justify-content: center; }
+  .hero-avail { text-align: center; }
   /* Compact theme pill so the header (logo + CV + nav + pill) never clips. */
   .theme-pill__label { display: none; }
   /* Smaller headline + minimal reserved space so the welcome text stays compact. */
@@ -633,15 +636,22 @@ html[data-theme="sunset"] .portrait-frame::after {
   .hero-headline.is-revealed { font-size: clamp(0.92rem, 3.4vw, 1.1rem); }
   /* display:block (not flex-centre) so the cell grows with the flipped card and
      pushes the nav pane down instead of the card overflowing/overlapping it. */
-  .hero-portrait { width: min(270px, 72vw); justify-self: center; display: block; }
-  /* Budget more height for the stacked greeting + panel; the portrait scales down
-     on short screens but stays large on tall ones (where the width cap binds). */
-  .flip-perspective { --port-offset: 440px; }
-  /* Flipped: let the perspective + stage + card grow to the full About text so it
-     is never clipped (the card pushes the nav pane down; ultra-short screens then
-     scroll). aspect-ratio:auto frees the height; min-height:0 lets it size to the
-     About content rather than the portrait aspect. */
-  .flip-perspective[data-flipped="true"] { aspect-ratio: auto; }
+  .hero-portrait { width: min(270px, 72vw); justify-self: center; margin-inline: auto; display: block; }
+  /* When flipped to About, the card takes the FULL column width so the text reads
+     in far fewer lines (was locked to the ~270px portrait width → many short
+     lines + overflow). The portrait face stays its natural width when not flipped. */
+  .hero-portrait:has(.flip-perspective[data-flipped="true"]) { width: 100%; }
+  /* Budget for the stacked greeting + panel + header so normal phones fit with no
+     scroll; the portrait scales to the height left over. Floor at 210px so very
+     short screens keep a real portrait (not a thumbnail) and scroll as a fallback
+     rather than collapsing it. */
+  .flip-perspective {
+    --port-offset: 488px;
+    width: min(100%, max(210px, calc((100dvh - var(--port-offset)) * 426 / 600)));
+  }
+  /* Flipped: free the height + take the full width so About sizes to its content
+     (wide → short), never clipped; ultra-short screens then scroll as a fallback. */
+  .flip-perspective[data-flipped="true"] { aspect-ratio: auto; width: 100%; }
   .flip-perspective[data-flipped="true"] .flip-stage { height: auto; }
   .flip-perspective[data-flipped="true"] .flip-card { min-height: 0; }
   /* Slim-nav pills go icon-only, but keep the CV label so it's clearly the CV. */
