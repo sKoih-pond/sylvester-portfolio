@@ -612,6 +612,10 @@ html[data-theme="sunset"] .portrait-frame::after {
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    /* Centre the hero stack on the display's centre; `safe` falls back to
+       top-aligned (+ scroll) when the content is taller than the viewport, so a
+       tall/flipped state never pushes the top up under the header. */
+    justify-content: safe center;
     gap: clamp(0.6rem, 2.5vw, 1rem);
     height: auto; min-height: 100%;
     overflow: visible;
