@@ -608,23 +608,27 @@ html[data-theme="sunset"] .portrait-frame::after {
      portrait card can grow for the flipped About and the nav pane is pushed down
      after it (a grid track sizes to the unflipped card and the grown card would
      overflow/overlap). Grows to content; the stage-wrap scrolls. */
+  /* stage-wrap is a flex column so its child fills the (dvh-based) height via
+     flex, NOT a percentage min-height — iOS Safari often fails to resolve % min-
+     height against a flex-item parent (Chromium resolves it), which collapsed the
+     home stack to content height and parked the slack below it (no centring). */
+  .stage-wrap { overflow-x: hidden; overflow-y: auto; display: flex; flex-direction: column; }
   .stage--home {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    /* Centre the hero stack on the display's centre; `safe` falls back to
-       top-aligned (+ scroll) when the content is taller than the viewport, so a
-       tall/flipped state never pushes the top up under the header. */
+    /* Grow to fill the stage-wrap (flex, not %) so there's height to centre into;
+       `safe center` falls back to top-aligned (+ scroll) when content is taller
+       than the viewport, so a tall/flipped state never pushes the top up. */
+    flex: 1 0 auto; min-height: 0;
     justify-content: safe center;
     gap: clamp(0.6rem, 2.5vw, 1rem);
-    height: auto; min-height: 100%;
     overflow: visible;
   }
+  /* Pane views keep filling the (now flex) stage-wrap via flex too. */
+  .stage--projects, .stage--contact, .stage--testimonials { flex: 1 1 auto; min-height: 0; }
   .hero-greet { align-self: stretch; text-align: center; margin-top: 0; }   /* no top bias → symmetric vertical centring */
   .hero-portrait { align-self: center; }
-  /* On mobile the stage-wrap scrolls (instead of clipping), so a grown About card
-     is fully reachable and never clips the nav pane. */
-  .stage-wrap { overflow-x: hidden; overflow-y: auto; }
   .stage--home .stage-panel__inner { padding: clamp(14px, 3.5vw, 20px); }
   /* Tighter spacing — the action panel stacks intro + 3 CTAs + availability, so
      trim the gaps to keep Home fitting without scroll. */
