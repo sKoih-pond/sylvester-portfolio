@@ -617,17 +617,21 @@ html[data-theme="sunset"] .portrait-frame::after {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    /* Grow to fill the stage-wrap (flex, not %) so there's height to centre into;
-       `safe center` falls back to top-aligned (+ scroll) when content is taller
-       than the viewport, so a tall/flipped state never pushes the top up. */
+    /* Grow to fill the stage-wrap (flex, not %) so there's height to centre into. */
     flex: 1 0 auto; min-height: 0;
-    justify-content: safe center;
     gap: clamp(0.6rem, 2.5vw, 1rem);
     overflow: visible;
   }
+  /* Centre the hero stack with AUTO MARGINS, not `justify-content: safe center`:
+     the `safe` alignment keyword has patchy iOS Safari support (when unsupported
+     the whole declaration is dropped → top-aligned, which is what happened on
+     device). Auto margins are universal and degrade the same way — when content
+     overflows, the autos collapse to 0 so it top-aligns + scrolls (never clips). */
+  .stage--home > .hero-greet { margin-top: auto; }
+  .stage--home > .stage-panel { margin-bottom: auto; }
   /* Pane views keep filling the (now flex) stage-wrap via flex too. */
   .stage--projects, .stage--contact, .stage--testimonials { flex: 1 1 auto; min-height: 0; }
-  .hero-greet { align-self: stretch; text-align: center; margin-top: 0; }   /* no top bias → symmetric vertical centring */
+  .hero-greet { align-self: stretch; text-align: center; }
   .hero-portrait { align-self: center; }
   .stage--home .stage-panel__inner { padding: clamp(14px, 3.5vw, 20px); }
   /* Tighter spacing — the action panel stacks intro + 3 CTAs + availability, so
