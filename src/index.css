@@ -620,7 +620,7 @@ html[data-theme="sunset"] .portrait-frame::after {
     height: auto; min-height: 100%;
     overflow: visible;
   }
-  .hero-greet { align-self: stretch; text-align: center; }
+  .hero-greet { align-self: stretch; text-align: center; margin-top: 0; }   /* no top bias → symmetric vertical centring */
   .hero-portrait { align-self: center; }
   /* On mobile the stage-wrap scrolls (instead of clipping), so a grown About card
      is fully reachable and never clips the nav pane. */
@@ -640,7 +640,7 @@ html[data-theme="sunset"] .portrait-frame::after {
   .hero-headline.is-revealed { font-size: clamp(0.92rem, 3.4vw, 1.1rem); }
   /* display:block (not flex-centre) so the cell grows with the flipped card and
      pushes the nav pane down instead of the card overflowing/overlapping it. */
-  .hero-portrait { width: min(270px, 72vw); justify-self: center; margin-inline: auto; display: block; }
+  .hero-portrait { width: min(220px, 62vw); justify-self: center; margin-inline: auto; display: block; }
   /* When flipped to About, the card takes the FULL column width so the text reads
      in far fewer lines (was locked to the ~270px portrait width → many short
      lines + overflow). The portrait face stays its natural width when not flipped. */
@@ -650,8 +650,8 @@ html[data-theme="sunset"] .portrait-frame::after {
      short screens keep a real portrait (not a thumbnail) and scroll as a fallback
      rather than collapsing it. */
   .flip-perspective {
-    --port-offset: 488px;
-    width: min(100%, max(210px, calc((100dvh - var(--port-offset)) * 426 / 600)));
+    --port-offset: 500px;
+    width: min(100%, max(150px, calc((100dvh - var(--port-offset)) * 426 / 600)));
   }
   /* Flipped: free the height + take the full width so About sizes to its content
      (wide → short), never clipped; ultra-short screens then scroll as a fallback. */
