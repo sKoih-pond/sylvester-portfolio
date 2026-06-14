@@ -500,12 +500,13 @@ html[data-theme="sunset"] .portrait-frame::after {
 .hero-greet { grid-area: greet; align-self: end; min-width: 0; margin-top: clamp(0.75rem, 2.2vw, 1.75rem); }
 .hero-portrait {
   grid-area: portrait;
-  /* The cell shrink-wraps to the (height-capped) card and would CENTRE in its
-     wider column → the card's right margin ends up bigger than the content's left
-     margin. justify-self:end pins the cell to the column's right edge so the two
-     margins match; flex-end keeps the card right-aligned if the cell ever fills.
-     Mobile re-centres the card via the media query. */
-  justify-self: end;
+  /* Keep the cell STRETCHED (default justify-self) so its right edge sits at the
+     column's right edge = the stage's right padding. The card is then height-
+     capped (narrower than the cell on wide viewports), so flex-end pins it to that
+     right edge → the portrait's right margin matches the greeting/panel's left
+     margin. (Do NOT use justify-self:end: Safari content-sizes the item, then the
+     card's `width:min(100%,…)` resolves 100% against an indefinite width → 0 and
+     the portrait vanishes. Mobile re-centres the card in its media query.) */
   display: flex; align-items: center; justify-content: flex-end;
   min-width: 0; min-height: 0;
 }
