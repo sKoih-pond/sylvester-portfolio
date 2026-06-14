@@ -653,9 +653,9 @@ html[data-theme="sunset"] .portrait-frame::after {
   /* Compact theme pill so the header (logo + CV + nav + pill) never clips. */
   .theme-pill__label { display: none; }
   /* Smaller headline + minimal reserved space so the welcome text stays compact. */
-  /* Greeting is a small label above the portrait — the portrait leads, so the
-     headline no longer dominates. */
-  .hero-headline { font-size: clamp(1.55rem, 6.4vw, 2.1rem); min-height: clamp(2.6rem, 9vw, 3.2rem); }
+  /* Welcome text = 2nd in the visual hierarchy (after the portrait): scaled up so
+     it reads as a prominent headline, not a small label. */
+  .hero-headline { font-size: clamp(2.3rem, 9vw, 3.1rem); min-height: clamp(3rem, 11vw, 3.9rem); }
   .hero-headline.is-revealed { font-size: clamp(0.92rem, 3.4vw, 1.1rem); }
   /* Full-width flex region (see .stage--home > .hero-portrait) that centres the
      card; the card's own width cap lives on .flip-perspective. */
