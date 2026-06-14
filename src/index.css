@@ -87,6 +87,7 @@ html[data-theme="morning"] {
   --accent-soft: rgba(232, 154, 128, 0.20);
   --shadow: 0 24px 70px rgba(86, 62, 44, 0.16);
   --shadow-soft: 0 12px 40px rgba(86, 62, 44, 0.10);
+--shadow-blend: 0 22px 60px -14px rgba(86, 62, 44, 0.10);
   --chart-projects: #466a78;
   --glass-tint: rgba(232, 154, 128, 0.08);
   --glass-edge: rgba(255, 255, 255, 0.90);
@@ -108,6 +109,7 @@ html[data-theme="day"] {
   --accent-soft: rgba(201, 160, 111, 0.18);
   --shadow: 0 24px 70px rgba(86, 62, 44, 0.16);
   --shadow-soft: 0 12px 40px rgba(86, 62, 44, 0.10);
+--shadow-blend: 0 22px 60px -14px rgba(86, 62, 44, 0.10);
   --chart-projects: #3f6f6c;
   --glass-tint: rgba(201, 160, 111, 0.07);
   --glass-edge: rgba(255, 255, 255, 0.86);
@@ -129,6 +131,7 @@ html[data-theme="sunset"] {
   --accent-soft: rgba(255, 177, 90, 0.20);
   --shadow: 0 24px 70px rgba(47, 26, 17, 0.32);
   --shadow-soft: 0 12px 40px rgba(47, 26, 17, 0.22);
+--shadow-blend: 0 22px 60px -14px rgba(47, 26, 17, 0.22);
   --chart-projects: #f3d6a8;
   --glass-tint: rgba(255, 177, 90, 0.09);
   --glass-edge: rgba(255, 218, 169, 0.52);
@@ -154,6 +157,7 @@ html[data-theme="night"] {
   --accent-soft: rgba(227, 163, 109, 0.18);
   --shadow: 0 24px 70px rgba(18, 10, 6, 0.50);
   --shadow-soft: 0 12px 40px rgba(18, 10, 6, 0.34);
+--shadow-blend: 0 22px 60px -14px rgba(18, 10, 6, 0.34);
   --chart-projects: #d2b48c;
   --glass-tint: rgba(227, 163, 109, 0.08);
   --glass-edge: rgba(228, 198, 162, 0.42);
@@ -493,7 +497,11 @@ html[data-theme="sunset"] .portrait-frame::after {
 .hero-greet { grid-area: greet; align-self: end; min-width: 0; margin-top: clamp(0.75rem, 2.2vw, 1.75rem); }
 .hero-portrait {
   grid-area: portrait;
-  display: flex; align-items: center; justify-content: center;
+  /* Align the card to the RIGHT of its column so its right margin equals the
+     content's left margin. (When the portrait is height-capped narrower than its
+     column on wide screens, centring would inset it from the right → asymmetry.)
+     Mobile re-centres it via the media query. */
+  display: flex; align-items: center; justify-content: flex-end;
   min-width: 0; min-height: 0;
 }
 /* Flip card scales to the available viewport height so the home never overflows:
@@ -656,8 +664,10 @@ html[data-theme="sunset"] .portrait-frame::after {
   /* Nav pane hugs its content and sits flush at the bottom (close to the browser
      URL bar). The golden split is taken on the CONTENT AREA below the header (the
      stage), not the full viewport: the portrait region (flex:1) fills the golden
-     major above, the nav the golden minor — header-offset by construction. */
-  .stage--home > .stage-panel   { flex: 0 0 auto; align-self: stretch; }
+     major above, the nav the golden minor — header-offset by construction.
+     A feathered, theme-tinted shadow (--shadow-blend) melts into the page bg so
+     the space the browser UI leaves below it reads as a soft fade, not an edge. */
+  .stage--home > .stage-panel   { flex: 0 0 auto; align-self: stretch; box-shadow: var(--shadow-blend); }
   /* align-self:stretch above overrides the desktop `.hero-greet{align-self:end}`
      (which would right-align it in this flex column); text stays centred. */
   .hero-greet  { text-align: center; }
