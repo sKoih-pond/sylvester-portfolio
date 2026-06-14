@@ -500,13 +500,16 @@ html[data-theme="sunset"] .portrait-frame::after {
 .hero-greet { grid-area: greet; align-self: end; min-width: 0; margin-top: clamp(0.75rem, 2.2vw, 1.75rem); }
 .hero-portrait {
   grid-area: portrait;
-  /* Keep the cell STRETCHED (default justify-self) so its right edge sits at the
-     column's right edge = the stage's right padding. The card is then height-
-     capped (narrower than the cell on wide viewports), so flex-end pins it to that
-     right edge → the portrait's right margin matches the greeting/panel's left
-     margin. (Do NOT use justify-self:end: Safari content-sizes the item, then the
-     card's `width:min(100%,…)` resolves 100% against an indefinite width → 0 and
-     the portrait vanishes. Mobile re-centres the card in its media query.) */
+  /* Fill the column explicitly (width:100%, not relying on justify-self:stretch —
+     Safari content-sizes a flex grid-item and centres the shrunk cell in the wider
+     column, inflating the portrait's right margin, which is the desktop mismatch).
+     With the cell at full column width, flex-end pins the height-capped card to the
+     column's right edge = the stage's right padding, so the portrait's right margin
+     matches the greeting/panel's left margin. (Do NOT use justify-self:end: Safari
+     then content-sizes the item and the card's min(100%,…) width resolves 100%
+     against an indefinite width -> 0, so the portrait vanishes. Mobile re-centres
+     the card in its media query.) */
+  width: 100%;
   display: flex; align-items: center; justify-content: flex-end;
   min-width: 0; min-height: 0;
 }
