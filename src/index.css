@@ -33,6 +33,12 @@
   --sp-3: 1.309rem;         /* 0.5·φ²  */
   --sp-4: 2.118rem;         /* 0.5·φ³  */
 
+  /* One token drives BOTH the page side gutter AND the home column gap, so the
+     left margin, the greeting↔portrait gap, and the right margin are always equal
+     (the "all 3 gaps match" symmetry). Content centres once it exceeds --page-max. */
+  --page-gutter: clamp(1rem, 4vw, 3rem);
+  --page-max: 120rem;       /* 1920px — symmetric up to here, then centres */
+
   --blur: 12px;
 
   /* Lifted-edge hairlines (warm, not cold black) */
@@ -460,19 +466,24 @@ html[data-theme="sunset"] .portrait-frame::after {
 .app-header {
   flex: 0 0 auto;
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  width: min(1340px, calc(100% - 2rem)); margin: 0 auto; padding: 16px 0;
+  /* Side inset = --page-gutter so the logo/toggle align with the home content's
+     left/right edges; capped at --page-max then centred (shared with .stage-wrap). */
+  width: 100%; max-width: var(--page-max); margin: 0 auto; padding: 16px var(--page-gutter);
   position: relative; z-index: 5;   /* always above the stage — never overlapped */
 }
 .stage-wrap {
   flex: 1 1 auto; min-height: 0;
-  width: min(1340px, calc(100% - 2rem)); margin: 0 auto;
+  /* Side gutter = --page-gutter (same token as the home column gap) → the page's
+     left margin, the greeting↔portrait gap, and the right margin are all equal. */
+  width: 100%; max-width: var(--page-max); margin: 0 auto;
+  padding-inline: var(--page-gutter);
   padding-bottom: clamp(0.75rem, 2vw, 1.25rem);
   /* Hard-clip the stage to the area below the header: nothing inside (incl. a
      morph/flip animation that transiently escapes the stage box) can ever bleed
      up into the header. */
   overflow: hidden;
 }
-.stage { position: relative; height: 100%; display: grid; gap: clamp(1rem, 4vw, 3rem); }
+.stage { position: relative; height: 100%; display: grid; gap: var(--page-gutter); }
 
 /* Home: greeting top-left, portrait right (spanning), action panel bottom-left. */
 .stage--home {
@@ -731,7 +742,7 @@ html[data-theme="sunset"] .portrait-frame::after {
 
 @media (max-width: 560px) {
   .logo-btn > span:last-child { display: none; }                    /* keep just the logo glyph in the header */
-  .app-header { padding: 12px 0; }
+  .app-header { padding: 12px var(--page-gutter); }
 }
 
 @media (prefers-reduced-motion: reduce) {
