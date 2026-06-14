@@ -754,10 +754,13 @@ html[data-theme="sunset"] .portrait-frame::after {
   background:
     radial-gradient(120% 90% at 82% 8%, var(--accent-soft) 0%, transparent 56%),
     radial-gradient(90% 80% at 6% 26%, var(--glass-tint) 0%, transparent 62%);
-  /* Solid from the very top (flows up behind the header → seamless with it);
-     fades only at the bottom into the hero. */
-  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 55%, transparent 100%);
-  mask-image: linear-gradient(180deg, #000 0%, #000 55%, transparent 100%);
+  /* Keep a flat --page-bg strip at the very top: iOS Safari's status bar samples
+     the page behind it, so a glow reaching y=0 reads a shade warmer than the flat
+     theme-color chrome (the "edge is a shade off"). Fade the glow IN just below
+     the status-bar zone, hold it solid, then fade OUT into the hero. The header
+     sits in this flat strip, so it still meets the chrome seamlessly. */
+  -webkit-mask-image: linear-gradient(180deg, transparent 0px, #000 64px, #000 55%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0px, #000 64px, #000 55%, transparent 100%);
   transition: background 2s ease;
 }
 .hero-banner__svg {
