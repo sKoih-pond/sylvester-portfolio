@@ -63,6 +63,14 @@ export function useSolarTheme() {
 
   useEffect(() => {
     const html = document.documentElement;
+    const themeMeta = document.querySelector('meta[name="theme-color"]');
+
+    // Keep the browser chrome (iOS Safari status bar / toolbar) tinted to the live
+    // (interpolated) page background so the page edges blend into it seamlessly.
+    const syncChrome = (tokens) => {
+      const bg = tokens && tokens["--page-bg"];
+      if (bg && themeMeta) themeMeta.setAttribute("content", bg);
+    };
 
     const applyNow = () => {
       // Pin a pure day/night anchor when we have an explicit signal: a manual
@@ -72,6 +80,7 @@ export function useSolarTheme() {
       if (pinned) {
         const tokens = Palette.resolve(pinned === "day" ? 100 : -100, false);
         for (const name in tokens) html.style.setProperty(name, tokens[name]);
+        syncChrome(tokens);
         html.dataset.theme = pinned;
         try { localStorage.setItem("sk_theme", pinned); } catch {}
         setState({ phase: pinned, icon: PHASES[pinned].icon, label: composeLabel(pinned, cityRef.current) });
@@ -84,6 +93,7 @@ export function useSolarTheme() {
       html.style.setProperty("--sun-elevation", elevation.toFixed(2));
       const tokens = Palette.resolve(elevation, rising);
       for (const name in tokens) html.style.setProperty(name, tokens[name]);
+      syncChrome(tokens);
       html.dataset.theme = phase;
       try { localStorage.setItem("sk_theme", phase); } catch {}
       setState({ phase, icon: PHASES[phase].icon, label: composeLabel(phase, cityRef.current) });

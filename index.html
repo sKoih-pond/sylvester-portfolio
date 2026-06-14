@@ -4,15 +4,22 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Sylvester Koh — IT professional building applied analytics, automation, and cloud capability." />
+    <!-- theme-color tints the browser chrome (iOS Safari status bar / toolbar) to
+         the page background so it blends seamlessly. Updated live by useSolarTheme. -->
+    <meta name="theme-color" content="#f8f2ea" />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <title>Sylvester Koh</title>
     <!-- Flash-free first paint: apply the last-known solar phase before React
-         mounts, so return visitors paint the correct palette immediately. -->
+         mounts, so return visitors paint the correct palette immediately, and
+         set the matching theme-color so the chrome doesn't flash grey. -->
     <script>
       (function () {
         try {
           var p = localStorage.getItem("sk_theme");
           if (p) document.documentElement.dataset.theme = p;
+          var bg = { morning: "#fbefe9", day: "#f8f2ea", sunset: "#2a211f", night: "#241b16" }[p || "day"];
+          var m = document.querySelector('meta[name="theme-color"]');
+          if (bg && m) m.setAttribute("content", bg);
         } catch (e) {}
       })();
     </script>
