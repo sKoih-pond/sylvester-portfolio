@@ -653,16 +653,19 @@ html[data-theme="sunset"] .portrait-frame::after {
   }
   .stage--home > .hero-greet    { flex: 0 0 auto; align-self: stretch; margin-top: clamp(10px, 3vw, 24px); }
   .stage--home > .hero-portrait { flex: 1 1 auto; min-height: 0; align-self: stretch; display: flex; align-items: center; justify-content: center; }
-  /* Nav pane occupies the golden bottom section (~38% = 1/(1+φ) of the view) so
-     content:nav ≈ φ on any height; its content sits centred (the breathing room
-     within = the golden empty-space treatment). dvh keeps it iOS-safe. */
-  .stage--home > .stage-panel   { flex: 0 0 auto; align-self: stretch; min-height: 34dvh; }
+  /* Nav pane hugs its content and sits flush at the bottom (close to the browser
+     URL bar). The golden split is taken on the CONTENT AREA below the header (the
+     stage), not the full viewport: the portrait region (flex:1) fills the golden
+     major above, the nav the golden minor — header-offset by construction. */
+  .stage--home > .stage-panel   { flex: 0 0 auto; align-self: stretch; }
   /* align-self:stretch above overrides the desktop `.hero-greet{align-self:end}`
      (which would right-align it in this flex column); text stays centred. */
   .hero-greet  { text-align: center; }
   /* Pane views keep filling the (flex) stage-wrap via flex too. */
   .stage--projects, .stage--contact, .stage--testimonials { flex: 1 1 auto; min-height: 0; }
-  .stage--home .stage-panel__inner { padding: clamp(14px, 3.5vw, 20px); justify-content: center; }
+  .stage--home .stage-panel__inner { padding: clamp(14px, 3.5vw, 20px); }
+  /* Nav pane closer to the bottom edge (browser URL bar). */
+  .stage-wrap { padding-bottom: clamp(2px, 1vw, 6px); }
   /* Tighter spacing — the action panel stacks intro + 3 CTAs + availability, so
      trim the gaps to keep Home fitting without scroll. */
   /* Centre-align the hero content on mobile for a cleaner, symmetric column. */
