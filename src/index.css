@@ -20,6 +20,19 @@
   --radius-lg: 37px;
   --radius-xl: 60px;
 
+  /* Golden ratio + golden scales (extend the φ system to type, space, layout). */
+  --phi: 1.618;
+  /* Type scale — φ steps from a 1rem body. */
+  --fs-body: 1rem;          /* body / supporting           */
+  --fs-2: 1.618rem;         /* φ  — subhead                */
+  --fs-3: 2.618rem;         /* φ² — mobile hero headline   */
+  --fs-4: 4.236rem;         /* φ³ — desktop hero headline  */
+  /* Spacing scale — φ steps from a 0.5rem unit. */
+  --sp-1: 0.5rem;
+  --sp-2: 0.809rem;         /* 0.5·φ   */
+  --sp-3: 1.309rem;         /* 0.5·φ²  */
+  --sp-4: 2.118rem;         /* 0.5·φ³  */
+
   --blur: 12px;
 
   /* Lifted-edge hairlines (warm, not cold black) */
@@ -279,9 +292,10 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   flex-direction: column;
   justify-content: center;   /* keep both states vertically centred in the box */
-  margin: 0 0 18px;
+  margin: 0 0 var(--sp-3);
   font-family: var(--font-sans);
-  font-size: clamp(2.6rem, 8vw, 4.2rem);
+  /* Golden type scale: hero headline = φ³ × body (φ² floor on small widths). */
+  font-size: clamp(var(--fs-3), 8vw, var(--fs-4));
   font-weight: 350;
   letter-spacing: -0.02em;
   line-height: 1.05;
@@ -455,7 +469,10 @@ html[data-theme="sunset"] .portrait-frame::after {
 
 /* Home: greeting top-left, portrait right (spanning), action panel bottom-left. */
 .stage--home {
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 340px);
+  /* Golden split: content column : portrait column ≈ φ (1.618). The portrait is
+     also height-capped (.flip-perspective), so it lands near this width on a
+     normal-height desktop and scales up gracefully on taller viewports. */
+  grid-template-columns: minmax(0, 1.618fr) minmax(280px, 1fr);
   /* Greeting sits in a fixed `auto` row at the top; the panel collapses inside the
      `1fr` row below. Nothing above the panel moves, so the welcome text never
      shifts/resizes on flip and the portrait (spanning both rows) stays put. */
@@ -636,13 +653,16 @@ html[data-theme="sunset"] .portrait-frame::after {
   }
   .stage--home > .hero-greet    { flex: 0 0 auto; align-self: stretch; margin-top: clamp(10px, 3vw, 24px); }
   .stage--home > .hero-portrait { flex: 1 1 auto; min-height: 0; align-self: stretch; display: flex; align-items: center; justify-content: center; }
-  .stage--home > .stage-panel   { flex: 0 0 auto; align-self: stretch; }   /* bottom ~third (its own height) */
+  /* Nav pane occupies the golden bottom section (~38% = 1/(1+φ) of the view) so
+     content:nav ≈ φ on any height; its content sits centred (the breathing room
+     within = the golden empty-space treatment). dvh keeps it iOS-safe. */
+  .stage--home > .stage-panel   { flex: 0 0 auto; align-self: stretch; min-height: 34dvh; }
   /* align-self:stretch above overrides the desktop `.hero-greet{align-self:end}`
      (which would right-align it in this flex column); text stays centred. */
   .hero-greet  { text-align: center; }
   /* Pane views keep filling the (flex) stage-wrap via flex too. */
   .stage--projects, .stage--contact, .stage--testimonials { flex: 1 1 auto; min-height: 0; }
-  .stage--home .stage-panel__inner { padding: clamp(14px, 3.5vw, 20px); }
+  .stage--home .stage-panel__inner { padding: clamp(14px, 3.5vw, 20px); justify-content: center; }
   /* Tighter spacing — the action panel stacks intro + 3 CTAs + availability, so
      trim the gaps to keep Home fitting without scroll. */
   /* Centre-align the hero content on mobile for a cleaner, symmetric column. */
@@ -653,9 +673,9 @@ html[data-theme="sunset"] .portrait-frame::after {
   /* Compact theme pill so the header (logo + CV + nav + pill) never clips. */
   .theme-pill__label { display: none; }
   /* Smaller headline + minimal reserved space so the welcome text stays compact. */
-  /* Welcome text = 2nd in the visual hierarchy (after the portrait): scaled up so
-     it reads as a prominent headline, not a small label. */
-  .hero-headline { font-size: clamp(2.3rem, 9vw, 3.1rem); min-height: clamp(3rem, 11vw, 3.9rem); }
+  /* Welcome text = 2nd in the hierarchy: golden step φ² × body (the desktop hero
+     is φ³); a prominent headline, not a small label. */
+  .hero-headline { font-size: clamp(2.2rem, 9.5vw, var(--fs-3)); min-height: clamp(3rem, 11vw, 3.9rem); }
   .hero-headline.is-revealed { font-size: clamp(0.92rem, 3.4vw, 1.1rem); }
   /* Full-width flex region (see .stage--home > .hero-portrait) that centres the
      card; the card's own width cap lives on .flip-perspective. */
