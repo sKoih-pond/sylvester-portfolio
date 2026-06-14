@@ -93,7 +93,7 @@ html[data-theme="morning"] {
   --accent-soft: rgba(232, 154, 128, 0.20);
   --shadow: 0 24px 70px rgba(86, 62, 44, 0.16);
   --shadow-soft: 0 12px 40px rgba(86, 62, 44, 0.10);
---shadow-blend: 0 22px 60px -14px rgba(86, 62, 44, 0.10);
+--shadow-blend: 0 3px 12px -6px rgba(86, 62, 44, 0.10);
   --chart-projects: #466a78;
   --glass-tint: rgba(232, 154, 128, 0.08);
   --glass-edge: rgba(255, 255, 255, 0.90);
@@ -115,7 +115,7 @@ html[data-theme="day"] {
   --accent-soft: rgba(201, 160, 111, 0.18);
   --shadow: 0 24px 70px rgba(86, 62, 44, 0.16);
   --shadow-soft: 0 12px 40px rgba(86, 62, 44, 0.10);
---shadow-blend: 0 22px 60px -14px rgba(86, 62, 44, 0.10);
+--shadow-blend: 0 3px 12px -6px rgba(86, 62, 44, 0.10);
   --chart-projects: #3f6f6c;
   --glass-tint: rgba(201, 160, 111, 0.07);
   --glass-edge: rgba(255, 255, 255, 0.86);
@@ -137,7 +137,7 @@ html[data-theme="sunset"] {
   --accent-soft: rgba(255, 177, 90, 0.20);
   --shadow: 0 24px 70px rgba(47, 26, 17, 0.32);
   --shadow-soft: 0 12px 40px rgba(47, 26, 17, 0.22);
---shadow-blend: 0 22px 60px -14px rgba(47, 26, 17, 0.22);
+--shadow-blend: 0 3px 12px -6px rgba(47, 26, 17, 0.22);
   --chart-projects: #f3d6a8;
   --glass-tint: rgba(255, 177, 90, 0.09);
   --glass-edge: rgba(255, 218, 169, 0.52);
@@ -163,7 +163,7 @@ html[data-theme="night"] {
   --accent-soft: rgba(227, 163, 109, 0.18);
   --shadow: 0 24px 70px rgba(18, 10, 6, 0.50);
   --shadow-soft: 0 12px 40px rgba(18, 10, 6, 0.34);
---shadow-blend: 0 22px 60px -14px rgba(18, 10, 6, 0.34);
+--shadow-blend: 0 3px 12px -6px rgba(18, 10, 6, 0.34);
   --chart-projects: #d2b48c;
   --glass-tint: rgba(227, 163, 109, 0.08);
   --glass-edge: rgba(228, 198, 162, 0.42);
@@ -685,8 +685,11 @@ html[data-theme="sunset"] .portrait-frame::after {
      URL bar). The golden split is taken on the CONTENT AREA below the header (the
      stage), not the full viewport: the portrait region (flex:1) fills the golden
      major above, the nav the golden minor — header-offset by construction.
-     A feathered, theme-tinted shadow (--shadow-blend) melts into the page bg so
-     the space the browser UI leaves below it reads as a soft fade, not an edge. */
+     A TIGHT theme-tinted shadow (--shadow-blend) hugs the card for subtle depth
+     but does NOT reach the bottom strip: iOS Safari samples the page behind its
+     toolbar, so a long downward shadow there tinted the toolbar a shade darker
+     than the flat page. Keeping the strip below the nav flat --page-bg lets the
+     toolbar blend (mirrors the flat-strip fix behind the status bar up top). */
   .stage--home > .stage-panel   { flex: 0 0 auto; align-self: stretch; box-shadow: var(--shadow-blend); }
   /* align-self:stretch above overrides the desktop `.hero-greet{align-self:end}`
      (which would right-align it in this flex column); text stays centred. */
