@@ -620,19 +620,26 @@ html[data-theme="sunset"] .portrait-frame::after {
      content-width block centred by align-items. Auto margins on the first/last
      items split the leftover space equally above/below → centred cluster, no gap
      under the header. */
+  /* Layout: the nav pane (panel) anchors to the bottom ~third; greeting + portrait
+     fill the top ~two-thirds. The portrait region grows (flex:1) and centres the
+     card BOTH ways via flex (align-items + justify-content). Centring the card
+     this way — rather than as a block in a fixed-width box — fixes the iOS
+     left-shift: the card is sized from 100dvh, so on iOS (toolbar-shrunk dvh) it
+     was narrower than its block parent and left-aligned; flex always centres it. */
   .stage--home {
     display: flex;
     flex-direction: column;
-    align-items: center;               /* horizontal centre for the portrait */
+    align-items: stretch;
     flex: 1 0 auto; min-height: 0;
     gap: clamp(0.5rem, 2vw, 0.9rem);
     overflow: visible;
   }
-  .stage--home > .hero-greet  { margin-top: auto; }     /* equal slack above… */
-  .stage--home > .stage-panel { margin-bottom: auto; }  /* …and below */
-  /* full-width so their centred text/inner layout spans the column */
-  .hero-greet  { align-self: stretch; text-align: center; }
-  .stage-panel { align-self: stretch; }
+  .stage--home > .hero-greet    { flex: 0 0 auto; align-self: stretch; margin-top: clamp(10px, 3vw, 24px); }
+  .stage--home > .hero-portrait { flex: 1 1 auto; min-height: 0; align-self: stretch; display: flex; align-items: center; justify-content: center; }
+  .stage--home > .stage-panel   { flex: 0 0 auto; align-self: stretch; }   /* bottom ~third (its own height) */
+  /* align-self:stretch above overrides the desktop `.hero-greet{align-self:end}`
+     (which would right-align it in this flex column); text stays centred. */
+  .hero-greet  { text-align: center; }
   /* Pane views keep filling the (flex) stage-wrap via flex too. */
   .stage--projects, .stage--contact, .stage--testimonials { flex: 1 1 auto; min-height: 0; }
   .stage--home .stage-panel__inner { padding: clamp(14px, 3.5vw, 20px); }
@@ -650,11 +657,9 @@ html[data-theme="sunset"] .portrait-frame::after {
      headline no longer dominates. */
   .hero-headline { font-size: clamp(1.55rem, 6.4vw, 2.1rem); min-height: clamp(2.6rem, 9vw, 3.2rem); }
   .hero-headline.is-revealed { font-size: clamp(0.92rem, 3.4vw, 1.1rem); }
-  /* display:block (not flex-centre) so the cell grows with the flipped card and
-     pushes the nav pane down instead of the card overflowing/overlapping it. */
-  /* Centred horizontally by the parent's align-items:center — no justify-self /
-     margin-inline (those are what drifted left on iOS). */
-  .hero-portrait { width: min(270px, 74vw); display: block; }
+  /* Full-width flex region (see .stage--home > .hero-portrait) that centres the
+     card; the card's own width cap lives on .flip-perspective. */
+  .hero-portrait { width: auto; }
   /* When flipped to About, the card takes the FULL column width so the text reads
      in far fewer lines (was locked to the ~270px portrait width → many short
      lines + overflow). The portrait face stays its natural width when not flipped. */
@@ -665,7 +670,9 @@ html[data-theme="sunset"] .portrait-frame::after {
      rather than collapsing it. */
   .flip-perspective {
     --port-offset: 440px;
-    width: min(100%, max(160px, calc((100dvh - var(--port-offset)) * 426 / 600)));
+    /* 280px hard cap (the parent is now full-width, so `100%` no longer caps it);
+       scales down with the height budget; floored so it never gets tiny. */
+    width: min(280px, max(160px, calc((100dvh - var(--port-offset)) * 426 / 600)));
   }
   /* Flipped: free the height + take the full width so About sizes to its content
      (wide → short), never clipped; ultra-short screens then scroll as a fallback. */
