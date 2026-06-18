@@ -45,6 +45,14 @@
   <FilesMatch "\.html$">
     Header always set Cache-Control "no-cache, must-revalidate"
   </FilesMatch>
+
+  # PDFs (e.g. the downloadable CV) live at a STABLE path, so without this a
+  # revised file would sit behind a heuristically-cached copy. Force revalidation
+  # so every future CV revision is fetched fresh (server 304s when unchanged —
+  # cheap). Hashed JS/CSS/font assets are unaffected (filenames change on rebuild).
+  <FilesMatch "\.pdf$">
+    Header always set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
 </IfModule>
 
 # No directory browsing (prevents listing/enumeration of files).
