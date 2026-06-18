@@ -10,7 +10,7 @@ export const positioning =
 
 export const bio = {
   heroSummary:
-    "I build analytics and automation pipelines that turn operational data into clearer decisions.",
+    "I build analytics and automation pipelines that present data into clearer decisions.",
   about: [
     "IT professional with enterprise service experience in global support environments. I enjoy turning complex operational data into insights and automating workflows that improve efficiency and service quality.",
     "Building capability in SQL, Python, Azure Functions, Azure SQL, and Grafana to deliver data-driven solutions in the cloud.",
