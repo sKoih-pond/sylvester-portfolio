@@ -685,10 +685,13 @@ html[data-theme="sunset"] .portrait-frame::after {
     flex-direction: column;
     align-items: stretch;
     flex: 1 0 auto; min-height: 0;
-    gap: clamp(0.5rem, 2vw, 0.9rem);
+    /* More generous gap gives the welcome text breathing room below it and widens
+       the portrait↔nav gap (was clipping on iOS, where the dvh-sized card claims
+       more height than its visible slot). */
+    gap: clamp(0.85rem, 3vw, 1.35rem);
     overflow: visible;
   }
-  .stage--home > .hero-greet    { flex: 0 0 auto; align-self: stretch; margin-top: clamp(10px, 3vw, 24px); }
+  .stage--home > .hero-greet    { flex: 0 0 auto; align-self: stretch; margin-top: clamp(16px, 4.5vw, 30px); }
   .stage--home > .hero-portrait { flex: 1 1 auto; min-height: 0; align-self: stretch; display: flex; align-items: center; justify-content: center; }
   /* Nav pane hugs its content and sits flush at the bottom (close to the browser
      URL bar). The golden split is taken on the CONTENT AREA below the header (the
@@ -705,13 +708,13 @@ html[data-theme="sunset"] .portrait-frame::after {
   .hero-greet  { text-align: center; }
   /* Pane views keep filling the (flex) stage-wrap via flex too. */
   .stage--projects, .stage--contact, .stage--testimonials { flex: 1 1 auto; min-height: 0; }
-  .stage--home .stage-panel__inner { padding: clamp(14px, 3.5vw, 20px); }
+  .stage--home .stage-panel__inner { padding: clamp(11px, 3vw, 16px); }
   /* Nav pane closer to the bottom edge (browser URL bar). */
   .stage-wrap { padding-bottom: clamp(2px, 1vw, 6px); }
   /* Tighter spacing — the action panel stacks intro + 3 CTAs + availability, so
      trim the gaps to keep Home fitting without scroll. */
   /* Centre-align the hero content on mobile for a cleaner, symmetric column. */
-  .action-panel { gap: 12px; align-items: center; text-align: center; }
+  .action-panel { gap: 10px; align-items: center; text-align: center; }
   .hero-intro { width: auto; }              /* let the centred text use the column */
   .hero-cta-row { gap: 8px; justify-content: center; }
   .hero-avail { text-align: center; }
@@ -736,10 +739,12 @@ html[data-theme="sunset"] .portrait-frame::after {
      short screens keep a real portrait (not a thumbnail) and scroll as a fallback
      rather than collapsing it. */
   .flip-perspective {
-    --port-offset: 440px;
-    /* 280px hard cap (the parent is now full-width, so `100%` no longer caps it);
-       scales down with the height budget; floored so it never gets tiny. */
-    width: min(280px, max(160px, calc((100dvh - var(--port-offset)) * 426 / 600)));
+    /* Bigger offset = a smaller portrait + a buffer so the dvh-sized card can't
+       overrun its slot into the nav on iOS (toolbar-shrunk dvh). */
+    --port-offset: 488px;
+    /* 256px hard cap (scaled down a little from 280); scales with the height
+       budget; floored so it never gets tiny. */
+    width: min(256px, max(160px, calc((100dvh - var(--port-offset)) * 426 / 600)));
   }
   /* Flipped: free the height + take the full width so About sizes to its content
      (wide → short), never clipped; ultra-short screens then scroll as a fallback. */
