@@ -96,7 +96,7 @@ export default function App() {
             </span>
             <span>Sylvester Koh</span>
           </button>
-          <a className="nav-btn cv-btn" href={contact.cv} download aria-label="Download CV">
+          <a className="nav-btn cv-btn" href={contact.cv} download="Sylvester Koh CV.pdf" aria-label="Download CV">
             <span aria-hidden="true">⇩</span> <span className="nav-label">CV</span>
           </a>
         </div>
