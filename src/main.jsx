@@ -7,11 +7,9 @@ import App from "./App.jsx";
 // bundle ships only the tiny `m` component shell.
 const loadFeatures = () => import("./motionFeatures.js").then((mod) => mod.default);
 
-// Self-hosted Inter as a single VARIABLE font (weight axis). One request covers
-// every weight (incl. the headline's 350) instead of 5 static files; the latin
-// subset is fetched on demand via unicode-range.
-import "@fontsource-variable/inter/wght.css";
-
+// Brand face = self-hosted General Sans (Fontshare). The @font-face rules live
+// in index.css and the woff2 files in public/assets/fonts — no JS font import
+// and no third-party font CDN (keeps the CSP tight).
 import "./index.css";
 
 createRoot(document.getElementById("root")).render(

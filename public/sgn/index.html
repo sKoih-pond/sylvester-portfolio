@@ -67,11 +67,15 @@
       document.addEventListener("visibilitychange", function(){ if (!document.hidden) apply(resolve()); });
     })();
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* Self-hosted General Sans (Fontshare) — same brand face as the portfolio,
+       no third-party font CDN so the CSP stays tight. Shared woff2 files. */
+    @font-face { font-family: "General Sans"; src: url("/assets/fonts/general-sans/general-sans-400.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+    @font-face { font-family: "General Sans"; src: url("/assets/fonts/general-sans/general-sans-500.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+    @font-face { font-family: "General Sans"; src: url("/assets/fonts/general-sans/general-sans-600.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+    @font-face { font-family: "General Sans"; src: url("/assets/fonts/general-sans/general-sans-700.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
 
     /* Cross-document view transitions: morph (cross-fade) to/from the portfolio
        at kohstack.au instead of a hard load / new tab. Progressive enhancement. */
@@ -84,7 +88,7 @@
 
     :root {
       color-scheme: light;
-      --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-sans: "General Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
       /* Golden-ratio radius scale — mirrors the portfolio */
       --radius-sm: 14px;

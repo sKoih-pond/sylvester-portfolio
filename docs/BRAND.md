@@ -66,7 +66,9 @@ A **warm liquid-glass** system that adapts to the time of day.
 - **Material:** frosted "liquid glass" — lifted hairline edges, specular
   highlights, soft warm shadows. Never cold black borders.
 - **Geometry:** golden-ratio radius scale (φ ≈ 1.618, r₀ = 14px).
-- **Type:** Inter (self-hosted), light weights for display, tight tracking.
+- **Type:** General Sans (self-hosted, Fontshare — ITF Free Font License), light
+  weights for display, tight tracking. Chosen over Inter, which had become the
+  default AI/frontier-lab face; General Sans signals a deliberate, polished choice.
 - **Accent (representative):** copper `#9c6a47` / `#b07155` (day), amber
   `#f2bd7a` (night). Always sourced from the live theme token `--accent`.
 
@@ -90,7 +92,7 @@ Three rising rounded bars. It reads three ways at once:
 - Clear space ≥ one bar-height. Minimum size 20px. Never recolour the bars
   individually, rotate, or add gradients/shadows to the mark itself.
 
-**Wordmark:** "Sylvester Koh" in Inter 700 beside the mark; "kohstack" as the
+**Wordmark:** "Sylvester Koh" in General Sans 700 beside the mark; "kohstack" as the
 handle/short brand.
 
 ---

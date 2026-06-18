@@ -1,5 +1,14 @@
 @import "tailwindcss";
-/* (Geist font import removed — the site uses self-hosted Inter.) */
+
+/* Brand face = self-hosted General Sans (Fontshare, ITF Free Font License).
+   Replaces Inter, which had become the default frontier-lab/AI face and read as
+   un-deliberate. woff2, latin, font-display:swap; files in public/assets/fonts.
+   Covers every weight the UI uses (300 display → 700 headings/buttons). */
+@font-face { font-family: "General Sans"; src: url("/assets/fonts/general-sans/general-sans-300.woff2") format("woff2"); font-weight: 300; font-style: normal; font-display: swap; }
+@font-face { font-family: "General Sans"; src: url("/assets/fonts/general-sans/general-sans-400.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "General Sans"; src: url("/assets/fonts/general-sans/general-sans-500.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "General Sans"; src: url("/assets/fonts/general-sans/general-sans-600.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "General Sans"; src: url("/assets/fonts/general-sans/general-sans-700.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
 
 @custom-variant dark (&:is(.dark *));
 
@@ -12,7 +21,7 @@
 
 :root {
   color-scheme: light;
-  --font-sans: "Inter Variable", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: "General Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
   /* Golden-ratio radius scale (φ ≈ 1.618), r₀ = 14px */
   --radius-sm: 14px;
@@ -309,7 +318,7 @@ a { color: inherit; text-decoration: none; }
   font-family: var(--font-sans);
   /* Golden type scale: hero headline = φ³ × body (φ² floor on small widths). */
   font-size: clamp(var(--fs-3), 8vw, var(--fs-4));
-  font-weight: 350;
+  font-weight: 300;
   letter-spacing: -0.02em;
   line-height: 1.05;
   color: var(--text);
@@ -711,7 +720,9 @@ html[data-theme="sunset"] .portrait-frame::after {
   /* Smaller headline + minimal reserved space so the welcome text stays compact. */
   /* Welcome text = 2nd in the hierarchy: golden step φ² × body (the desktop hero
      is φ³); a prominent headline, not a small label. */
-  .hero-headline { font-size: clamp(2.2rem, 9.5vw, var(--fs-3)); min-height: clamp(3rem, 11vw, 3.9rem); }
+  /* Welcome text = 2nd in the hierarchy (after the portrait, ahead of the nav
+     pane): scaled up so its sheer size outweighs the filled nav button below. */
+  .hero-headline { font-size: clamp(2.5rem, 11.2vw, 3.25rem); min-height: clamp(3.2rem, 12.5vw, 4.3rem); }
   .hero-headline.is-revealed { font-size: clamp(0.92rem, 3.4vw, 1.1rem); }
   /* Full-width flex region (see .stage--home > .hero-portrait) that centres the
      card; the card's own width cap lives on .flip-perspective. */
@@ -935,7 +946,7 @@ html[data-theme="sunset"] .portrait-frame::after {
 
 @theme inline {
   --font-heading: var(--font-sans);
-  --font-sans: "Inter Variable", system-ui, sans-serif;
+  --font-sans: "General Sans", system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
