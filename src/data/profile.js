@@ -110,7 +110,10 @@ export const projects = [
 ];
 
 export const contact = {
-  cv: "/assets/Sylvester-Koh-CV.pdf",
+  // ?v bump = a one-time cache-bust to flush browsers that cached the old PDF
+  // before the no-cache header existed. The no-cache header (see public/.htaccess)
+  // handles every future revision at this URL, so this version need not change again.
+  cv: "/assets/Sylvester-Koh-CV.pdf?v=2",
   email: "sylvester@kohstack.au",
   linkedin: "https://www.linkedin.com/in/sylvester-koh/",
   github: "https://github.com/sKoih-pond",
