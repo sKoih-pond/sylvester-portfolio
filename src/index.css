@@ -569,6 +569,14 @@ html[data-theme="sunset"] .portrait-frame::after {
 .flip-perspective[data-flipped="true"] .flip-card { height: auto; min-height: 100%; }
 .flip-perspective[data-flipped="true"] .flip-back { position: relative; inset: auto; min-height: 100%; }
 
+/* Portrait + About are OPAQUE at all times (no glass translucency) — a solid
+   card on both faces, matching the opaque hero pane. Drop the backdrop blur too
+   (pointless behind a solid fill, and a per-frame cost during the flip). */
+.flip-front, .flip-back, .portrait-static {
+  background: var(--surface-solid);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+
 /* Pane views: the panel fills the stage, inset slightly so the dismiss backdrop
    shows as a clickable ring around it (click out → home). */
 .stage--projects, .stage--contact, .stage--testimonials {
@@ -702,7 +710,11 @@ html[data-theme="sunset"] .portrait-frame::after {
     overflow: visible;
   }
   .stage--home > .hero-greet    { flex: 0 0 auto; align-self: stretch; margin-top: clamp(16px, 4.5vw, 30px); }
-  .stage--home > .hero-portrait { flex: 1 1 auto; min-height: 0; align-self: stretch; display: flex; align-items: center; justify-content: center; }
+  /* min-height:auto (not 0) so the region never shrinks BELOW the card — on a
+     short/toolbar-shrunk viewport the stack grows and the stage scrolls instead
+     of the card overrunning into the nav (the iOS clip). flex:1 still lets it
+     grow to centre the card on tall screens. */
+  .stage--home > .hero-portrait { flex: 1 1 auto; min-height: auto; align-self: stretch; display: flex; align-items: center; justify-content: center; }
   /* Nav pane hugs its content and sits flush at the bottom (close to the browser
      URL bar). The golden split is taken on the CONTENT AREA below the header (the
      stage), not the full viewport: the portrait region (flex:1) fills the golden
@@ -749,12 +761,12 @@ html[data-theme="sunset"] .portrait-frame::after {
      short screens keep a real portrait (not a thumbnail) and scroll as a fallback
      rather than collapsing it. */
   .flip-perspective {
-    /* Bigger offset = a smaller portrait + a buffer so the dvh-sized card can't
-       overrun its slot into the nav on iOS (toolbar-shrunk dvh). */
-    --port-offset: 488px;
-    /* 256px hard cap (scaled down a little from 280); scales with the height
-       budget; floored so it never gets tiny. */
-    width: min(256px, max(160px, calc((100dvh - var(--port-offset)) * 426 / 600)));
+    --port-offset: 470px;
+    /* Scaled up to read at the flipped-About height: cap 264px and — crucially —
+       a 200px FLOOR (≈282px tall ≈ the full-width About card), so even when iOS
+       shrinks the dvh-derived size the portrait never lands smaller than the
+       About it flips to. Overflow scrolls (see .hero-portrait min-height:auto). */
+    width: min(264px, max(200px, calc((100dvh - var(--port-offset)) * 426 / 600)));
   }
   /* Flipped: free the height + take the full width so About sizes to its content
      (wide → short), never clipped; ultra-short screens then scroll as a fallback. */
