@@ -117,7 +117,7 @@ export const contact = {
   email: "sylvester@kohstack.au",
   linkedin: "https://www.linkedin.com/in/sylvester-koh/",
   github: "https://github.com/sKoih-pond",
-  calendar: "https://calendar.app.google/gcrG9Y83c7zax4oM7",
+  calendar: "https://calendly.com/sylvester-kohstack/30min",
   upwork: "https://www.upwork.com/freelancers/~014a1010dac4fa36b7?viewMode=1",
 };
 

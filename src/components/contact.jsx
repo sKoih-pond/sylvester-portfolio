@@ -2,6 +2,7 @@
 // Layout adapted from the @efferd contact-2 + cta-4 blocks, restyled to the
 // site's warm liquid-glass theme with real channels (no placeholder data).
 import { contact, bio } from "../data/profile.js";
+import { openCalendly, loadCalendly } from "../lib/calendly.js";
 
 // Monochrome brand/icon SVGs (inherit the theme accent via currentColor), all
 // drawn at 1em so Email, LinkedIn and GitHub render at a consistent size.
@@ -60,7 +61,15 @@ export function Contact({ onNavigate }) {
           {bio.location} · open to analytics and cloud roles. Book a quick call, or reach out through any channel below.
         </p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center" }}>
-          <a className="glass-button btn-accent" href={contact.calendar} target="_blank" rel="noopener noreferrer">
+          <a
+            className="glass-button btn-accent"
+            href={contact.calendar}
+            target="_blank"
+            rel="noopener noreferrer"
+            onMouseEnter={loadCalendly}
+            onFocus={loadCalendly}
+            onClick={(e) => { if (openCalendly(contact.calendar)) e.preventDefault(); }}
+          >
             <span aria-hidden="true">
               <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" focusable="false" style={{ display: "block" }}>
                 <path fillRule="evenodd" clipRule="evenodd" d="M6.75 2.25A.75.75 0 0 1 7.5 3v1.5h9V3a.75.75 0 0 1 1.5 0v1.5h.75a3 3 0 0 1 3 3v11.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V7.5a3 3 0 0 1 3-3H6V3a.75.75 0 0 1 .75-.75Zm13.5 9a1.5 1.5 0 0 0-1.5-1.5H5.25a1.5 1.5 0 0 0-1.5 1.5v7.5a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5v-7.5Z" />
