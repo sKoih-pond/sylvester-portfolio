@@ -670,12 +670,9 @@ html[data-theme="sunset"] .portrait-frame::after {
 /* Pane heading — Work & Project Experience elevated as the primary pane title. */
 .pane-title {
   margin: 0 0 clamp(0.4rem, 1.2vw, 0.85rem);
-  font-size: clamp(1.4rem, 3.4vw, 2rem); font-weight: 700; letter-spacing: -0.01em;
+  font-size: clamp(1.4rem, 3.4vw, 2rem); font-weight: 500; letter-spacing: -0.01em;
   color: var(--text); text-align: center;
 }
-/* "Let's work together" (Contact pane) isn't bolded — medium weight, quieter
-   than the Work/Projects title. Scoped to Contact so other pane titles keep 700. */
-.pane-contact .pane-title { font-weight: 500; }
 
 /* Responsive: stack home; allow it to scroll if short viewports can't fit it. */
 @media (max-width: 860px) {
