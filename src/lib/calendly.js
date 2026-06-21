@@ -5,8 +5,34 @@
 
 const WIDGET_CSS = "https://assets.calendly.com/assets/external/widget.css";
 const WIDGET_JS = "https://assets.calendly.com/assets/external/widget.js";
+// assets.* hosts the widget script/css; calendly.com is the booking iframe host.
+const ORIGINS = ["https://assets.calendly.com", "https://calendly.com"];
 
 let loadPromise = null;
+let preconnected = false;
+
+// Open TCP+TLS connections to Calendly's hosts ahead of the click so the popup's
+// iframe doesn't pay the cold DNS/TLS handshake (the bulk of the first-load lag).
+// Cheap — a connection only, no cookies or data. Called on Contact-pane view.
+function preconnect() {
+  if (preconnected || typeof document === "undefined") return;
+  preconnected = true;
+  for (const href of ORIGINS) {
+    const l = document.createElement("link");
+    l.rel = "preconnect";
+    l.href = href;
+    l.crossOrigin = "anonymous";
+    document.head.appendChild(l);
+  }
+}
+
+// Warm everything the popup needs (connections + widget script) the moment the
+// user is likely to book — call on Contact-pane mount and on button hover/focus.
+// The booking-page iframe itself (cookies, availability) still only loads on click.
+export function prefetchCalendly() {
+  preconnect();
+  loadCalendly().catch(() => {});
+}
 
 // Inject the widget CSS + JS once; resolves when window.Calendly is ready.
 export function loadCalendly() {

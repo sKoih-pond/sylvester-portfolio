@@ -1,8 +1,9 @@
 // Contact / closing CTA section.
 // Layout adapted from the @efferd contact-2 + cta-4 blocks, restyled to the
 // site's warm liquid-glass theme with real channels (no placeholder data).
+import { useEffect } from "react";
 import { contact, bio } from "../data/profile.js";
-import { openCalendly, loadCalendly } from "../lib/calendly.js";
+import { openCalendly, prefetchCalendly } from "../lib/calendly.js";
 
 // Monochrome brand/icon SVGs (inherit the theme accent via currentColor), all
 // drawn at 1em so Email, LinkedIn and GitHub render at a consistent size.
@@ -52,6 +53,9 @@ const channels = [
 ];
 
 export function Contact({ onNavigate }) {
+  // Reaching the Contact pane is strong booking intent — warm Calendly's
+  // connections + widget now so the popup click isn't a cold start.
+  useEffect(() => { prefetchCalendly(); }, []);
   return (
     <section id="contact" aria-labelledby="contact-heading" className="pane-contact">
       <h2 className="pane-title" id="contact-heading">Let's work together</h2>
@@ -66,8 +70,8 @@ export function Contact({ onNavigate }) {
             href={contact.calendar}
             target="_blank"
             rel="noopener noreferrer"
-            onMouseEnter={loadCalendly}
-            onFocus={loadCalendly}
+            onMouseEnter={prefetchCalendly}
+            onFocus={prefetchCalendly}
             onClick={(e) => { if (openCalendly(contact.calendar)) e.preventDefault(); }}
           >
             <span aria-hidden="true">
