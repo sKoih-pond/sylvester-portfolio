@@ -952,12 +952,60 @@
     const BAND_WEIGHT = { Low: 1, Moderate: 2, High: 3, Critical: 4 };
     // A tight set of secondary prompts — enough to suggest the range of inputs
     // (flight, origin, buffer, congestion) without crowding the hero input.
-    const CHAT_CHIPS = [
-      "I'm on VN772 — what should I expect?",
-      'Flights from Sydney',
-      'How much buffer at 6pm?',
-      'Busiest immigration windows',
-    ];
+    // The origin chip localises to the visitor: browser timezone → nearest
+    // origin airport that has SGN arrivals data. No geolocation permission,
+    // no IP lookup, no network — and it must degrade to an origin that is
+    // answerable from the loaded data, so the chip never dead-ends.
+    const TZ_ORIGINS = {
+      'Asia/Singapore': ['SIN'],
+      'Australia/Sydney': ['SYD'], 'Australia/Melbourne': ['MEL'],
+      'Australia/Brisbane': ['BNE'], 'Australia/Perth': ['PER'],
+      'Asia/Seoul': ['ICN'], 'Asia/Tokyo': ['NRT', 'HND'],
+      'Asia/Bangkok': ['BKK'], 'Asia/Kuala_Lumpur': ['KUL'],
+      'Asia/Manila': ['MNL'], 'Asia/Taipei': ['TPE'],
+      'Asia/Hong_Kong': ['HKG'], 'Asia/Shanghai': ['PVG', 'SHA'],
+      'Asia/Jakarta': ['CGK'], 'Asia/Kolkata': ['DEL', 'BOM'],
+      'Asia/Dubai': ['DXB'], 'Europe/London': ['LHR'],
+      'Asia/Phnom_Penh': ['PNH'], 'Asia/Vientiane': ['VTE'],
+    };
+    const ORIGIN_LABELS = {
+      SIN: 'Singapore', SYD: 'Sydney', MEL: 'Melbourne', BNE: 'Brisbane',
+      PER: 'Perth', ICN: 'Seoul', NRT: 'Tokyo', HND: 'Tokyo', BKK: 'Bangkok',
+      KUL: 'Kuala Lumpur', MNL: 'Manila', TPE: 'Taipei', HKG: 'Hong Kong',
+      PVG: 'Shanghai', SHA: 'Shanghai', CGK: 'Jakarta', DEL: 'Delhi',
+      BOM: 'Mumbai', DXB: 'Dubai', LHR: 'London', PNH: 'Phnom Penh',
+      VTE: 'Vientiane',
+      // Vietnam domestic — the busiest-origin fallback usually lands here
+      // (HAN is SGN's top route), so these need human names too.
+      HAN: 'Hanoi', DAD: 'Da Nang', HPH: 'Hai Phong', HUI: 'Hue',
+      PQC: 'Phu Quoc', CXR: 'Nha Trang', DLI: 'Da Lat', UIH: 'Quy Nhon',
+      VII: 'Vinh', VCA: 'Can Tho', THD: 'Thanh Hoa', VDO: 'Van Don',
+    };
+    function localOriginChip() {
+      let tz = '';
+      try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { /* keep fallback */ }
+      for (const iata of (TZ_ORIGINS[tz] || [])) {
+        if (chatOrigins.has(iata)) return 'Flights from ' + (ORIGIN_LABELS[iata] || iata);
+      }
+      // Unmapped timezone (incl. visitors already in Vietnam) or no data for
+      // their airport: busiest origin in the loaded data; static if no data.
+      const counts = {};
+      let best = null, bestN = 0;
+      Object.values(flightLookup).forEach(arr => arr.forEach(e => {
+        if (!e.origin) return;
+        const n = (counts[e.origin] = (counts[e.origin] || 0) + 1);
+        if (n > bestN) { best = e.origin; bestN = n; }
+      }));
+      return 'Flights from ' + (best ? (ORIGIN_LABELS[best] || best) : 'Sydney');
+    }
+    function buildChatChips() {
+      return [
+        "I'm on VN772 — what should I expect?",
+        localOriginChip(),
+        'How much buffer at 6pm?',
+        'Busiest immigration windows',
+      ];
+    }
 
     let chatCarry   = {};
     let chatOrigins = new Set();
@@ -1003,7 +1051,9 @@
 
       if (CHAT_ENABLED) {
         const chipsEl = document.getElementById('chat-chips');
-        CHAT_CHIPS.forEach(text => {
+        // Built here (not at parse time) so chatOrigins is already populated
+        // and the origin chip can localise against real data.
+        buildChatChips().forEach(text => {
           const b = document.createElement('button');
           b.type = 'button'; b.className = 'chat-chip'; b.textContent = text;
           b.addEventListener('click', () => { document.getElementById('chat-input').value = text; chatSubmit(text); });
