@@ -122,8 +122,8 @@ export default function Radar({ axes, max, active, resting, idPrefix = "radar", 
       {/* animated value polygon */}
       <m.polygon
         points={points}
-        fill="var(--accent)"
-        stroke="var(--accent)"
+        fill="var(--chart-accent)"
+        stroke="var(--chart-accent)"
         strokeWidth="1.5"
         strokeLinejoin="round"
         style={{ fillOpacity, strokeOpacity }}

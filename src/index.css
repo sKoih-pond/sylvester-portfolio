@@ -48,6 +48,12 @@
   --page-gutter: clamp(1rem, 4vw, 3rem);
   --page-max: 120rem;       /* 1920px — symmetric up to here, then centres */
 
+  /* Radar (spider chart) polygon — ONE warm orange across all four themes so the
+     chart reads identically by day and night (the theme --accent flips copper ↔
+     amber, which made the polygon inconsistent). Defined here, outside the theme
+     blocks, so the solar interpolation never touches it. */
+  --chart-accent: #e8823a;
+
   --blur: 12px;
 
   /* Lifted-edge hairlines (warm, not cold black) */
@@ -956,7 +962,7 @@ html[data-theme="sunset"] .portrait-frame::after {
   letter-spacing: .1em; text-transform: uppercase;
   color: var(--muted);
 }
-.entry-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.entry-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: clamp(5px, 1vh, 8px); }
 /* Flagship project tile: the whole card navigates into the project (morphs to
    /sgn/). The inner CTA is presentational — the card is the single link. */
 .entry-card--link { display: block; color: inherit; text-decoration: none; }
@@ -970,6 +976,23 @@ html[data-theme="sunset"] .portrait-frame::after {
   .merged-3col { grid-template-columns: 1fr; gap: clamp(1.25rem, 4vw, 2rem); }
   .radar-col { order: -1; }
 }
+
+/* Desktop: the Work & Project Experience pane NEVER scrolls — its content is
+   sized to fit, and when the window shrinks the type/padding compress with the
+   viewport (vh-clamped inline sizes in ExperienceProjects.jsx + the rules below)
+   instead of introducing a scrollbar. The big .pane-scroll bottom reservation
+   exists only so scrolled content clears the floating Home pill — this pane
+   doesn't scroll, so it gets a small cushion (mobile keeps the reservation:
+   the stacked layout genuinely scrolls there). */
+@media (min-width: 921px) {
+  .stage--projects .pane-scroll { padding-bottom: clamp(10px, 2vh, 24px); }
+  .pane-experience .pane-title {
+    font-size: clamp(1.3rem, 3.2vh, 2rem);
+    margin-bottom: clamp(0.2rem, 1.2vh, 0.85rem);
+  }
+  .radar-col svg { max-height: clamp(200px, 40vh, 340px); }
+}
+
 
 @theme inline {
   --font-heading: var(--font-sans);

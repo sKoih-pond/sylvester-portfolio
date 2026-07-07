@@ -13,9 +13,13 @@ const ALL = [
 ];
 const RESTING = AXES.map((_, i) => Math.max(...ALL.map((e) => e.axes[i])));
 
+// Typography/padding compress with viewport HEIGHT (vh clamps) so the whole pane
+// always fits without scrolling on desktop — shrinking the window shrinks the
+// text toward a readable floor instead of introducing a scrollbar. On phones the
+// vh terms sit at their caps (tall viewports), so mobile is unchanged.
 function cardStyle(isActive, anyActive) {
   return {
-    padding: 11,
+    padding: "clamp(7px, 1.5vh, 11px)",
     cursor: "pointer",
     outline: "none",
     transition: "transform .25s ease, opacity .25s ease",
@@ -44,9 +48,9 @@ export default function ExperienceProjects() {
               const isActive = activeId === e.id;
               return (
                 <li key={e.id} {...getProps(e.id)} aria-pressed={isActive} className="glass-card entry-card" style={cardStyle(isActive, anyActive)}>
-                  <h4 style={{ margin: "0 0 2px", fontSize: ".92rem", fontWeight: 700, lineHeight: 1.2 }}>{e.role}</h4>
-                  <p style={{ margin: "0 0 5px", color: "var(--accent)", fontWeight: 600, fontSize: ".78rem" }}>{e.org} · {e.period}</p>
-                  <p style={{ margin: 0, color: "var(--muted)", fontSize: ".82rem", lineHeight: 1.45 }}>{e.blurb}</p>
+                  <h4 style={{ margin: "0 0 2px", fontSize: "clamp(.8rem, 1.9vh, .92rem)", fontWeight: 700, lineHeight: 1.2 }}>{e.role}</h4>
+                  <p style={{ margin: "0 0 5px", color: "var(--accent)", fontWeight: 600, fontSize: "clamp(.7rem, 1.6vh, .78rem)" }}>{e.org} · {e.period}</p>
+                  <p style={{ margin: 0, color: "var(--muted)", fontSize: "clamp(.72rem, 1.7vh, .82rem)", lineHeight: 1.45 }}>{e.blurb}</p>
                 </li>
               );
             })}
@@ -59,9 +63,9 @@ export default function ExperienceProjects() {
                 {earlier.map((e) => {
                   const isActive = activeId === e.id;
                   return (
-                    <li key={e.id} {...getProps(e.id)} aria-pressed={isActive} className="glass-card entry-card" style={{ ...cardStyle(isActive, anyActive), padding: 11 }}>
-                      <h4 style={{ margin: "0 0 1px", fontSize: ".82rem", fontWeight: 700, lineHeight: 1.2 }}>{e.role}</h4>
-                      <p style={{ margin: 0, color: "var(--muted)", fontSize: ".72rem" }}>{e.org} · {e.period}</p>
+                    <li key={e.id} {...getProps(e.id)} aria-pressed={isActive} className="glass-card entry-card" style={cardStyle(isActive, anyActive)}>
+                      <h4 style={{ margin: "0 0 1px", fontSize: "clamp(.72rem, 1.7vh, .82rem)", fontWeight: 700, lineHeight: 1.2 }}>{e.role}</h4>
+                      <p style={{ margin: 0, color: "var(--muted)", fontSize: "clamp(.64rem, 1.5vh, .72rem)" }}>{e.org} · {e.period}</p>
                     </li>
                   );
                 })}
@@ -100,25 +104,25 @@ export default function ExperienceProjects() {
                     {...linkHover}
                   >
                   {p.eyebrow && (
-                    <p style={{ margin: "0 0 4px", fontSize: ".64rem", letterSpacing: ".1em", textTransform: "uppercase", color: "var(--accent)", fontWeight: 700 }}>
+                    <p style={{ margin: "0 0 4px", fontSize: "clamp(.58rem, 1.35vh, .64rem)", letterSpacing: ".1em", textTransform: "uppercase", color: "var(--accent)", fontWeight: 700 }}>
                       <span aria-hidden="true">✈ </span>{p.eyebrow}
                     </p>
                   )}
-                  <h4 style={{ margin: "0 0 5px", fontSize: ".98rem", fontWeight: 700, lineHeight: 1.22 }}>{p.title}</h4>
-                  <p style={{ margin: "0 0 8px", color: "var(--muted)", fontSize: ".82rem", lineHeight: 1.4 }}>{p.summary}</p>
-                  <span className="glass-button primary entry-cta" style={{ fontSize: ".8rem", padding: "8px 14px" }}>
+                  <h4 style={{ margin: "0 0 5px", fontSize: "clamp(.86rem, 2vh, .98rem)", fontWeight: 700, lineHeight: 1.22 }}>{p.title}</h4>
+                  <p style={{ margin: "0 0 clamp(5px, 1vh, 8px)", color: "var(--muted)", fontSize: "clamp(.72rem, 1.7vh, .82rem)", lineHeight: 1.4 }}>{p.summary}</p>
+                  <span className="glass-button primary entry-cta" style={{ fontSize: "clamp(.72rem, 1.65vh, .8rem)", padding: "clamp(5px, 1.1vh, 8px) clamp(10px, 1.8vh, 14px)" }}>
                     View project <span aria-hidden="true" className="btn-arrow">→</span>
                   </span>
                   {p.components?.length > 0 && (
-                    <ul style={{ listStyle: "none", margin: "9px 0 0", padding: "9px 0 0", borderTop: "1px solid var(--border-soft)", display: "grid", gap: 8 }}>
+                    <ul style={{ listStyle: "none", margin: "clamp(6px, 1.2vh, 9px) 0 0", padding: "clamp(6px, 1.2vh, 9px) 0 0", borderTop: "1px solid var(--border-soft)", display: "grid", gap: "clamp(5px, 1vh, 8px)" }}>
                       {p.components.map((c) => (
                         <li key={c.title} style={{ display: "flex", gap: 9, alignItems: "flex-start" }}>
-                          <span aria-hidden="true" style={{ color: "var(--accent)", fontSize: ".95rem", lineHeight: 1.3 }}>{c.icon}</span>
+                          <span aria-hidden="true" style={{ color: "var(--accent)", fontSize: "clamp(.82rem, 1.9vh, .95rem)", lineHeight: 1.3 }}>{c.icon}</span>
                           <div>
-                            <div style={{ fontSize: ".82rem", fontWeight: 700, lineHeight: 1.25 }}>{c.title}</div>
+                            <div style={{ fontSize: "clamp(.72rem, 1.7vh, .82rem)", fontWeight: 700, lineHeight: 1.25 }}>{c.title}</div>
                             <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 5 }}>
                               {c.tags.map((t) => (
-                                <span key={t} style={{ padding: "3px 7px", borderRadius: 999, background: "var(--surface-soft)", color: "var(--muted)", fontSize: ".68rem" }}>{t}</span>
+                                <span key={t} style={{ padding: "3px 7px", borderRadius: 999, background: "var(--surface-soft)", color: "var(--muted)", fontSize: "clamp(.6rem, 1.4vh, .68rem)" }}>{t}</span>
                               ))}
                             </div>
                           </div>
