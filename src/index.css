@@ -242,8 +242,10 @@ a { color: inherit; text-decoration: none; }
     inset 1px 0 0 rgba(255,255,255,.22),
     var(--lift-outer),
     var(--shadow-soft);
-  backdrop-filter: blur(var(--blur)) saturate(150%) brightness(1.04);
-  -webkit-backdrop-filter: blur(var(--blur)) saturate(150%) brightness(1.04);
+  /* No backdrop blur: every .glass-panel in the app (the flip faces) is now a
+     SOLID card (--surface-solid), so the blur never showed — and a live blur
+     re-filters every frame under the flip/morph animations. Removed as dead
+     weight; depth comes from the border gradient + layered shadows. */
   transition: background 2s ease, box-shadow 2s ease;
 }
 
@@ -337,7 +339,9 @@ a { color: inherit; text-decoration: none; }
   /* Reserve enough for the (smaller) revealed tagline so the box NEVER resizes
      between the greeting and the tagline — the welcome text stays put on hover. */
   min-height: clamp(5.8rem, 8.5vw, 6.6rem);
-  transition: font-size .25s ease, font-weight .25s ease;
+  /* font-size only: General Sans ships static weights, so a font-weight tween
+     can't interpolate (it just snaps) — dead work removed from the reveal. */
+  transition: font-size .25s ease;
 }
 .hero-headline.is-revealed {
   font-size: clamp(1.3rem, 2.6vw, 1.7rem);   /* scaled up — the tagline reads, not whispers */
@@ -576,11 +580,10 @@ html[data-theme="sunset"] .portrait-frame::after {
 .flip-perspective[data-flipped="true"] .flip-back { position: relative; inset: auto; min-height: 100%; }
 
 /* Portrait + About are OPAQUE at all times (no glass translucency) — a solid
-   card on both faces, matching the opaque hero pane. Drop the backdrop blur too
-   (pointless behind a solid fill, and a per-frame cost during the flip). */
+   card on both faces, matching the opaque hero pane. (Blur is gone from the
+   .glass-panel base itself, so no per-face reset is needed.) */
 .flip-front, .flip-back, .portrait-static {
   background: var(--surface-solid);
-  -webkit-backdrop-filter: none; backdrop-filter: none;
 }
 
 /* Pane views: the panel fills the stage, inset slightly so the dismiss backdrop

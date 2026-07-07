@@ -8,6 +8,18 @@
          the page background so it blends seamlessly. Updated live by useSolarTheme. -->
     <meta name="theme-color" content="#f8f2ea" />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <!-- LCP: the hero portrait is rendered by React, so without this preload the
+         browser only discovers it AFTER the JS bundle downloads + executes.
+         Preloading here starts the fetch in parallel with the bundle; imagesrcset
+         mirrors the <picture> so the same candidate the page renders is fetched. -->
+    <link rel="preload" as="image" imagesrcset="/assets/profile-1x.webp 1x, /assets/profile-2x.webp 2x" type="image/webp" fetchpriority="high" />
+    <!-- Above-the-fold font weights (hero 300 / body 400 / buttons 500 / logo +
+         card titles 700): preloading removes the fallback→General Sans swap jank
+         on first paint. 600 (small meta text) loads on demand. -->
+    <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/general-sans/general-sans-300.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/general-sans/general-sans-400.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/general-sans/general-sans-500.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/general-sans/general-sans-700.woff2" crossorigin />
     <title>Sylvester Koh</title>
     <!-- Flash-free first paint: apply the last-known solar phase before React
          mounts, so return visitors paint the correct palette immediately, and
