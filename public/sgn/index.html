@@ -378,6 +378,33 @@
     .chat-list .cl-meta { color: var(--muted); font-size: 0.74rem; text-align: right; }
     .chat-list .cl-band { font-weight: 700; }
 
+    /* ── Skeleton loader ─────────────────────────────────────────────────────
+       Shimmer placeholders for (a) a pending chat query — shown the moment the
+       user sends, held through both endpoint round-trips — and (b) the initial
+       data load on slow connections (the chart area, replaced by buildChart).
+       Theme-tinted via the surface/accent tokens; reduced motion swaps the
+       shimmer sweep for a gentle opacity pulse. */
+    .skel { display: grid; gap: 0.55rem; }
+    .skel-bar {
+      height: 0.9rem; border-radius: 6px;
+      background: linear-gradient(90deg, var(--surface-soft) 25%, var(--accent-soft) 50%, var(--surface-soft) 75%);
+      background-size: 200% 100%;
+      animation: skel-shimmer 1.2s linear infinite;
+    }
+    .skel-bar--w85 { width: 85%; }
+    .skel-bar--w65 { width: 65%; }
+    .skel-bar--foot { width: 45%; height: 0.65rem; margin-top: 0.25rem; }
+    /* Boot skeleton mimics the congestion chart: a row of bottom-aligned bars.
+       Flex (not grid): the container's fixed height makes the bars' inline
+       percentage heights resolve. */
+    .skel--chart { display: flex; align-items: flex-end; gap: 3px; width: 100%; height: 190px; padding: 8px 2px; }
+    .skel--chart .skel-bar { flex: 1; height: 100%; border-radius: 4px 4px 0 0; }
+    @keyframes skel-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+    @media (prefers-reduced-motion: reduce) {
+      .skel-bar { animation: skel-pulse 1.6s ease-in-out infinite; background: var(--surface-soft); }
+    }
+    @keyframes skel-pulse { 50% { opacity: 0.55; } }
+
     /* ── Result ──────────────────────────────────────────────────────────── */
     #result { display: none; width: 100%; margin-top: 0.85rem; }
 
@@ -690,7 +717,28 @@
         <!-- Chart -->
         <div class="chart-card">
           <h2 id="chart-title">Typical daily pressure profile — all 30-min windows</h2>
-          <div class="chart-wrap" id="chart"></div>
+          <!-- Boot skeleton: fills the chart area while the congestion JSONs load
+               (visible on slow connections); buildChart clears it on first render. -->
+          <div class="chart-wrap" id="chart">
+            <div class="skel skel--chart" role="status" aria-label="Loading congestion data">
+              <div class="skel-bar" style="height:22%"></div>
+              <div class="skel-bar" style="height:30%"></div>
+              <div class="skel-bar" style="height:26%"></div>
+              <div class="skel-bar" style="height:44%"></div>
+              <div class="skel-bar" style="height:58%"></div>
+              <div class="skel-bar" style="height:49%"></div>
+              <div class="skel-bar" style="height:72%"></div>
+              <div class="skel-bar" style="height:86%"></div>
+              <div class="skel-bar" style="height:64%"></div>
+              <div class="skel-bar" style="height:52%"></div>
+              <div class="skel-bar" style="height:38%"></div>
+              <div class="skel-bar" style="height:60%"></div>
+              <div class="skel-bar" style="height:78%"></div>
+              <div class="skel-bar" style="height:45%"></div>
+              <div class="skel-bar" style="height:32%"></div>
+              <div class="skel-bar" style="height:24%"></div>
+            </div>
+          </div>
           <div class="legend">
             <div class="legend-item"><div class="legend-dot" style="background:var(--c-low)"></div>Low</div>
             <div class="legend-item"><div class="legend-dot" style="background:var(--c-moderate)"></div>Moderate</div>
@@ -759,6 +807,13 @@
       document.getElementById('date-input').value = new Date().toISOString().split('T')[0];
       document.getElementById('day-count').textContent = Object.keys(perDate).length;
       initChat();
+    }).catch(() => {
+      // Replace the boot skeleton with an honest note instead of shimmering forever.
+      const chart = document.getElementById('chart');
+      const p = document.createElement('p');
+      p.className = 'chat-answer__note';
+      p.textContent = "Couldn't load the congestion data — refresh to retry.";
+      chart.replaceChildren(p);
     });
 
     // ── Arrival window controls (flight lookup is driven by the chat) ───────
@@ -1066,6 +1121,20 @@
 
     function setChatBusy(b) { document.getElementById('chat-send').disabled = b; }
     function chatAnswerEl() { collapseInput(); const el = document.getElementById('chat-answer'); el.hidden = false; el.replaceChildren(); return el; }
+    // Pending-query skeleton: shown the instant a message is sent, replaced by
+    // whichever render lands (answer / note / error) — every exit path writes
+    // into #chat-answer, so the skeleton can never be left behind.
+    function showChatSkeleton() {
+      const el = chatAnswerEl();
+      const wrap = document.createElement('div');
+      wrap.className = 'skel';
+      wrap.setAttribute('role', 'status');
+      wrap.setAttribute('aria-label', 'Checking SGN arrivals data');
+      ['skel-bar', 'skel-bar skel-bar--w85', 'skel-bar skel-bar--w65', 'skel-bar skel-bar--foot'].forEach(cls => {
+        const b = document.createElement('div'); b.className = cls; wrap.appendChild(b);
+      });
+      el.appendChild(wrap);
+    }
     function showChatNote(msg) {
       const el = chatAnswerEl();
       const p = document.createElement('p'); p.className = 'chat-answer__note'; p.textContent = msg; el.appendChild(p);
@@ -1096,9 +1165,11 @@
       } catch (e) { return null; }
     }
     async function answer(fallbackSummary, facts, disclosure, extraFooter, listNode) {
+      // Narrate FIRST, clear after: the pending skeleton (shown at submit) stays
+      // up through this second round-trip instead of leaving the area blank.
+      const llm = await narrate(facts);
       const el = chatAnswerEl();
       const p = document.createElement('p'); p.className = 'chat-answer__summary';
-      const llm = await narrate(facts);
       p.textContent = llm || fallbackSummary;       // textContent ONLY
       el.appendChild(p);
       if (listNode) el.appendChild(listNode);
@@ -1126,6 +1197,7 @@
       if (!CHAT_ENABLED) return showChatNote('Set your arrival date & time above for a congestion estimate.');
       if (!chatIsFresh()) return showChatNote('SGN data is refreshing — set your arrival date & time above for a direct estimate.');
       setChatBusy(true);
+      showChatSkeleton();
       try {
         let resp;
         try {
