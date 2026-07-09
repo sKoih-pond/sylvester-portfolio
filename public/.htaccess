@@ -58,6 +58,12 @@
   </FilesMatch>
 </IfModule>
 
+# Serve the PWA manifest with its correct MIME type (cPanel defaults .webmanifest
+# to application/octet-stream). Browsers parse it either way, but this is spec-correct.
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest
+</IfModule>
+
 # No directory browsing (prevents listing/enumeration of files).
 Options -Indexes
 
