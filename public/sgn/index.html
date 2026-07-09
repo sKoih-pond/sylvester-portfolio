@@ -3,7 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SGN Immigration Congestion Risk</title>
+  <title>SGN Immigration Congestion Risk — Sylvester Koh</title>
+  <meta name="description" content="Estimate passenger congestion at SGN (Tan Son Nhat) immigration during your arrival window — a project by Sylvester Koh." />
+  <meta name="theme-color" content="#f8f2ea" />
+  <!-- Same favicon set as the portfolio (root-absolute paths) so /sgn/ shows the
+       logo in the tab and in search engines. -->
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" type="image/png" href="/icon-48.png" sizes="48x48" />
+  <link rel="icon" type="image/png" href="/icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Sylvester Koh — kohstack" />
+  <meta property="og:title" content="SGN Immigration Congestion Risk" />
+  <meta property="og:description" content="Estimate passenger congestion at SGN immigration during your arrival window." />
+  <meta property="og:url" content="https://kohstack.au/sgn/" />
+  <meta property="og:image" content="https://kohstack.au/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://kohstack.au/og-image.png" />
   <script>
     /* Follow the portfolio's theme (same-origin localStorage): manual override
        (sk_mode) -> portfolio's last resolved phase (sk_theme) -> OS scheme -> day.
@@ -114,28 +134,28 @@
     /* Theme palettes — copied verbatim from the portfolio so /sgn/ follows Home. */
     html[data-theme="morning"] {
       color-scheme: light;
-      --page-bg: #fbefe9; --surface: rgba(255,245,241,0.48); --surface-strong: rgba(255,250,247,0.68); --surface-soft: rgba(255,234,228,0.32);
+      --page-bg: #fbefe9; --surface: rgba(255,245,241,0.48); --surface-strong: rgba(255,250,247,0.68); --surface-soft: rgba(255,234,228,0.32); --surface-solid: #fdf6f2;
       --border-soft: rgba(116,87,62,0.18); --text: #31231f; --muted: #826a62; --accent: #b07155; --accent-soft: rgba(232,154,128,0.20);
       --shadow: 0 24px 70px rgba(86,62,44,0.16); --shadow-soft: 0 12px 40px rgba(86,62,44,0.10);
       --glass-tint: rgba(232,154,128,0.08); --glass-edge: rgba(255,255,255,0.90); --glass-specular: rgba(255,255,255,0.78);
     }
     html[data-theme="day"] {
       color-scheme: light;
-      --page-bg: #f8f2ea; --surface: rgba(255,255,255,0.44); --surface-strong: rgba(255,255,255,0.70); --surface-soft: rgba(255,255,255,0.28);
+      --page-bg: #f8f2ea; --surface: rgba(255,255,255,0.44); --surface-strong: rgba(255,255,255,0.70); --surface-soft: rgba(255,255,255,0.28); --surface-solid: #fdfbf9;
       --border-soft: rgba(116,87,62,0.18); --text: #2e2925; --muted: #6f645a; --accent: #8f6645; --accent-soft: rgba(201,160,111,0.18);
       --shadow: 0 24px 70px rgba(86,62,44,0.16); --shadow-soft: 0 12px 40px rgba(86,62,44,0.10);
       --glass-tint: rgba(201,160,111,0.07); --glass-edge: rgba(255,255,255,0.86); --glass-specular: rgba(255,255,255,0.72);
     }
     html[data-theme="sunset"] {
       color-scheme: dark;
-      --page-bg: #2a211f; --surface: rgba(156,90,43,0.28); --surface-strong: rgba(255,184,96,0.28); --surface-soft: rgba(78,46,31,0.28);
+      --page-bg: #2a211f; --surface: rgba(156,90,43,0.28); --surface-strong: rgba(255,184,96,0.28); --surface-soft: rgba(78,46,31,0.28); --surface-solid: #4a3a2c;
       --border-soft: rgba(255,218,169,0.20); --text: #fff1dc; --muted: #f0d7bb; --accent: #ffc078; --accent-soft: rgba(255,177,90,0.20);
       --shadow: 0 24px 70px rgba(47,26,17,0.32); --shadow-soft: 0 12px 40px rgba(47,26,17,0.22);
       --glass-tint: rgba(255,177,90,0.09); --glass-edge: rgba(255,218,169,0.52); --glass-specular: rgba(255,235,195,0.40);
     }
     html[data-theme="night"] {
       color-scheme: dark;
-      --page-bg: #241b16; --surface: rgba(122,86,60,0.26); --surface-strong: rgba(168,122,82,0.32); --surface-soft: rgba(70,49,34,0.30);
+      --page-bg: #241b16; --surface: rgba(122,86,60,0.26); --surface-strong: rgba(168,122,82,0.32); --surface-soft: rgba(70,49,34,0.30); --surface-solid: #40301f;
       --border-soft: rgba(228,198,162,0.16); --text: #f4e8da; --muted: #c9b4a1; --accent: #e3a36d; --accent-soft: rgba(227,163,109,0.18);
       --shadow: 0 24px 70px rgba(18,10,6,0.50); --shadow-soft: 0 12px 40px rgba(18,10,6,0.34);
       --glass-tint: rgba(227,163,109,0.08); --glass-edge: rgba(228,198,162,0.42); --glass-specular: rgba(245,228,202,0.34);
@@ -290,7 +310,7 @@
     input[type="date"],
     input[type="time"] {
       width: 100%;
-      background: var(--surface-soft);
+      background: var(--surface-solid);   /* opaque field — not see-through onto the banner */
       border: 1px solid var(--border-soft);
       border-radius: var(--radius-sm);
       color: var(--text);
@@ -328,7 +348,7 @@
       text-transform: none; letter-spacing: normal;
       font-size: 1.08rem; font-weight: 500;
       padding: 1rem 1.15rem;
-      background: var(--surface-strong);
+      background: var(--surface-solid);
     }
     /* Primary action = the portfolio's accent-filled button idiom (.btn-accent),
        not a bespoke glass box. Accent fill + page-bg mark reads as THE action. */

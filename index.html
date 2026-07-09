@@ -7,7 +7,27 @@
     <!-- theme-color tints the browser chrome (iOS Safari status bar / toolbar) to
          the page background so it blends seamlessly. Updated live by useSolarTheme. -->
     <meta name="theme-color" content="#f8f2ea" />
+    <!-- Favicon set — the SVG is the crisp browser-tab mark; the .ico + PNGs are
+         what search engines (Google results favicon) and iOS/Android index. -->
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/icon-48.png" sizes="48x48" />
+    <link rel="icon" type="image/png" href="/icon-192.png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <!-- Open Graph / Twitter — logo card for link previews + rich results. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Sylvester Koh — kohstack" />
+    <meta property="og:title" content="Sylvester Koh" />
+    <meta property="og:description" content="IT professional building applied analytics, automation, and cloud capability." />
+    <meta property="og:url" content="https://kohstack.au/" />
+    <meta property="og:image" content="https://kohstack.au/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Sylvester Koh" />
+    <meta name="twitter:description" content="IT professional building applied analytics, automation, and cloud capability." />
+    <meta name="twitter:image" content="https://kohstack.au/og-image.png" />
     <!-- LCP: the hero portrait is rendered by React, so without this preload the
          browser only discovers it AFTER the JS bundle downloads + executes.
          Preloading here starts the fetch in parallel with the bundle; imagesrcset
