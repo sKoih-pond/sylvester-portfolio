@@ -13,6 +13,24 @@ const ALL = [
 ];
 const RESTING = AXES.map((_, i) => Math.max(...ALL.map((e) => e.axes[i])));
 
+// Warm DNS+TCP+TLS to an external link's origin before the click (hover/focus
+// intent), so opening it skips the connection setup — the same prewarm pattern
+// as the Calendly popup. Connection-only: no request, no cookies sent.
+function prewarmOrigin(href) {
+  if (!href || typeof document === "undefined") return;
+  try {
+    const origin = new URL(href).origin;
+    if (document.querySelector(`link[data-prewarm="${origin}"]`)) return;
+    const l = document.createElement("link");
+    l.rel = "preconnect";
+    l.href = origin;
+    l.dataset.prewarm = origin;
+    document.head.appendChild(l);
+  } catch {
+    /* invalid URL — nothing to warm */
+  }
+}
+
 // Typography/padding compress with viewport HEIGHT (vh clamps) so the whole pane
 // always fits without scrolling on desktop — shrinking the window shrinks the
 // text toward a readable floor instead of introducing a scrollbar. On phones the
@@ -143,6 +161,8 @@ export default function ExperienceProjects() {
                       rel="noopener noreferrer"
                       className="entry-live"
                       aria-label={`${p.live.label} (opens in a new tab)`}
+                      onMouseEnter={() => prewarmOrigin(p.live.href)}
+                      onFocus={() => prewarmOrigin(p.live.href)}
                     >
                       <span aria-hidden="true" className="entry-live__dot" /> {p.live.label}{" "}
                       <span aria-hidden="true" className="btn-arrow">↗</span>
