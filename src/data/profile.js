@@ -105,7 +105,17 @@ export const projects = [
         body: "A custom JavaScript web app that maps congestion bands across ML-adjusted arrival slots and recommends immigration buffer times, with a clickable 30-minute congestion chart.",
         tags: ["JavaScript", "Python", "Azure", "SQL"],
       },
+      {
+        icon: "∿",
+        title: "Observability That Caught a Silent 6-Week Outage",
+        body: "Grafana Cloud dashboards fed by a hand-rolled Prometheus remote_write from Azure Functions, with 5 failure-only alerts — a healthy pipeline sends zero emails. The monitoring surfaced a silent 6-week outage (a scale-to-zero timer that stopped firing) that the pipeline's own status emails couldn't report; the publish now rides a timer proven to fire. Model quality leads the dashboard: ROC-AUC 0.864.",
+        tags: ["Grafana", "Prometheus", "Azure Functions", "Python"],
+      },
     ],
+    // Public read-only Grafana dashboard (Grafana Cloud "public dashboard" share).
+    // The live row under the flagship tile renders ONLY when href is set — ships
+    // dark until the share URL is created and pasted here (exposure Decision B).
+    live: { label: "Live pipeline dashboard", href: "" },
   },
 ];
 

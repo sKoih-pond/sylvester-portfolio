@@ -131,6 +131,23 @@ export default function ExperienceProjects() {
                     </ul>
                   )}
                   </a>
+                  {/* Live external proof (e.g. the public Grafana dashboard) sits
+                      OUTSIDE the tile anchor — the whole tile is already a link to
+                      the project (nested anchors are invalid HTML), and this goes
+                      to a different destination. Renders only when the share URL
+                      exists (ships dark until then). */}
+                  {p.live?.href && (
+                    <a
+                      href={p.live.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="entry-live"
+                      aria-label={`${p.live.label} (opens in a new tab)`}
+                    >
+                      <span aria-hidden="true" className="entry-live__dot" /> {p.live.label}{" "}
+                      <span aria-hidden="true" className="btn-arrow">↗</span>
+                    </a>
+                  )}
                 </li>
               );
             })}

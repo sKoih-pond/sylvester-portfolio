@@ -972,6 +972,25 @@ html[data-theme="sunset"] .portrait-frame::after {
 .entry-card--link .entry-cta { pointer-events: none; }
 .entry-card--link .btn-arrow { transition: transform .25s ease; }
 .entry-card--link:hover .btn-arrow { transform: translateX(3px); }
+/* Live external proof under the flagship tile (its own link — a different
+   destination than the tile, and nested anchors are invalid). Quiet accent
+   caption; the pulsing dot signals "live". */
+.entry-live {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin: 6px 0 0 4px;
+  font-size: clamp(.68rem, 1.5vh, .76rem); font-weight: 500;
+  color: var(--accent); text-decoration: none;
+}
+.entry-live:hover { text-decoration: underline; }
+.entry-live .btn-arrow { transition: transform .25s ease; }
+.entry-live:hover .btn-arrow { transform: translate(2px, -2px); }
+.entry-live__dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--accent); flex: 0 0 auto;
+  animation: live-pulse 2.4s ease-in-out infinite;
+}
+@keyframes live-pulse { 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) { .entry-live__dot { animation: none; } }
 
 @media (max-width: 920px) {
   .hero-grid { grid-template-columns: 1fr !important; }
