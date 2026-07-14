@@ -115,7 +115,10 @@ export const projects = [
     // Public read-only Grafana dashboard (Grafana Cloud "public dashboard" share).
     // The live row under the flagship tile renders ONLY when href is set — ships
     // dark until the share URL is created and pasted here (exposure Decision B).
-    live: { label: "Live pipeline dashboard", href: "" },
+    live: {
+      label: "Live pipeline dashboard",
+      href: "https://ivorybeach246.grafana.net/public-dashboards/6024ed36354c48bab183c9441ff10486",
+    },
   },
 ];
 
